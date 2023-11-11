@@ -1,17 +1,21 @@
-package com.josh.gulfnet.service;
+package com.gulfnet.tmt.service;
 
-import com.josh.gulfnet.dao.DataDao;
-import com.josh.gulfnet.model.Data;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.gulfnet.tmt.dao.DataDao;
+import com.gulfnet.tmt.model.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Slf4j
 public class DataService {
+    private final DataDao dataDao;
 
-    @Autowired
-    private DataDao dataDao;
+    public DataService(DataDao dataDao) {
+        this.dataDao = dataDao;
+    }
+
     public List<Data> getData() {
         return dataDao.getData();
     }

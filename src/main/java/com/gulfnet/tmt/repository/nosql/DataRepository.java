@@ -1,6 +1,6 @@
-package com.josh.gulfnet.Repository.nosql;
+package com.gulfnet.tmt.repository.nosql;
 
-import com.josh.gulfnet.model.Data;
+import com.gulfnet.tmt.model.Data;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

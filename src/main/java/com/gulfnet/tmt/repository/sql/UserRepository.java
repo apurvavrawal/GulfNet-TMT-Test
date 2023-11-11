@@ -1,6 +1,6 @@
-package com.josh.gulfnet.Repository.sql;
+package com.gulfnet.tmt.repository.sql;
 
-import com.josh.gulfnet.model.User;
+import com.gulfnet.tmt.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,10 +1,9 @@
-package com.josh.gulfnet.service;
+package com.gulfnet.tmt.service;
 
-import com.josh.gulfnet.model.JwtGeneratorInterface;
-import com.josh.gulfnet.model.User;
+import com.gulfnet.tmt.security.JwtGeneratorInterface;
+import com.gulfnet.tmt.model.User;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;

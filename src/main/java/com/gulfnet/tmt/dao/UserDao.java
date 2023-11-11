@@ -1,15 +1,16 @@
-package com.josh.gulfnet.dao;
+package com.gulfnet.tmt.dao;
 
-import com.josh.gulfnet.model.User;
-import com.josh.gulfnet.Repository.sql.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.gulfnet.tmt.model.User;
+import com.gulfnet.tmt.repository.sql.UserRepository;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserDao {
+    private final UserRepository userRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    public UserDao(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public User getUserDetails(Integer userId) {
         return userRepository.findById(userId).get();

@@ -1,4 +1,4 @@
-package com.josh.gulfnet.config;
+package com.gulfnet.tmt.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +21,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/user/**").authenticated()
                         .anyRequest().permitAll()
                 )
-                .httpBasic(withDefaults()).csrf().disable();
+                .httpBasic(withDefaults());
         return http.build();
     }
 }

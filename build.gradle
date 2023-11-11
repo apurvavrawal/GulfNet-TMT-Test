@@ -6,7 +6,7 @@ plugins {
 }
 
 
-group = 'com.josh'
+group = 'com.gulfnet.tmt'
 version = '0.0.1-SNAPSHOT'
 
 java {
@@ -28,6 +28,8 @@ dependencies {
 	runtimeOnly 'org.postgresql:postgresql'
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 	implementation 'org.liquibase:liquibase-core'
+	implementation 'org.projectlombok:lombok:1.18.20'
+	annotationProcessor 'org.projectlombok:lombok:1.18.20'
 
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -39,3 +41,4 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+

@@ -1,4 +1,6 @@
-package com.josh.gulfnet.model;
+package com.gulfnet.tmt.security;
+
+import com.gulfnet.tmt.model.User;
 
 import java.util.Map;
 

@@ -1,20 +1,24 @@
-package com.josh.gulfnet.service;
+package com.gulfnet.tmt.service;
 
-import com.josh.gulfnet.dao.UserDao;
-import com.josh.gulfnet.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.gulfnet.tmt.dao.UserDao;
+import com.gulfnet.tmt.model.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class UserService {
-    @Autowired
-    private UserDao userDao;
+    private final UserDao userDao;
+
+    public UserService(UserDao userDao) {
+        this.userDao = userDao;
+    }
 
     public User getUserDetails(String userId) {
         return userDao.getUserDetails(Integer.parseInt(userId));
     }
 
-    public User createUser(User user) {
+    public User saveUser(User user) {
         return userDao.createUser(user);
     }
 

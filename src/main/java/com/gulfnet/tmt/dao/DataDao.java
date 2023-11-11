@@ -1,16 +1,19 @@
-package com.josh.gulfnet.dao;
+package com.gulfnet.tmt.dao;
 
-import com.josh.gulfnet.Repository.nosql.DataRepository;
-import com.josh.gulfnet.model.Data;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.gulfnet.tmt.repository.nosql.DataRepository;
+import com.gulfnet.tmt.model.Data;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 public class DataDao {
-    @Autowired
-    private DataRepository dataRepository;
+    private final DataRepository dataRepository;
+
+    public DataDao(DataRepository dataRepository) {
+        this.dataRepository = dataRepository;
+    }
+
     public List<Data> getData() {
         return dataRepository.findAll();
     }
