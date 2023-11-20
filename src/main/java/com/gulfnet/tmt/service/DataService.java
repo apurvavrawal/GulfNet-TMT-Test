@@ -1,7 +1,7 @@
 package com.gulfnet.tmt.service;
 
 import com.gulfnet.tmt.dao.DataDao;
-import com.gulfnet.tmt.model.Data;
+import com.gulfnet.tmt.entity.nosql.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

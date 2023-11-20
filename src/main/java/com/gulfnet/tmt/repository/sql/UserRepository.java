@@ -1,12 +1,16 @@
 package com.gulfnet.tmt.repository.sql;
 
-import com.gulfnet.tmt.model.User;
+import com.gulfnet.tmt.entity.sql.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface UserRepository extends JpaRepository<User, Integer> {
+import java.util.Optional;
+import java.util.UUID;
 
-    public User findByUsernameAndPassword(String userName, String password);
+@Repository
+public interface UserRepository extends JpaRepository<User, UUID> {
+    User findByUserNameAndPassword(String userName, String password);
+
+    Optional<User> findByUserName(String userName);
 
 }

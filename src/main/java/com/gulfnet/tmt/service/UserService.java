@@ -1,9 +1,11 @@
 package com.gulfnet.tmt.service;
 
 import com.gulfnet.tmt.dao.UserDao;
-import com.gulfnet.tmt.model.User;
+import com.gulfnet.tmt.entity.sql.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -14,15 +16,13 @@ public class UserService {
         this.userDao = userDao;
     }
 
-    public User getUserDetails(String userId) {
-        return userDao.getUserDetails(Integer.parseInt(userId));
-    }
-
     public User saveUser(User user) {
-        return userDao.createUser(user);
+        return userDao.saveUser(user);
     }
 
-    public User getUserByNameAndPassword(String username, String password){
-        return userDao.getAuthenticatedUser(username, password);
+    public Optional<User> getUserByUserName(String userName) {
+        return userDao.getUserByUserName(userName);
     }
+
+
 }

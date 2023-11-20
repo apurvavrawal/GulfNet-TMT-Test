@@ -1,4 +1,4 @@
-package com.gulfnet.tmt.model;
+package com.gulfnet.tmt.entity.nosql;
 
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;

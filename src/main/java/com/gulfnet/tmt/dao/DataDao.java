@@ -1,7 +1,7 @@
 package com.gulfnet.tmt.dao;
 
 import com.gulfnet.tmt.repository.nosql.DataRepository;
-import com.gulfnet.tmt.model.Data;
+import com.gulfnet.tmt.entity.nosql.Data;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
