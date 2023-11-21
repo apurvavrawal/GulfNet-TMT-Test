@@ -10,6 +10,7 @@ import com.gulfnet.tmt.repository.sql.LoginAuditRepository;
 import com.gulfnet.tmt.service.EmailService;
 import com.gulfnet.tmt.util.EncryptionUtil;
 import com.gulfnet.tmt.util.ErrorConstants;
+import com.gulfnet.tmt.validator.LoginValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
@@ -37,27 +38,37 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final ObjectMapper mapper;
     private final EmailService emailService;
-    private int expiryHr;
-    @Value("${token.expiry.time.hr}")
-    public void setExpiryHr(int expiryHr) {
-        this.expiryHr = expiryHr;
+    private int adminExpiryHr;
+    private int mobileExpiryHr;
+    @Value("${admin.token.expiry.time.hr}")
+    public void setAdminExpiryHr(int adminExpiryHr) {
+        this.adminExpiryHr = adminExpiryHr;
+    }
+
+    @Value("${mobile.token.expiry.time.hr}")
+    public void setMobileExpiryHr(int mobileExpiryHr) {
+        this.mobileExpiryHr = mobileExpiryHr;
     }
     public String signIn(String requestBody) {
         emailService.sendEmail("ranu.jain@joshsoftware.com","test","test");
         Optional<LoginRequest> loginRequest = getLoginRequest(requestBody);
-        if (loginRequest.isEmpty()) {
-            throw new GulfNetTMTException(ErrorConstants.LOGIN_USER_NOT_FOUND_ERROR_CODE, ErrorConstants.LOGIN_USER_NOT_FOUND_ERROR_MESSAGE);
-        }
         log.debug("loginRequest {}", loginRequest);
+        LoginValidator.requestValidation(loginRequest);
         LoginRequest loginRequestData = loginRequest.get();
         User authenticatedUser = userDao.getAuthenticatedUser(loginRequestData.getUserName(), loginRequestData.getPassword());
         Authentication authentication = authentication(authenticatedUser);
-        Date expiryTime = DateUtils.addHours(new Date(), expiryHr);
+        Date expiryTime = getExpiryTime(loginRequestData);
         String jwtToken = createJWTToken(authentication, authenticatedUser, expiryTime);
         log.debug("jwtToken {}", jwtToken);
         saveLoginAudit(authenticatedUser, loginRequestData, expiryTime);
         return jwtToken;
+    }
 
+    private Date getExpiryTime(LoginRequest loginRequestData) {
+        if("MOBILE".equalsIgnoreCase(loginRequestData.getAppType())){
+            return DateUtils.addHours(new Date(), mobileExpiryHr);
+        }
+        return DateUtils.addHours(new Date(), adminExpiryHr);
     }
 
     private void saveLoginAudit(User authenticatedUser, LoginRequest loginRequestData, Date expiryTime) {
