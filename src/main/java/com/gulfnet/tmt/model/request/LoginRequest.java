@@ -1,6 +1,11 @@
 package com.gulfnet.tmt.model.request;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @AllArgsConstructor
 @Getter
@@ -11,6 +16,7 @@ import lombok.*;
 public class LoginRequest {
 
     private String userName;
+    private String appType;
     private String password;
     private String machineInfo;
     private String location;
