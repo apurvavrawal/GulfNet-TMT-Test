@@ -26,7 +26,13 @@ public class GroupController {
 
     @PutMapping("/{id}")
     public ResponseDto<GroupResponse> updateGroup(@PathVariable UUID id, @RequestBody GroupRequest groupRequest) {
-        log.info("Received request for group {}", groupRequest);
+        log.info("Received request for group {} of id {}", groupRequest, id);
         return groupService.updateGroup(id, groupRequest);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseDto<GroupResponse> getGroup(@PathVariable UUID id) {
+        log.info("Received request for group id {}", id);
+        return groupService.findGroup(id);
     }
 }
