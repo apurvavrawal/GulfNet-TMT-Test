@@ -50,7 +50,6 @@ public class AuthenticationService {
         this.mobileExpiryHr = mobileExpiryHr;
     }
     public String signIn(String requestBody) {
-        emailService.sendEmail("ranu.jain@joshsoftware.com","test","test");
         Optional<LoginRequest> loginRequest = getLoginRequest(requestBody);
         log.debug("loginRequest {}", loginRequest);
         LoginValidator.requestValidation(loginRequest);
