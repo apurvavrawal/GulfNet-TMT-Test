@@ -19,5 +19,7 @@ public final class ErrorConstants {
     public static String NOT_MATCH_ERROR_MESSAGE = "{0} and {1} is not matching.";
     public static String MANDATORY_ERROR_CODE = "724";
     public static String MANDATORY_ERROR_MESSAGE = "{0} is mandatory.";
+    public static String ALREADY_PRESENT_ERROR_CODE = "725";
+    public static String ALREADY_PRESENT_ERROR_MESSAGE = "{0} : {1} is already present.";
     public static String OTP_EXPIRED = "Otp is expired";
 }

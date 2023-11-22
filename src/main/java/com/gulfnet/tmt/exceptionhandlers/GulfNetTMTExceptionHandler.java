@@ -6,6 +6,7 @@ import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.response.ErrorDto;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import io.jsonwebtoken.JwtException;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -14,6 +15,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @ControllerAdvice
@@ -39,11 +41,21 @@ public class GulfNetTMTExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<Object> handleValidationException(ValidationException ex) {
-        ErrorDto errorDto = ErrorDto.builder()
-                .errorCode(ex.getErrorCode())
-                .errorMessage(ex.getErrorMessage())
-                .build();
-        return generateResponseWithErrors(List.of(errorDto));
+        if(CollectionUtils.isEmpty(ex.getErrorMessages())) {
+            ErrorDto errorDto = ErrorDto.builder()
+                    .errorCode(ex.getErrorCode())
+                    .errorMessage(ex.getErrorMessage())
+                    .build();
+            return generateResponseWithErrors(List.of(errorDto));
+        }
+        List<ErrorDto> errorDtos = new ArrayList<>();
+        for(String[] errors : ex.getErrorMessages()){
+            errorDtos.add(ErrorDto.builder()
+                    .errorCode(errors[0])
+                    .errorMessage(errors[1])
+                    .build());
+        }
+        return generateResponseWithErrors(errorDtos);
     }
 
     @ExceptionHandler(value = {JwtException.class})
