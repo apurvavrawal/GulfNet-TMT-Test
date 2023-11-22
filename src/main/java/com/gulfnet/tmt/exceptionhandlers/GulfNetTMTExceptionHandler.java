@@ -15,7 +15,6 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @ControllerAdvice
@@ -48,14 +47,7 @@ public class GulfNetTMTExceptionHandler extends ResponseEntityExceptionHandler {
                     .build();
             return generateResponseWithErrors(List.of(errorDto));
         }
-        List<ErrorDto> errorDtos = new ArrayList<>();
-        for(String[] errors : ex.getErrorMessages()){
-            errorDtos.add(ErrorDto.builder()
-                    .errorCode(errors[0])
-                    .errorMessage(errors[1])
-                    .build());
-        }
-        return generateResponseWithErrors(errorDtos);
+        return generateResponseWithErrors(ex.getErrorMessages());
     }
 
     @ExceptionHandler(value = {JwtException.class})
