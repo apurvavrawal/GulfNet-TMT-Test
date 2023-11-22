@@ -6,6 +6,9 @@ import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.service.GroupService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -33,6 +36,12 @@ public class GroupController {
     @GetMapping("/{id}")
     public ResponseDto<GroupResponse> getGroup(@PathVariable UUID id) {
         log.info("Received request for group id {}", id);
-        return groupService.findGroup(id);
+        return groupService.getGroup(id);
+    }
+
+    @GetMapping
+    public ResponseDto<GroupResponse> getGroups(@RequestParam(value = "search", required = false) String search, @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC)Pageable pageable) {
+        log.info("Received request for group id {}", search);
+        return groupService.getAllGroups(search, pageable);
     }
 }

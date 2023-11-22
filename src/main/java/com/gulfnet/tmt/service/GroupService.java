@@ -10,9 +10,14 @@ import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.util.ErrorConstants;
 import com.gulfnet.tmt.validator.GroupValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -52,12 +57,25 @@ public class GroupService {
                 .build();
     }
 
-    public ResponseDto<GroupResponse> findGroup(UUID groupId) {
+    public ResponseDto<GroupResponse> getGroup(UUID groupId) {
         Group group = groupDao.findById(groupId).orElseThrow(
                 () -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "Group")));
         GroupResponse groupResponse = mapper.convertValue(group, GroupResponse.class);
         return ResponseDto.<GroupResponse>builder()
                 .data(List.of(groupResponse))
+                .build();
+    }
+
+    public ResponseDto<GroupResponse> getAllGroups(String search, Pageable pageable) {
+        Page<Group> groups = groupDao.findAllBySearch(search, pageable);
+        List<GroupResponse> groupResponses = new ArrayList<>();
+        for(Group group: groups.getContent()) {
+            groupResponses.add(mapper.convertValue(group, GroupResponse.class));
+        }
+        return ResponseDto.<GroupResponse>builder()
+                .data(groupResponses)
+                .total(groups.getTotalElements())
+                .count(groups.stream().count())
                 .build();
     }
 }
