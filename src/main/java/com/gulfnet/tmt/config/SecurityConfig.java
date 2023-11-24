@@ -2,6 +2,7 @@ package com.gulfnet.tmt.config;
 
 import com.gulfnet.tmt.filter.JwtAuthenticationFilter;
 import com.gulfnet.tmt.service.AuthticationUserDetailsService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,9 +30,13 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthticationUserDetailsService userService;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, AuthticationUserDetailsService userService) {
+    private final List<String> appURL;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, AuthticationUserDetailsService userService,
+                          @Value("${app.url}") List<String> appURL) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.userService = userService;
+        this.appURL = appURL;
     }
 
     @Bean
@@ -68,7 +73,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://localhost:8084"));
+        configuration.setAllowedOrigins(appURL);
         configuration.setAllowedMethods(List.of("GET","POST"));
         configuration.setAllowedHeaders(List.of("Authorization","Content-Type"));
 
