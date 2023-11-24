@@ -33,7 +33,7 @@ public class SecurityConfig {
     private final List<String> appURL;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, AuthticationUserDetailsService userService,
-                          @Value("${app.url}") List<String> appURL) {
+                          @Value("${cors.allowedOrigins}") List<String> appURL) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.userService = userService;
         this.appURL = appURL;
