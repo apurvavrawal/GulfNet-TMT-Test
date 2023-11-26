@@ -22,4 +22,7 @@ public final class ErrorConstants {
     public static String ALREADY_PRESENT_ERROR_CODE = "725";
     public static String ALREADY_PRESENT_ERROR_MESSAGE = "{0} : {1} is already present.";
     public static String OTP_EXPIRED = "Otp is expired";
+
+    public static String SYSTEM_ERROR_CODE = "500";
+
 }

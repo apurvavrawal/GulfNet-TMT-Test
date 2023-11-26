@@ -7,6 +7,7 @@ import com.gulfnet.tmt.entity.sql.UserPasswordAudit;
 import com.gulfnet.tmt.exceptions.GulfNetTMTException;
 import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.request.PasswordRequest;
+import com.gulfnet.tmt.model.response.ErrorDto;
 import com.gulfnet.tmt.model.response.LoginResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.repository.sql.UserPasswordAuditRepository;

@@ -1,9 +1,7 @@
 package com.gulfnet.tmt.entity.sql;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -23,13 +21,15 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @Entity
+@Builder
+@AllArgsConstructor
 @Table(name="GULFNET_TMT_USER")
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class User implements UserDetails {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID")
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid2")
     private UUID id;
     private String userName;
     private String firstName;
@@ -40,6 +40,7 @@ public class User implements UserDetails {
     private String languagePreference;
     private String status;
     private String profilePhoto;
+    private String appType;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     private List<UserRole> userRole;

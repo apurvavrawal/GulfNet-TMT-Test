@@ -95,7 +95,6 @@ public class GulfNetTMTExceptionHandler extends ResponseEntityExceptionHandler {
                         .errors(List.of(errorDto))
                         .build());
     }
-
     private ResponseEntity<Object> generateResponseWithErrors(List<ErrorDto> errors) {
         return ResponseEntity.ok().body(
                 ResponseDto.builder()

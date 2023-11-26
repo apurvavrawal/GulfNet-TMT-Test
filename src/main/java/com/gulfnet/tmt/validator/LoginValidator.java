@@ -3,10 +3,12 @@ package com.gulfnet.tmt.validator;
 import com.gulfnet.tmt.exceptions.GulfNetTMTException;
 import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.request.LoginRequest;
+import com.gulfnet.tmt.model.response.ErrorDto;
 import com.gulfnet.tmt.util.ErrorConstants;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.Optional;
 
 public final class LoginValidator {
