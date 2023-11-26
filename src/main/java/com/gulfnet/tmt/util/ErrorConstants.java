@@ -9,7 +9,7 @@ public final class ErrorConstants {
 
     //Login Exception
     public static String LOGIN_USER_NOT_FOUND_ERROR_CODE = "701";
-    public static String LOGIN_USER_NOT_FOUND_ERROR_MESSAGE = "User Not Found";
+    public static String LOGIN_USER_NOT_FOUND_ERROR_MESSAGE = "User Not Found, Please provide the correct UserName or Password";
 
     public static String NOT_FOUND_ERROR_CODE = "721";
     public static String NOT_FOUND_ERROR_MESSAGE = "{0} Not Found";
