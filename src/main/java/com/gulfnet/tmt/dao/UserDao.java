@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -29,6 +30,10 @@ public class UserDao {
     }
     public User saveUser(User user) {
         return userRepository.save(user);
+    }
+
+    public Optional<User> findUser(UUID userId) {
+        return userRepository.findById(userId);
     }
 
     @Transactional

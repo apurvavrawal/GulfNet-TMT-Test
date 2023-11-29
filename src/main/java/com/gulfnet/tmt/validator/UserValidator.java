@@ -37,9 +37,9 @@ public final class UserValidator {
 
     public void validateCreateUserRequest(UserPostRequest user) {
         List<ErrorDto> errors = userBasicValidation(user);
-        if(!user.getFile().isEmpty()) {
+        if(!user.getProfilePhoto().isEmpty()) {
             try {
-                fileUploadValidator.validate(user.getFile());
+                fileUploadValidator.validate(user.getProfilePhoto());
             } catch (ValidationException ex) {
                 errors.addAll(ex.getErrorMessages());
             }

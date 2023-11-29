@@ -1,7 +1,5 @@
 package com.gulfnet.tmt.model.response;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.util.Date;
@@ -15,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class UserPostResponse {
 
+    private String id;
     private String userName;
     private String firstName;
     private String lastName;

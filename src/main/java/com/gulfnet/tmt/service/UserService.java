@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gulfnet.tmt.dao.UserDao;
 import com.gulfnet.tmt.entity.sql.User;
 import com.gulfnet.tmt.exceptions.GulfNetTMTException;
+import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.request.UserPostRequest;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.model.response.UserPostResponse;
@@ -18,8 +19,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.random.RandomGenerator;
 
 @Service
@@ -40,13 +43,18 @@ public class UserService {
             User user = mapper.convertValue(userPostRequest, User.class);
             user.setPassword(EncryptionUtil.encrypt(password));
             user.setStatus(Status.ACTIVE.getValue());
-            user.setProfilePhoto(fileStorageService.uploadFile(userPostRequest.getFile(),"User"));
+            user.setProfilePhoto(fileStorageService.uploadFile(userPostRequest.getProfilePhoto(),"User"));
             user = userDao.saveUser(user, userPostRequest.getUserRole());
             //TODO : Need to send Email to user
             return ResponseDto.<UserPostResponse>builder().status(0).data(List.of(modelMapper.map(user, UserPostResponse.class))).build();
         } catch (IOException e) {
             throw new GulfNetTMTException(ErrorConstants.SYSTEM_ERROR_CODE, e.getMessage());
         }
+    }
+
+    public ResponseDto<UserPostResponse> getUser(UUID userId) {
+        User user = userDao.findUser(userId).orElseThrow(() -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "User")));
+        return ResponseDto.<UserPostResponse>builder().status(0).data(List.of(modelMapper.map(user, UserPostResponse.class))).build();
     }
 
     public User saveUser(User user) {

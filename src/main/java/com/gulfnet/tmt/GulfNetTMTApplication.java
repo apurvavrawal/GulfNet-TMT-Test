@@ -1,5 +1,7 @@
 package com.gulfnet.tmt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.gulfnet.tmt.config.audit.SpringSecurityAuditorAware;
 import com.gulfnet.tmt.mapper.UserRoleMapper;
 import org.modelmapper.ModelMapper;
@@ -61,6 +63,11 @@ public class GulfNetTMTApplication implements WebMvcConfigurer {
         registry.addResourceHandler("/webjars/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/");
 
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper().disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
     }
 }
 

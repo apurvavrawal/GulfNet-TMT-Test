@@ -1,5 +1,7 @@
 package com.gulfnet.tmt.model.request;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.gulfnet.tmt.config.MultipartFileSerializer;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,8 +27,8 @@ public class UserPostRequest {
 
     private String email;
 
-    @JsonIgnore
-    private MultipartFile file;
+    @JsonSerialize(using = MultipartFileSerializer.class)
+    private MultipartFile profilePhoto;
 
     @Builder.Default
     private String appType = "MOBILE";
