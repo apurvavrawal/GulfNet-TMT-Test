@@ -43,7 +43,7 @@ public class AuthenticationService {
         this.mobileExpiryHr = mobileExpiryHr;
     }
     public String signIn(LoginRequest loginRequestData) {
-        User authenticatedUser = userDao.getAuthenticatedUser(loginRequestData.getUserName(), loginRequestData.getPassword());
+        User authenticatedUser = userDao.getAuthenticatedUser(loginRequestData.getUserName(), loginRequestData.getPassword(), loginRequestData.getAppType());
         Authentication authentication = authentication(authenticatedUser);
         Date expiryTime = getExpiryTime(loginRequestData);
         String jwtToken = createJWTToken(authentication, authenticatedUser, expiryTime);

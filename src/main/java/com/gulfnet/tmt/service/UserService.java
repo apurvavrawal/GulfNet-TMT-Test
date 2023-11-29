@@ -36,7 +36,7 @@ public class UserService {
     public ResponseDto<UserPostResponse> saveUser(UserPostRequest userPostRequest) {
         try {
             userValidator.validateCreateUserRequest(userPostRequest);
-            String password = PasswordGenerator.generatePatternedPassword(RandomGenerator.getDefault().nextInt(15));
+            String password = PasswordGenerator.generatePatternedPassword(RandomGenerator.getDefault().nextInt(10, 15));
             User user = mapper.convertValue(userPostRequest, User.class);
             user.setPassword(EncryptionUtil.encrypt(password));
             user.setStatus(Status.ACTIVE.getValue());

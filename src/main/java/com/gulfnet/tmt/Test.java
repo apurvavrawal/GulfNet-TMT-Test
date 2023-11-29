@@ -18,11 +18,11 @@ public class Test {
         PasswordRequest passwordRequest = PasswordRequest.builder()
                 .userName("ADMIN")
                 .currentPassword("ADMIN")
-                .changePassword("123456")
-                .confirmPassword("123456")
+                .changePassword("Admin@123")
+                .confirmPassword("Admin@123")
                 .build();
-        System.out.println(Json.pretty(loginRequest));
-        String encryptedText = EncryptionUtil.encrypt(Json.pretty(loginRequest));
+        System.out.println(Json.pretty(passwordRequest));
+        String encryptedText = EncryptionUtil.encrypt(Json.pretty(passwordRequest));
         System.out.println("Encrypted Text: " + encryptedText);
 
         String decryptedText = EncryptionUtil.decrypt(encryptedText);

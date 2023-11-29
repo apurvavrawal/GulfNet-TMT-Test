@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.random.RandomGenerator;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -66,7 +67,7 @@ public class LoginService {
                     MessageFormat.format(EmailTemplates.CHANGE_PASSWORD_SUCCESS, passwordRequest.getUserName()));
             return ResponseDto.<String>builder().status(0).data(List.of("Password updated Successfully.")).build();
         }
-        throw new ValidationException(ErrorConstants.NOT_MATCH_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_MATCH_ERROR_MESSAGE, List.of("DB Current Password", "Request Current Password")));
+        throw new ValidationException(ErrorConstants.NOT_MATCH_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_MATCH_ERROR_MESSAGE, "System Current Password", "Request Current Password"));
     }
 
     public ResponseDto<String> resetPasswordRequest(String userName, Action action) {
@@ -77,7 +78,7 @@ public class LoginService {
                 EmailTemplates.RESET_PASSWORD_SUBJECT,
                 MessageFormat.format(EmailTemplates.RESET_PASSWORD_REQUEST, userName, String.valueOf(userPasswordAudit.getOtp())));
         userPasswordAuditRepository.save(userPasswordAudit);
-        return ResponseDto.<String>builder().status(0).data(List.of("Password request send Successfully.")).build();
+        return ResponseDto.<String>builder().status(0).data(List.of("OTP send Successfully for Reset Password .")).build();
     }
 
     public ResponseDto<String> verifyOTP(String userName, long otp) {
@@ -112,7 +113,10 @@ public class LoginService {
             throw new ValidationException(ErrorConstants.MANDATORY_ERROR_CODE, MessageFormat.format(ErrorConstants.MANDATORY_ERROR_MESSAGE, "ConfirmPassword"));
         }
         if (!passwordRequest.getChangePassword().equals(passwordRequest.getConfirmPassword())) {
-            throw new ValidationException(ErrorConstants.NOT_MATCH_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_MATCH_ERROR_MESSAGE, List.of("ChangePassword", "ConfirmPassword")));
+            throw new ValidationException(ErrorConstants.NOT_MATCH_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_MATCH_ERROR_MESSAGE, "ChangePassword", "ConfirmPassword"));
+        }
+        if(!Pattern.matches("^(?=.*[A-Z])(?=.*[\\W])(?=.*[0-9])(?=.*[a-z]).{8,15}$", passwordRequest.getChangePassword())) {
+            throw new ValidationException(ErrorConstants.NOT_VALID_ERROR_CODE, ErrorConstants.NOT_VALID_ERROR_MESSAGE_PASSWORD);
         }
     }
     private static void validateOTP(long otp, UserPasswordAudit userPasswordAudit) {

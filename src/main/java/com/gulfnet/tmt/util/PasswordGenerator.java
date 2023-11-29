@@ -17,6 +17,7 @@ public class PasswordGenerator {
                 password.append(generateRandomLowercaseLetter(random));
             } else {
                 password.append(generateRandomDigit(random));
+                password.append(generateRandomSpecailCharacter(random));
             }
         }
 
@@ -34,4 +35,9 @@ public class PasswordGenerator {
     private static char generateRandomDigit(SecureRandom random) {
         return (char) ('0' + random.nextInt(10));
     }
+    private static char generateRandomSpecailCharacter(SecureRandom random) {
+        char[] specailChar = {'@','#','$','!',':','*','&'};
+        return specailChar[random.nextInt(0, specailChar.length-1)];
+    }
+
 }

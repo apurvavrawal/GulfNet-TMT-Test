@@ -23,9 +23,9 @@ public class UserDao {
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
     private final AppRoleDao appRoleDao;
-    public User getAuthenticatedUser(String username, String password) {
+    public User getAuthenticatedUser(String username, String password, String appType) {
         log.info("UserName : {}, password : {}", username, EncryptionUtil.encrypt(password));
-        return userRepository.findByUserNameAndPassword(username, EncryptionUtil.encrypt(password));
+        return userRepository.findByUserNameAndPasswordAndAppType(username, EncryptionUtil.encrypt(password), appType);
     }
     public User saveUser(User user) {
         return userRepository.save(user);
