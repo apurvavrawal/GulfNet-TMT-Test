@@ -6,8 +6,8 @@ import com.gulfnet.tmt.entity.sql.User;
 import com.gulfnet.tmt.entity.sql.UserPasswordAudit;
 import com.gulfnet.tmt.exceptions.GulfNetTMTException;
 import com.gulfnet.tmt.exceptions.ValidationException;
+import com.gulfnet.tmt.model.request.LoginRequest;
 import com.gulfnet.tmt.model.request.PasswordRequest;
-import com.gulfnet.tmt.model.response.ErrorDto;
 import com.gulfnet.tmt.model.response.LoginResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.repository.sql.UserPasswordAuditRepository;
@@ -17,6 +17,7 @@ import com.gulfnet.tmt.util.EncryptionUtil;
 import com.gulfnet.tmt.util.ErrorConstants;
 import com.gulfnet.tmt.util.enums.Action;
 import com.gulfnet.tmt.util.enums.Status;
+import com.gulfnet.tmt.validator.LoginValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -40,7 +41,14 @@ public class LoginService {
     private final EmailService emailService;
 
     public ResponseDto<LoginResponse> login(String requestBody) {
-        LoginResponse loginResponse = new LoginResponse(authenticationService.signIn(requestBody));
+        Optional<LoginRequest> loginRequest = getLoginRequest(requestBody);
+        log.debug("loginRequest {}", loginRequest);
+        if (loginRequest.isEmpty()) {
+            throw new ValidationException(ErrorConstants.NOT_VALID_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_VALID_ERROR_MESSAGE,"Login Request"));
+        }
+        LoginRequest loginRequestData = loginRequest.get();
+        LoginValidator.requestValidation(loginRequestData);
+        LoginResponse loginResponse = new LoginResponse(authenticationService.signIn(loginRequestData));
         return ResponseDto.<LoginResponse>builder().status(0).data(List.of(loginResponse)).build();
     }
 
@@ -98,10 +106,10 @@ public class LoginService {
     }
     private void validatedPasswordRequest(PasswordRequest passwordRequest) {
         if (StringUtils.isEmpty(passwordRequest.getChangePassword())) {
-            throw new ValidationException(ErrorConstants.MANDATORY_ERROR_CODE, MessageFormat.format(ErrorConstants.MANDATORY_ERROR_CODE, "ChangePassword"));
+            throw new ValidationException(ErrorConstants.MANDATORY_ERROR_CODE, MessageFormat.format(ErrorConstants.MANDATORY_ERROR_MESSAGE, "ChangePassword"));
         }
         if (StringUtils.isEmpty(passwordRequest.getConfirmPassword())) {
-            throw new ValidationException(ErrorConstants.MANDATORY_ERROR_CODE, MessageFormat.format(ErrorConstants.MANDATORY_ERROR_CODE, "ConfirmPassword"));
+            throw new ValidationException(ErrorConstants.MANDATORY_ERROR_CODE, MessageFormat.format(ErrorConstants.MANDATORY_ERROR_MESSAGE, "ConfirmPassword"));
         }
         if (!passwordRequest.getChangePassword().equals(passwordRequest.getConfirmPassword())) {
             throw new ValidationException(ErrorConstants.NOT_MATCH_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_MATCH_ERROR_MESSAGE, List.of("ChangePassword", "ConfirmPassword")));
@@ -158,6 +166,16 @@ public class LoginService {
         userPasswordAudit.setOtp(RandomGenerator.getDefault().nextLong(999999));
         userPasswordAudit.setOtpExpiryDate(DateUtils.addMinutes(new Date(), 10));
         return userPasswordAudit;
+    }
+
+    private Optional<LoginRequest> getLoginRequest(String requestBody) {
+        try {
+            String decrypt = EncryptionUtil.decrypt(requestBody);
+            return Optional.of(mapper.readValue(decrypt, LoginRequest.class));
+        } catch (Exception e) {
+            log.error("Error in LoginRequest decryption : ", e);
+        }
+        return Optional.empty();
     }
 }
 

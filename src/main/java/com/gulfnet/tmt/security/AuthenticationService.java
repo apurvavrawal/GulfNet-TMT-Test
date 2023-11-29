@@ -1,16 +1,12 @@
 package com.gulfnet.tmt.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gulfnet.tmt.dao.UserDao;
 import com.gulfnet.tmt.entity.sql.LoginAudit;
 import com.gulfnet.tmt.entity.sql.User;
 import com.gulfnet.tmt.exceptions.GulfNetTMTException;
 import com.gulfnet.tmt.model.request.LoginRequest;
 import com.gulfnet.tmt.repository.sql.LoginAuditRepository;
-import com.gulfnet.tmt.service.EmailService;
-import com.gulfnet.tmt.util.EncryptionUtil;
 import com.gulfnet.tmt.util.ErrorConstants;
-import com.gulfnet.tmt.validator.LoginValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
@@ -24,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.util.Date;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,8 +31,6 @@ public class AuthenticationService {
     private final LoginAuditRepository loginAuditRepository;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final ObjectMapper mapper;
-    private final EmailService emailService;
     private int adminExpiryHr;
     private int mobileExpiryHr;
     @Value("${admin.token.expiry.time.hr}")
@@ -49,11 +42,7 @@ public class AuthenticationService {
     public void setMobileExpiryHr(int mobileExpiryHr) {
         this.mobileExpiryHr = mobileExpiryHr;
     }
-    public String signIn(String requestBody) {
-        Optional<LoginRequest> loginRequest = getLoginRequest(requestBody);
-        log.debug("loginRequest {}", loginRequest);
-        LoginValidator.requestValidation(loginRequest);
-        LoginRequest loginRequestData = loginRequest.get();
+    public String signIn(LoginRequest loginRequestData) {
         User authenticatedUser = userDao.getAuthenticatedUser(loginRequestData.getUserName(), loginRequestData.getPassword());
         Authentication authentication = authentication(authenticatedUser);
         Date expiryTime = getExpiryTime(loginRequestData);
@@ -81,10 +70,10 @@ public class AuthenticationService {
     }
 
     private Authentication authentication(User authenticatedUser) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticatedUser.getUsername(), authenticatedUser.getPassword(), authenticatedUser.getAuthorities()));
         if (ObjectUtils.isEmpty(authenticatedUser)) {
             throw new GulfNetTMTException(ErrorConstants.LOGIN_USER_NOT_FOUND_ERROR_CODE, ErrorConstants.LOGIN_USER_NOT_FOUND_ERROR_MESSAGE);
         }
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticatedUser.getUsername(), authenticatedUser.getPassword(), authenticatedUser.getAuthorities()));
         log.debug("authenticate {}", authentication);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return authentication;
@@ -95,15 +84,5 @@ public class AuthenticationService {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
         return jwtService.generateToken(authenticatedUser, expiryTime, scope);
-    }
-
-    private Optional<LoginRequest> getLoginRequest(String requestBody) {
-        try {
-            String decrypt = EncryptionUtil.decrypt(requestBody);
-            return Optional.of(mapper.readValue(decrypt, LoginRequest.class));
-        } catch (Exception e) {
-            log.error("Error in LoginRequest decryption : ", e);
-        }
-        return Optional.empty();
     }
 }

@@ -42,7 +42,6 @@ public class UserService {
             user.setStatus(Status.ACTIVE.getValue());
             user.setProfilePhoto(fileStorageService.uploadFile(userPostRequest.getFile(),"User"));
             user = userDao.saveUser(user, userPostRequest.getUserRole());
-
             //TODO : Need to send Email to user
             return ResponseDto.<UserPostResponse>builder().status(0).data(List.of(modelMapper.map(user, UserPostResponse.class))).build();
         } catch (IOException e) {
