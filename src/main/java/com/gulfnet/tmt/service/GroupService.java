@@ -3,6 +3,7 @@ package com.gulfnet.tmt.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gulfnet.tmt.dao.GroupDao;
 import com.gulfnet.tmt.entity.sql.Group;
+import com.gulfnet.tmt.exceptions.GulfNetTMTException;
 import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.request.GroupRequest;
 import com.gulfnet.tmt.model.response.GroupResponse;
@@ -11,11 +12,10 @@ import com.gulfnet.tmt.util.ErrorConstants;
 import com.gulfnet.tmt.validator.GroupValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,33 +28,47 @@ public class GroupService {
 
     private final GroupValidator groupValidator;
     private final GroupDao groupDao;
+    private final FileStorageService fileStorageService;
     private final ObjectMapper mapper;
+
     public ResponseDto<GroupResponse> saveGroup(GroupRequest groupRequest) {
-        groupValidator.validation(groupRequest, Optional.empty());
-        Group group = mapper.convertValue(groupRequest, Group.class);
-        group = groupDao.saveGroup(group);
-        GroupResponse groupResponse = mapper.convertValue(group, GroupResponse.class);
-        return ResponseDto.<GroupResponse>builder()
-                .data(List.of(groupResponse))
-                .build();
+        try {
+            groupValidator.validation(groupRequest, Optional.empty());
+            Group group = mapper.convertValue(groupRequest, Group.class);
+            group.setIcon(fileStorageService.uploadFile(groupRequest.getIcon(), "group"));
+            group = groupDao.saveGroup(group);
+            GroupResponse groupResponse = mapper.convertValue(group, GroupResponse.class);
+            return ResponseDto.<GroupResponse>builder()
+                    .data(List.of(groupResponse))
+                    .build();
+
+        } catch (IOException e) {
+            throw new GulfNetTMTException(ErrorConstants.SYSTEM_ERROR_CODE, e.getMessage());
+        }
     }
 
     public ResponseDto<GroupResponse> updateGroup(UUID groupId, GroupRequest groupRequest) {
-        Group groupDB = groupDao.findById(groupId).orElseThrow(
-                () -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "Group")));
+        try {
+            Group groupDB = groupDao.findById(groupId).orElseThrow(
+                    () -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "Group")));
 
-        groupValidator.validation(groupRequest, Optional.of(groupId));
-        Group group = mapper.convertValue(groupRequest, Group.class);
-        group.setId(groupId);
-        group.setCreatedBy(groupDB.getCreatedBy());
-        group.setDateCreated(groupDB.getDateCreated());
+            groupValidator.validation(groupRequest, Optional.of(groupId));
+            Group group = mapper.convertValue(groupRequest, Group.class);
+            group.setIcon(fileStorageService.uploadFile(groupRequest.getIcon(), "group"));
+            group.setId(groupId);
+            group.setCreatedBy(groupDB.getCreatedBy());
+            group.setDateCreated(groupDB.getDateCreated());
 
-        group = groupDao.saveGroup(group);
-        GroupResponse groupResponse = mapper.convertValue(group, GroupResponse.class);
+            group = groupDao.saveGroup(group);
+            GroupResponse groupResponse = mapper.convertValue(group, GroupResponse.class);
 
-        return ResponseDto.<GroupResponse>builder()
-                .data(List.of(groupResponse))
-                .build();
+            return ResponseDto.<GroupResponse>builder()
+                    .data(List.of(groupResponse))
+                    .build();
+
+        } catch (IOException e) {
+            throw new GulfNetTMTException(ErrorConstants.SYSTEM_ERROR_CODE, e.getMessage());
+        }
     }
 
     public ResponseDto<GroupResponse> getGroup(UUID groupId) {
@@ -69,7 +83,7 @@ public class GroupService {
     public ResponseDto<GroupResponse> getAllGroups(String search, Pageable pageable) {
         Page<Group> groups = groupDao.findAllBySearch(search, pageable);
         List<GroupResponse> groupResponses = new ArrayList<>();
-        for(Group group: groups.getContent()) {
+        for (Group group : groups.getContent()) {
             groupResponses.add(mapper.convertValue(group, GroupResponse.class));
         }
         return ResponseDto.<GroupResponse>builder()

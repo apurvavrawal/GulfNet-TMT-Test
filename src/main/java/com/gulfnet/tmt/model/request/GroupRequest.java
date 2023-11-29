@@ -1,6 +1,8 @@
 package com.gulfnet.tmt.model.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @AllArgsConstructor
 @Getter
@@ -12,7 +14,8 @@ public class GroupRequest {
 
     private String code;
     private String name;
-    private String icon;
+    @JsonIgnore
+    private MultipartFile icon;
 
     @Builder.Default
     private String type = "BASIC";

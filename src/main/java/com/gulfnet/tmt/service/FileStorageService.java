@@ -29,7 +29,7 @@ public class FileStorageService {
     }
 
     private String uploadFileToLocal(MultipartFile file, String type) throws IOException {
-        File localFile = new File(gulfNetTMTServiceConfig.getLocalFilePath(), System.currentTimeMillis() +"_"+file.getOriginalFilename());
+        File localFile = new File(gulfNetTMTServiceConfig.getLocalFilePath(), System.currentTimeMillis() + "_" + type + "_" + file.getOriginalFilename());
         file.transferTo(localFile);
         return localFile.getAbsolutePath();
     }

@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -21,14 +22,14 @@ public class GroupController {
 
     private final GroupService groupService;
 
-    @PostMapping
-    public ResponseDto<GroupResponse> saveGroup(@RequestBody GroupRequest groupRequest) {
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseDto<GroupResponse> saveGroup(GroupRequest groupRequest) {
         log.info("Received request for group {}", groupRequest);
         return groupService.saveGroup(groupRequest);
     }
 
-    @PutMapping("/{id}")
-    public ResponseDto<GroupResponse> updateGroup(@PathVariable UUID id, @RequestBody GroupRequest groupRequest) {
+    @PutMapping(path = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseDto<GroupResponse> updateGroup(@PathVariable UUID id, GroupRequest groupRequest) {
         log.info("Received request for group {} of id {}", groupRequest, id);
         return groupService.updateGroup(id, groupRequest);
     }
