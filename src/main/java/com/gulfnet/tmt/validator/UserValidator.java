@@ -3,7 +3,6 @@ package com.gulfnet.tmt.validator;
 import com.gulfnet.tmt.config.GulfNetTMTServiceConfig;
 import com.gulfnet.tmt.dao.AppRoleDao;
 import com.gulfnet.tmt.dao.UserDao;
-import com.gulfnet.tmt.entity.sql.AppRole;
 import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.request.UserPostRequest;
 import com.gulfnet.tmt.model.response.ErrorDto;
@@ -43,6 +42,25 @@ public final class UserValidator {
             } catch (ValidationException ex) {
                 errors.addAll(ex.getErrorMessages());
             }
+        }
+        if (!errors.isEmpty()) throw new ValidationException(errors);
+    }
+
+    public void validateUserProfileRequest(MultipartFile profilePhoto, String language) {
+        if(StringUtils.isEmpty(language) && profilePhoto == null) {
+            throw new ValidationException(ErrorConstants.MANDATORY_ERROR_CODE, MessageFormat.format(ErrorConstants.MANDATORY_ERROR_MESSAGE,"Anyone profilePhoto or language"));
+        }
+        List<ErrorDto> errors = new ArrayList<>();
+        if(profilePhoto != null && !profilePhoto.isEmpty()) {
+            try {
+                fileUploadValidator.validate(profilePhoto);
+            } catch (ValidationException ex) {
+                errors.addAll(ex.getErrorMessages());
+            }
+        }
+        if(StringUtils.isNotEmpty(language) && Language.get(language).isEmpty()) {
+            errors.add(new ErrorDto(ErrorConstants.NOT_VALID_ERROR_CODE,
+                    MessageFormat.format(ErrorConstants.NOT_VALID_ERROR_MESSAGE, language + " language ")));
         }
         if (!errors.isEmpty()) throw new ValidationException(errors);
     }

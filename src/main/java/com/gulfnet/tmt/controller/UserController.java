@@ -9,7 +9,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -33,5 +35,12 @@ public class UserController {
     public ResponseDto<UserPostResponse> getUser(@PathVariable UUID userId) {
         log.info("Received user get request for {}", userId);
         return userService.getUser(userId);
+    }
+
+    @PatchMapping("/{userId}")
+    @Operation(summary = "Update User Profile")
+    public ResponseDto<UserPostResponse> updateProfile(@PathVariable UUID userId, @RequestParam(value = "profilePhoto", required = false) MultipartFile profilePhoto, @RequestParam(value = "languagePreference", required = false) String languagePreference) {
+        log.info("Received user profile request for userId : {}, profilePhoto : {} and language : {} ", userId, profilePhoto, languagePreference);
+        return userService.updateUserProfile(userId, profilePhoto, languagePreference);
     }
 }

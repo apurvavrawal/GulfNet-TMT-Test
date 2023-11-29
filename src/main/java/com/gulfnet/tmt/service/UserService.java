@@ -15,8 +15,10 @@ import com.gulfnet.tmt.util.enums.Status;
 import com.gulfnet.tmt.validator.UserValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -54,6 +56,23 @@ public class UserService {
 
     public ResponseDto<UserPostResponse> getUser(UUID userId) {
         User user = userDao.findUser(userId).orElseThrow(() -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "User")));
+        return ResponseDto.<UserPostResponse>builder().status(0).data(List.of(modelMapper.map(user, UserPostResponse.class))).build();
+    }
+
+    public ResponseDto<UserPostResponse> updateUserProfile(UUID userId, MultipartFile profilePhoto, String languagePreference) {
+        userValidator.validateUserProfileRequest(profilePhoto, languagePreference);
+        User user = userDao.findUser(userId).orElseThrow(() -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "User")));
+        if(StringUtils.isNotEmpty(languagePreference)){
+            user.setLanguagePreference(languagePreference);
+        }
+        try {
+            if (profilePhoto !=null && !profilePhoto.isEmpty()) {
+                user.setProfilePhoto(fileStorageService.uploadFile(profilePhoto, "User"));
+            }
+        } catch (IOException e) {
+            throw new GulfNetTMTException(ErrorConstants.SYSTEM_ERROR_CODE, e.getMessage());
+        }
+        user = userDao.saveUser(user);
         return ResponseDto.<UserPostResponse>builder().status(0).data(List.of(modelMapper.map(user, UserPostResponse.class))).build();
     }
 
