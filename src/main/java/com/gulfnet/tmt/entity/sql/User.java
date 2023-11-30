@@ -1,5 +1,6 @@
 package com.gulfnet.tmt.entity.sql;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -42,8 +43,13 @@ public class User implements UserDetails {
     private String profilePhoto;
     private String appType;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+    @JsonManagedReference
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval=true)
     private List<UserRole> userRole;
+
+    @JsonManagedReference
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval=true)
+    private List<UserGroup> userGroups;
 
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
@@ -62,6 +68,10 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return userRole.stream().map(role -> new SimpleGrantedAuthority(role.getRole().getName())).collect(Collectors.toList());
+    }
+
+    public String getUserName() {
+        return userName;
     }
 
     @Override

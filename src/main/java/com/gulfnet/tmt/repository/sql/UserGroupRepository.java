@@ -1,14 +1,14 @@
 package com.gulfnet.tmt.repository.sql;
 
-import com.gulfnet.tmt.entity.sql.UserRole;
+import com.gulfnet.tmt.entity.sql.UserGroup;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 
 @Repository
-public interface UserRoleRepository extends JpaRepository<UserRole, UUID> {
+public interface UserGroupRepository extends JpaRepository<UserGroup, UUID> {
 
-    UserRole findByUserIdAndRoleId(UUID userId, UUID roleId);
+    UserGroup findByUserIdAndGroupId(UUID userId, UUID groupId);
 
 }

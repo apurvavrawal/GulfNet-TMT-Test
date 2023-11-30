@@ -2,7 +2,8 @@ package com.gulfnet.tmt.entity.sql;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -12,15 +13,15 @@ import java.util.UUID;
 @Setter
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class UserRole {
+public class UserGroup {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name="ROLE_ID")
-    private AppRole role;
+    @JoinColumn(name="GROUP_ID")
+    private Group group;
 
     @JsonBackReference
     @ManyToOne

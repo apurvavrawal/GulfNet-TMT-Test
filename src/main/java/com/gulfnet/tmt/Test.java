@@ -8,11 +8,11 @@ import io.swagger.v3.core.util.Json;
 public class Test {
     public static void main(String[] args) throws Exception {
         LoginRequest loginRequest = LoginRequest.builder()
-                .userName("ADMIN")
-                .password("ADMIN")
+                .userName("Prati@123")
+                .password("Prati@112")
                 .machineInfo("test")
                 .location("test")
-                .appType("ADMIN")
+                .appType("MOBILE")
                 .build();
 
         PasswordRequest passwordRequest = PasswordRequest.builder()
@@ -21,11 +21,11 @@ public class Test {
                 .changePassword("Admin@123")
                 .confirmPassword("Admin@123")
                 .build();
-        System.out.println(Json.pretty(passwordRequest));
-        String encryptedText = EncryptionUtil.encrypt(Json.pretty(passwordRequest));
+        System.out.println(Json.pretty(loginRequest));
+        String encryptedText = EncryptionUtil.encrypt(Json.pretty(loginRequest));
         System.out.println("Encrypted Text: " + encryptedText);
 
-        String decryptedText = EncryptionUtil.decrypt(encryptedText);
+        String decryptedText = EncryptionUtil.decrypt("AAAAAAAAAAAAAAAAAAAAAFNTY/vOQktsmZVtG6dXjfA=");
         System.out.println("Decrypted Text: " + decryptedText);
     }
 }

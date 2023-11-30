@@ -11,17 +11,18 @@ import com.gulfnet.tmt.model.response.UserPostResponse;
 import com.gulfnet.tmt.util.EncryptionUtil;
 import com.gulfnet.tmt.util.ErrorConstants;
 import com.gulfnet.tmt.util.PasswordGenerator;
-import com.gulfnet.tmt.util.enums.Status;
 import com.gulfnet.tmt.validator.UserValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,19 +37,17 @@ public class UserService {
     private final UserValidator userValidator;
     private final ObjectMapper mapper;
     private final FileStorageService fileStorageService;
-    private final ModelMapper modelMapper;
 
     public ResponseDto<UserPostResponse> saveUser(UserPostRequest userPostRequest) {
         try {
-            userValidator.validateCreateUserRequest(userPostRequest);
+            userValidator.validateUserRequest(userPostRequest, "CREATE");
             String password = PasswordGenerator.generatePatternedPassword(RandomGenerator.getDefault().nextInt(10, 15));
             User user = mapper.convertValue(userPostRequest, User.class);
             user.setPassword(EncryptionUtil.encrypt(password));
-            user.setStatus(Status.ACTIVE.getValue());
             user.setProfilePhoto(fileStorageService.uploadFile(userPostRequest.getProfilePhoto(),"User"));
-            user = userDao.saveUser(user, userPostRequest.getUserRole());
+            user = userDao.saveUser(user, userPostRequest.getUserRole(), userPostRequest.getUserGroup());
             //TODO : Need to send Email to user
-            return ResponseDto.<UserPostResponse>builder().status(0).data(List.of(modelMapper.map(user, UserPostResponse.class))).build();
+            return ResponseDto.<UserPostResponse>builder().status(0).data(List.of(mapper.convertValue(user, UserPostResponse.class))).build();
         } catch (IOException e) {
             throw new GulfNetTMTException(ErrorConstants.SYSTEM_ERROR_CODE, e.getMessage());
         }
@@ -56,7 +55,7 @@ public class UserService {
 
     public ResponseDto<UserPostResponse> getUser(UUID userId) {
         User user = userDao.findUser(userId).orElseThrow(() -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "User")));
-        return ResponseDto.<UserPostResponse>builder().status(0).data(List.of(modelMapper.map(user, UserPostResponse.class))).build();
+        return ResponseDto.<UserPostResponse>builder().status(0).data(List.of(mapper.convertValue(user, UserPostResponse.class))).build();
     }
 
     public ResponseDto<UserPostResponse> updateUserProfile(UUID userId, MultipartFile profilePhoto, String languagePreference) {
@@ -72,8 +71,8 @@ public class UserService {
         } catch (IOException e) {
             throw new GulfNetTMTException(ErrorConstants.SYSTEM_ERROR_CODE, e.getMessage());
         }
-        user = userDao.saveUser(user);
-        return ResponseDto.<UserPostResponse>builder().status(0).data(List.of(modelMapper.map(user, UserPostResponse.class))).build();
+        user = saveUser(user);
+        return ResponseDto.<UserPostResponse>builder().status(0).data(List.of(mapper.convertValue(user, UserPostResponse.class))).build();
     }
 
     public User saveUser(User user) {
@@ -82,6 +81,41 @@ public class UserService {
 
     public Optional<User> getUserByUserName(String userName) {
         return userDao.getUserByUserName(userName);
+    }
+
+    public ResponseDto<UserPostResponse> updateUser(UUID userId, UserPostRequest userPostRequest) {
+        userValidator.validateUserRequest(userPostRequest, "UPDATE");
+        User userDB = userDao.findUser(userId).orElseThrow(() -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "User")));
+        User user = mapper.convertValue(userPostRequest, User.class);
+        log.info("Starting DB Update for userID:{}", userId);
+        user.setId(userDB.getId());
+        user.setPassword(userDB.getPassword());
+        user.setCreatedBy(userDB.getCreatedBy());
+        user.setDateCreated(userDB.getDateCreated());
+        try {
+            if(userPostRequest.getProfilePhoto() !=null && !userPostRequest.getProfilePhoto().isEmpty()){
+                user.setProfilePhoto(fileStorageService.uploadFile(userPostRequest.getProfilePhoto(), "User"));
+            } else {
+                user.setProfilePhoto(userDB.getProfilePhoto());
+            }
+        } catch (IOException e) {
+            throw new GulfNetTMTException(ErrorConstants.SYSTEM_ERROR_CODE, e.getMessage());
+        }
+        User userUpdated = userDao.saveUser(user, userPostRequest.getUserRole(), userPostRequest.getUserGroup());
+        log.info("DB Update successful for userID:{}", userId);
+        return ResponseDto.<UserPostResponse>builder().status(0).data(List.of(mapper.convertValue(userUpdated, UserPostResponse.class))).build();
+    }
+
+    public ResponseDto<UserPostResponse> getAllUsers(String search, Pageable pageable) {
+        List<UserPostResponse> allUsers = new ArrayList<>();
+        Page<User> users = userDao.findAll(search, pageable);
+        log.info(" Users data from page number:{}, page size:{}", pageable.getPageNumber(), pageable.getPageSize());
+        users.stream().forEach(u->allUsers.add(mapper.convertValue(u, UserPostResponse.class)));
+        return ResponseDto.<UserPostResponse>builder().status(0)
+                .data(allUsers)
+                .count((long) allUsers.size())
+                .total(users.getTotalElements())
+                .build();
     }
 
 }

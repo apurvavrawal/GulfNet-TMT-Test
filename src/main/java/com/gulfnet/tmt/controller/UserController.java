@@ -8,8 +8,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,5 +44,17 @@ public class UserController {
     public ResponseDto<UserPostResponse> updateProfile(@PathVariable UUID userId, @RequestParam(value = "profilePhoto", required = false) MultipartFile profilePhoto, @RequestParam(value = "languagePreference", required = false) String languagePreference) {
         log.info("Received user profile request for userId : {}, profilePhoto : {} and language : {} ", userId, profilePhoto, languagePreference);
         return userService.updateUserProfile(userId, profilePhoto, languagePreference);
+    }
+
+    @PutMapping(path = "/{userId}",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseDto<UserPostResponse> updateUser(@PathVariable UUID userId, UserPostRequest user) {
+        log.info("Received Request to update the user:{} with data:{}", userId, user);
+        return userService.updateUser(userId, user);
+    }
+
+    @GetMapping
+    public ResponseDto<UserPostResponse> getUsers(@RequestParam(value = "search", required = false) String search, @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC) Pageable pageable) {
+        log.info("Received request for getting the users {}", search);
+        return userService.getAllUsers(search, pageable);
     }
 }

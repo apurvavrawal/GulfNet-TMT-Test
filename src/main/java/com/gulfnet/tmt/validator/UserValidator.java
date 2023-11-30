@@ -2,6 +2,7 @@ package com.gulfnet.tmt.validator;
 
 import com.gulfnet.tmt.config.GulfNetTMTServiceConfig;
 import com.gulfnet.tmt.dao.AppRoleDao;
+import com.gulfnet.tmt.dao.GroupDao;
 import com.gulfnet.tmt.dao.UserDao;
 import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.request.UserPostRequest;
@@ -10,6 +11,7 @@ import com.gulfnet.tmt.util.ErrorConstants;
 import com.gulfnet.tmt.util.enums.Language;
 import liquibase.util.StringUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -21,6 +23,9 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.gulfnet.tmt.util.AppConstants.*;
+
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public final class UserValidator {
@@ -29,19 +34,21 @@ public final class UserValidator {
 
     private final AppRoleDao appRoleDao;
 
+    private final GroupDao groupDao;
+
     private final FileUploadValidator fileUploadValidator;
 
     private final GulfNetTMTServiceConfig gulfNetTMTServiceConfig;
-    private final List<String> APP_TYPE_MOBILE = List.of("ADMIN", "MOBILE");
-
-    public void validateCreateUserRequest(UserPostRequest user) {
-        List<ErrorDto> errors = userBasicValidation(user);
-        if(!user.getProfilePhoto().isEmpty()) {
+    public void validateUserRequest(UserPostRequest user, String action) {
+        List<ErrorDto> errors = userBasicValidation(user, action);
+        if(user.getProfilePhoto()!=null && !user.getProfilePhoto().isEmpty()) {
             try {
                 fileUploadValidator.validate(user.getProfilePhoto());
             } catch (ValidationException ex) {
                 errors.addAll(ex.getErrorMessages());
             }
+        } else if ("CREATE".equalsIgnoreCase(action) && (user.getProfilePhoto()==null || user.getProfilePhoto().isEmpty())){
+            errors.add(new ErrorDto(ErrorConstants.MANDATORY_ERROR_CODE, MessageFormat.format(ErrorConstants.MANDATORY_ERROR_MESSAGE, "profilePhoto")));
         }
         if (!errors.isEmpty()) throw new ValidationException(errors);
     }
@@ -65,13 +72,13 @@ public final class UserValidator {
         if (!errors.isEmpty()) throw new ValidationException(errors);
     }
 
-    private List<ErrorDto> userBasicValidation(UserPostRequest user) {
+    private List<ErrorDto> userBasicValidation(UserPostRequest user,String action) {
         List<ErrorDto> errors = new ArrayList<>();
 
         if (StringUtils.isEmpty(user.getUserName())) {
             errors.add(new ErrorDto(ErrorConstants.MANDATORY_ERROR_CODE,
                     MessageFormat.format(ErrorConstants.MANDATORY_ERROR_MESSAGE, "User Name")));
-        } else if (isUsernameExists(user.getUserName())) {
+        } else if ("CREATE".equalsIgnoreCase(action) && isUsernameExists(user.getUserName())) {
             errors.add(new ErrorDto(ErrorConstants.ALREADY_PRESENT_ERROR_CODE,
                     MessageFormat.format(ErrorConstants.ALREADY_PRESENT_ERROR_MESSAGE, "UserName")));
         }
@@ -116,6 +123,19 @@ public final class UserValidator {
         } else if (!isValidRoles(user.getUserRole())) {
             errors.add(new ErrorDto(ErrorConstants.NOT_VALID_ERROR_CODE,
                     MessageFormat.format(ErrorConstants.NOT_VALID_ERROR_MESSAGE, "User Role")));
+        } else if (!isValidRoleAssign(user.getUserRole(), user.getAppType())) {
+            errors.add(new ErrorDto(ErrorConstants.NOT_VALID_ERROR_CODE,
+                    MessageFormat.format(ErrorConstants.NOT_VALID_ERROR_MESSAGE_DESC, "User Role Mapping","Valid User Role is ADMIN for appType ADMIN, MOBILE,HQ,DELETE for appType MOBILE ")));
+        }
+
+        if (APP_TYPE_MOBILE.get(1).equalsIgnoreCase(user.getAppType())) {
+            if(CollectionUtils.isEmpty(user.getUserGroup())) {
+                errors.add(new ErrorDto(ErrorConstants.MANDATORY_ERROR_CODE,
+                        MessageFormat.format(ErrorConstants.MANDATORY_ERROR_MESSAGE, "User Group")));
+            } else {
+                user.getUserGroup().stream().filter(group -> groupDao.findByCode(group).isEmpty()).map(group -> new ErrorDto(ErrorConstants.NOT_VALID_ERROR_CODE,
+                        MessageFormat.format(ErrorConstants.NOT_VALID_ERROR_MESSAGE_DESC, "Group", group))).forEach(errors::add);
+            }
         }
         return errors;
     }
@@ -125,6 +145,15 @@ public final class UserValidator {
               .map(String::toUpperCase)
               .collect(Collectors.toList())).size() == userRoles.size();
     }
+    private boolean isValidRoleAssign(List<String> userRoles, String appType) {
+        if(APP_TYPE_MOBILE.get(0).equalsIgnoreCase(appType)){
+            return userRoles.stream().allMatch(userRole -> ADMIN_USER_ROLE_VALUE.contains(userRole.toUpperCase()));
+        } else if(APP_TYPE_MOBILE.get(1).equalsIgnoreCase(appType)){
+            return userRoles.stream().allMatch(userRole -> MOBILE_USER_ROLE_VALUE.contains(userRole.toUpperCase()));
+        }
+        return false;
+    }
+
     private boolean isUsernameExists(String username) {
         return userDao.getUserByUserName(username).isPresent();
     }

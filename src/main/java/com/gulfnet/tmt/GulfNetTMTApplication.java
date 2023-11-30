@@ -1,7 +1,5 @@
 package com.gulfnet.tmt;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.gulfnet.tmt.config.audit.SpringSecurityAuditorAware;
 import com.gulfnet.tmt.mapper.UserRoleMapper;
 import org.modelmapper.ModelMapper;
@@ -43,14 +41,10 @@ public class GulfNetTMTApplication implements WebMvcConfigurer {
     @Bean
     public ModelMapper modelMapper() {
 		ModelMapper modelMapper = new ModelMapper();
-
-		// Configure the model mapper, e.g., set field matching strategy
+        // Configure the model mapper, e.g., set field matching strategy
 		modelMapper.getConfiguration().setFieldMatchingEnabled(true).setFieldAccessLevel(AccessLevel.PRIVATE);
-
-		// Add the custom converter
+        // Add the custom converter
         modelMapper.addConverter(new UserRoleMapper());
-
-
         return modelMapper;
     }
 
@@ -65,9 +59,5 @@ public class GulfNetTMTApplication implements WebMvcConfigurer {
 
     }
 
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper().disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-    }
 }
 

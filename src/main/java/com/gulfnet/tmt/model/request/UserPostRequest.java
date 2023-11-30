@@ -2,6 +2,7 @@ package com.gulfnet.tmt.model.request;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.gulfnet.tmt.config.MultipartFileSerializer;
+import com.gulfnet.tmt.util.enums.Status;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,9 +34,15 @@ public class UserPostRequest {
     @Builder.Default
     private String appType = "MOBILE";
 
+    @Builder.Default
+    private String status = Status.ACTIVE.getValue();
+
     private String languagePreference;
 
     @JsonIgnore
     private List<String> userRole;
+
+    @JsonIgnore
+    private List<String> userGroup;
 
 }

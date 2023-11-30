@@ -1,5 +1,7 @@
 package com.gulfnet.tmt.model.response;
 
+import com.gulfnet.tmt.entity.sql.UserGroup;
+import com.gulfnet.tmt.entity.sql.UserRole;
 import lombok.*;
 
 import java.util.Date;
@@ -22,7 +24,10 @@ public class UserPostResponse {
     private String email;
     private String profilePhoto;
     private String languagePreference;
-    private List<String> userRole;
+
+    private List<UserRole> userRole;
+    private List<UserGroup> userGroups;
+
     private Date dateCreated;
     private Date dateUpdated;
     private String updatedBy;
