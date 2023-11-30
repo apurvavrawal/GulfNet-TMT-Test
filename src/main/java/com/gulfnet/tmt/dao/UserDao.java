@@ -1,5 +1,8 @@
 package com.gulfnet.tmt.dao;
 
+import com.gulfnet.tmt.entity.sql.AppRole;
+import com.gulfnet.tmt.entity.sql.User;
+import com.gulfnet.tmt.entity.sql.UserRole;
 import com.gulfnet.tmt.entity.sql.*;
 import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.repository.sql.UserGroupRepository;
@@ -106,4 +109,7 @@ public class UserDao {
         return userGroups;
     }
 
+    public Optional<User> findByUserName(String userName) {
+        return userRepository.findByUserName(userName);
+    }
 }

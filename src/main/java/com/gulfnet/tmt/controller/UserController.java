@@ -1,6 +1,7 @@
 package com.gulfnet.tmt.controller;
 
 import com.gulfnet.tmt.model.request.UserPostRequest;
+import com.gulfnet.tmt.model.response.ProfileResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.model.response.UserPostResponse;
 import com.gulfnet.tmt.service.UserService;
@@ -12,6 +13,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,5 +64,12 @@ public class UserController {
     public ResponseDto<UserPostResponse> getUsers(@RequestParam(value = "search", required = false) String search, @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC) Pageable pageable) {
         log.info("Received request for getting the users {}", search);
         return userService.getAllUsers(search, pageable);
+    }
+
+    @GetMapping("/profile")
+    @Operation(summary = "Get User Profile")
+    public ResponseDto<ProfileResponse> getProfile(@RequestParam(value = "userName") String userName) {
+        log.info("Received user get request for userName {}", userName);
+        return userService.getProfile(userName);
     }
 }

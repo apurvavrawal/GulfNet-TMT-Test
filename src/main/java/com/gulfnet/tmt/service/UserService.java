@@ -6,8 +6,11 @@ import com.gulfnet.tmt.entity.sql.User;
 import com.gulfnet.tmt.exceptions.GulfNetTMTException;
 import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.request.UserPostRequest;
+import com.gulfnet.tmt.model.response.ProfileResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
+import com.gulfnet.tmt.model.response.SettingsResponse;
 import com.gulfnet.tmt.model.response.UserPostResponse;
+import com.gulfnet.tmt.repository.sql.SettingsRepository;
 import com.gulfnet.tmt.util.EncryptionUtil;
 import com.gulfnet.tmt.util.ErrorConstants;
 import com.gulfnet.tmt.util.PasswordGenerator;
@@ -37,6 +40,7 @@ public class UserService {
     private final UserValidator userValidator;
     private final ObjectMapper mapper;
     private final FileStorageService fileStorageService;
+    private final SettingsRepository settingsRepository;
 
     public ResponseDto<UserPostResponse> saveUser(UserPostRequest userPostRequest) {
         try {
@@ -44,7 +48,7 @@ public class UserService {
             String password = PasswordGenerator.generatePatternedPassword(RandomGenerator.getDefault().nextInt(10, 15));
             User user = mapper.convertValue(userPostRequest, User.class);
             user.setPassword(EncryptionUtil.encrypt(password));
-            user.setProfilePhoto(fileStorageService.uploadFile(userPostRequest.getProfilePhoto(),"User"));
+            user.setProfilePhoto(fileStorageService.uploadFile(userPostRequest.getProfilePhoto(), "User"));
             user = userDao.saveUser(user, userPostRequest.getUserRole(), userPostRequest.getUserGroup());
             //TODO : Need to send Email to user
             return ResponseDto.<UserPostResponse>builder().status(0).data(List.of(mapper.convertValue(user, UserPostResponse.class))).build();
@@ -61,11 +65,11 @@ public class UserService {
     public ResponseDto<UserPostResponse> updateUserProfile(UUID userId, MultipartFile profilePhoto, String languagePreference) {
         userValidator.validateUserProfileRequest(profilePhoto, languagePreference);
         User user = userDao.findUser(userId).orElseThrow(() -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "User")));
-        if(StringUtils.isNotEmpty(languagePreference)){
+        if (StringUtils.isNotEmpty(languagePreference)) {
             user.setLanguagePreference(languagePreference);
         }
         try {
-            if (profilePhoto !=null && !profilePhoto.isEmpty()) {
+            if (profilePhoto != null && !profilePhoto.isEmpty()) {
                 user.setProfilePhoto(fileStorageService.uploadFile(profilePhoto, "User"));
             }
         } catch (IOException e) {
@@ -93,7 +97,7 @@ public class UserService {
         user.setCreatedBy(userDB.getCreatedBy());
         user.setDateCreated(userDB.getDateCreated());
         try {
-            if(userPostRequest.getProfilePhoto() !=null && !userPostRequest.getProfilePhoto().isEmpty()){
+            if (userPostRequest.getProfilePhoto() != null && !userPostRequest.getProfilePhoto().isEmpty()) {
                 user.setProfilePhoto(fileStorageService.uploadFile(userPostRequest.getProfilePhoto(), "User"));
             } else {
                 user.setProfilePhoto(userDB.getProfilePhoto());
@@ -110,11 +114,23 @@ public class UserService {
         List<UserPostResponse> allUsers = new ArrayList<>();
         Page<User> users = userDao.findAll(search, pageable);
         log.info(" Users data from page number:{}, page size:{}", pageable.getPageNumber(), pageable.getPageSize());
-        users.stream().forEach(u->allUsers.add(mapper.convertValue(u, UserPostResponse.class)));
+        users.stream().forEach(u -> allUsers.add(mapper.convertValue(u, UserPostResponse.class)));
         return ResponseDto.<UserPostResponse>builder().status(0)
                 .data(allUsers)
                 .count((long) allUsers.size())
                 .total(users.getTotalElements())
+                .build();
+    }
+
+    public ResponseDto<ProfileResponse> getProfile(String userName) {
+        User userDB = userDao.findByUserName(userName).orElseThrow(() -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "User")));
+        SettingsResponse settingsResponse = mapper.convertValue(settingsRepository.findAll().get(0), SettingsResponse.class);
+        ProfileResponse profileResponse = ProfileResponse.builder()
+                .support(settingsResponse)
+                .user(mapper.convertValue(userDB, UserPostResponse.class))
+                .build();
+        return ResponseDto.<ProfileResponse>builder()
+                .data(List.of(profileResponse))
                 .build();
     }
 
