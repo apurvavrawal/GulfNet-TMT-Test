@@ -6,8 +6,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
@@ -25,6 +27,8 @@ import java.util.UUID;
 @Entity
 @ToString
 @Builder
+@AllArgsConstructor
+@RequiredArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class Stamp {
 
