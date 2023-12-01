@@ -54,7 +54,7 @@ public class UserService {
             user = userDao.saveUser(user, userPostRequest.getUserRole(), userPostRequest.getUserGroup());
             //TODO : Need to send Email to user
             emailService.sendEmail(user.getEmail(),
-                    EmailTemplates.USER_ONBOARDING_SUCCESS,
+                    EmailTemplates.USER_ONBOARDING_SUBJECT,
                     MessageFormat.format(EmailTemplates.USER_ONBOARDING_SUCCESS, userPostRequest.getFirstName(), userPostRequest.getLastName(), userPostRequest.getUserName(), password));
             return ResponseDto.<UserPostResponse>builder().status(0).data(List.of(mapper.convertValue(user, UserPostResponse.class))).build();
         } catch (IOException e) {
