@@ -11,6 +11,7 @@ import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.model.response.SettingsResponse;
 import com.gulfnet.tmt.model.response.UserPostResponse;
 import com.gulfnet.tmt.repository.sql.SettingsRepository;
+import com.gulfnet.tmt.util.EmailTemplates;
 import com.gulfnet.tmt.util.EncryptionUtil;
 import com.gulfnet.tmt.util.ErrorConstants;
 import com.gulfnet.tmt.util.PasswordGenerator;
@@ -41,6 +42,7 @@ public class UserService {
     private final ObjectMapper mapper;
     private final FileStorageService fileStorageService;
     private final SettingsRepository settingsRepository;
+    private final EmailService emailService;
 
     public ResponseDto<UserPostResponse> saveUser(UserPostRequest userPostRequest) {
         try {
@@ -51,6 +53,9 @@ public class UserService {
             user.setProfilePhoto(fileStorageService.uploadFile(userPostRequest.getProfilePhoto(), "User"));
             user = userDao.saveUser(user, userPostRequest.getUserRole(), userPostRequest.getUserGroup());
             //TODO : Need to send Email to user
+            emailService.sendEmail(user.getEmail(),
+                    EmailTemplates.USER_ONBOARDING_SUCCESS,
+                    MessageFormat.format(EmailTemplates.USER_ONBOARDING_SUCCESS, userPostRequest.getFirstName(), userPostRequest.getLastName(), userPostRequest.getUserName(), password));
             return ResponseDto.<UserPostResponse>builder().status(0).data(List.of(mapper.convertValue(user, UserPostResponse.class))).build();
         } catch (IOException e) {
             throw new GulfNetTMTException(ErrorConstants.SYSTEM_ERROR_CODE, e.getMessage());
