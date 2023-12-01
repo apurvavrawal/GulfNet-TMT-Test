@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -24,11 +25,11 @@ public class FileUploadValidator {
 
         if(!gulfNetTMTServiceConfig.getAllowedFileExt().contains(getFileExtension(file))) {
             errors.add(new ErrorDto(ErrorConstants.NOT_VALID_ERROR_CODE,
-                    MessageFormat.format(ErrorConstants.NOT_VALID_ERROR_MESSAGE, "fileType")));
+                    MessageFormat.format(ErrorConstants.NOT_VALID_ERROR_MESSAGE_DESC, "fileType" , "Valid FileTypes are "+ Arrays.toString(gulfNetTMTServiceConfig.getAllowedFileExt().toArray()))));
         }
         if(file.getSize() > gulfNetTMTServiceConfig.getMaxFileUploadSize()){
             errors.add(new ErrorDto(ErrorConstants.NOT_VALID_ERROR_CODE,
-                    MessageFormat.format(ErrorConstants.NOT_VALID_ERROR_MESSAGE, "fileSize")));
+                    MessageFormat.format(ErrorConstants.NOT_VALID_ERROR_MESSAGE_DESC, "fileSize", "Maximum Allowed size is "+gulfNetTMTServiceConfig.getMaxFileUploadSize())));
         }
 
         if (!errors.isEmpty()) throw new ValidationException(errors);

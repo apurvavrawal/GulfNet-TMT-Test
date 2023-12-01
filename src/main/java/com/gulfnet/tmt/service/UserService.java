@@ -52,7 +52,6 @@ public class UserService {
             user.setPassword(EncryptionUtil.encrypt(password));
             user.setProfilePhoto(fileStorageService.uploadFile(userPostRequest.getProfilePhoto(), "User"));
             user = userDao.saveUser(user, userPostRequest.getUserRole(), userPostRequest.getUserGroup());
-            //TODO : Need to send Email to user
             emailService.sendEmail(user.getEmail(),
                     EmailTemplates.USER_ONBOARDING_SUBJECT,
                     MessageFormat.format(EmailTemplates.USER_ONBOARDING_SUCCESS, userPostRequest.getFirstName(), userPostRequest.getLastName(), userPostRequest.getUserName(), password));

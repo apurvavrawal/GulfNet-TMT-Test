@@ -16,7 +16,7 @@ public class EmailService {
     public void sendEmail(String to, String subject, String text) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            message.setFrom(new InternetAddress("ranu.jain@joshsoftware.com"));
+            message.setFrom(new InternetAddress("gulfnet.support@joshsoftware.com"));
             message.setRecipients(MimeMessage.RecipientType.TO, to);
             message.setSubject(subject);
             message.setContent(text, "text/html; charset=utf-8");
