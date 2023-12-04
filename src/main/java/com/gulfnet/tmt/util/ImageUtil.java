@@ -3,7 +3,9 @@ package com.gulfnet.tmt.util;
 import com.gulfnet.tmt.config.GulfNetTMTServiceConfig;
 import com.gulfnet.tmt.exceptions.GulfNetTMTException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -13,12 +15,16 @@ import java.net.URL;
 import java.util.Base64;
 
 @RequiredArgsConstructor
+@Slf4j
 public class ImageUtil {
     private final static boolean isImageDataStoredOnpremises = true;
 
     public static String getB64EncodedStringFromImagePathOrURL(String imagePathURL) {
-        return isImageDataStoredOnpremises?
-                getImageFromPathAsBase64(imagePathURL) : getImageFromURLAsBase64(imagePathURL);
+        if(StringUtils.isEmpty(imagePathURL)) {
+            return StringUtils.EMPTY;
+        }
+        return isImageDataStoredOnpremises ?
+                    getImageFromPathAsBase64(imagePathURL) : getImageFromURLAsBase64(imagePathURL);
     }
 
     private static String getImageFromPathAsBase64(String imagePath) {
@@ -26,7 +32,8 @@ public class ImageUtil {
             byte[] fileContent = FileUtils.readFileToByteArray(new File(imagePath));
             return Base64.getEncoder().encodeToString(fileContent);
         } catch (IOException ex) {
-            throw new GulfNetTMTException(ErrorConstants.SYSTEM_ERROR_CODE, "Unable to decode the image for image path:" + imagePath);
+            log.error("Error in download image {} ", imagePath , ex);
+            return StringUtils.EMPTY;
         }
     }
 
@@ -45,7 +52,8 @@ public class ImageUtil {
                 return Base64.getEncoder().encodeToString(imageBytes);
             }
         } catch (IOException e) {
-            throw new GulfNetTMTException(ErrorConstants.SYSTEM_ERROR_CODE, "Unable to decode the image for image URL:" + imageUrl);
+            log.error("Error in download image {} ", imageUrl , e);
+            return StringUtils.EMPTY;
         }
     }
 
