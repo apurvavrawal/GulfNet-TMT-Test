@@ -65,12 +65,12 @@ public class UserDao {
     public Optional<User> getUserByUserName(String userName) {
         return userRepository.findByUserName(userName);
     }
-    public Page<User> findAll(String search, Pageable pageable) {
+    public Page<User> findAll(String appType, String search, Pageable pageable) {
+        Specification<User> specification = Specification.where(UserSpecifications.withAppType(appType));
         if (StringUtils.isEmpty(search)) {
             log.info("fetching all users");
-            return userRepository.findAll(pageable);
+            return userRepository.findAll(specification, pageable);
         }
-        Specification<User> specification = Specification.where(null);
         log.info("fetching users based on the search criteria:{}", search);
         return userRepository.findAll(specification.and(UserSpecifications.withSearch(search)), pageable);
     }

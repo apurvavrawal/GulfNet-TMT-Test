@@ -17,4 +17,9 @@ public class UserSpecifications {
                 builder.like(builder.lower(root.get("email")), searchString)
         );
     }
+
+    public static Specification<User> withAppType(String search) {
+        String searchString = MessageFormat.format("{0}", search.toLowerCase());
+        return (root, query, builder) -> builder.like(builder.lower(root.get("appType")), searchString);
+    }
 }

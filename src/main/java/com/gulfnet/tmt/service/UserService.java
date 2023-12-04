@@ -114,9 +114,9 @@ public class UserService {
         return ResponseDto.<UserPostResponse>builder().status(0).data(List.of(mapper.convertValue(userUpdated, UserPostResponse.class))).build();
     }
 
-    public ResponseDto<UserPostResponse> getAllUsers(String search, Pageable pageable) {
+    public ResponseDto<UserPostResponse> getAllUsers(String appType, String search, Pageable pageable) {
         List<UserPostResponse> allUsers = new ArrayList<>();
-        Page<User> users = userDao.findAll(search, pageable);
+        Page<User> users = userDao.findAll(appType, search, pageable);
         log.info(" Users data from page number:{}, page size:{}", pageable.getPageNumber(), pageable.getPageSize());
         users.stream().forEach(u -> allUsers.add(mapper.convertValue(u, UserPostResponse.class)));
         return ResponseDto.<UserPostResponse>builder().status(0)

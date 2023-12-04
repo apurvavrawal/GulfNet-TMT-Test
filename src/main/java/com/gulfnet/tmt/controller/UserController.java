@@ -5,6 +5,7 @@ import com.gulfnet.tmt.model.response.ProfileResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.model.response.UserPostResponse;
 import com.gulfnet.tmt.service.UserService;
+import com.gulfnet.tmt.util.AppConstants;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -60,10 +61,16 @@ public class UserController {
         return userService.updateUser(userId, user);
     }
 
-    @GetMapping
-    public ResponseDto<UserPostResponse> getUsers(@RequestParam(value = "search", required = false) String search, @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC) Pageable pageable) {
+    @GetMapping("/admin")
+    public ResponseDto<UserPostResponse> getAdminUsers(@RequestParam(value = "search", required = false) String search, @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC) Pageable pageable) {
         log.info("Received request for getting the users {}", search);
-        return userService.getAllUsers(search, pageable);
+        return userService.getAllUsers(AppConstants.APP_TYPE_MOBILE.get(0), search, pageable);
+    }
+
+    @GetMapping("/mobile")
+    public ResponseDto<UserPostResponse> getMobileUsers(@RequestParam(value = "search", required = false) String search, @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC) Pageable pageable) {
+        log.info("Received request for getting the users {}", search);
+        return userService.getAllUsers(AppConstants.APP_TYPE_MOBILE.get(1), search, pageable);
     }
 
     @GetMapping("/profile")
