@@ -2,6 +2,7 @@ package com.gulfnet.tmt.model.response;
 
 import com.gulfnet.tmt.entity.sql.UserGroup;
 import com.gulfnet.tmt.entity.sql.UserRole;
+import com.gulfnet.tmt.util.ImageUtil;
 import lombok.*;
 
 import java.util.Date;
@@ -32,4 +33,8 @@ public class UserPostResponse {
     private Date dateUpdated;
     private String updatedBy;
     private String createdBy;
+
+    public String getProfilePhoto() {
+        return  ImageUtil.getB64EncodedStringFromImagePathOrURL(profilePhoto);
+    }
 }

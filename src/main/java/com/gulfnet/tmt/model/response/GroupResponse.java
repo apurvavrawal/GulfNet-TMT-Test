@@ -1,5 +1,6 @@
 package com.gulfnet.tmt.model.response;
 
+import com.gulfnet.tmt.util.ImageUtil;
 import lombok.*;
 
 import java.util.Date;
@@ -21,4 +22,8 @@ public class GroupResponse {
     private Date dateUpdated;
     private String updatedBy;
     private String createdBy;
+
+    public String getIcon() {
+        return  ImageUtil.getB64EncodedStringFromImagePathOrURL(icon);
+    }
 }

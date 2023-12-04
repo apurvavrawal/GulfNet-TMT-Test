@@ -39,4 +39,7 @@ public class GulfNetTMTServiceConfig {
 
     @Value("${regex.email.regexp}")
     private String regExEmail;
+
+    @Value("${data.image.onpremises}")
+    private Boolean isImageDataStoredOnpremises;
 }

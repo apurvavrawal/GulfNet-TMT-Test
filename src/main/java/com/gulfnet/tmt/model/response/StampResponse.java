@@ -1,5 +1,6 @@
 package com.gulfnet.tmt.model.response;
 
+import com.gulfnet.tmt.util.ImageUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,4 +21,8 @@ public class StampResponse {
     private UUID id;
     private String stampFile;
     private String status;
+
+    public String getStampFile() {
+        return  ImageUtil.getB64EncodedStringFromImagePathOrURL(stampFile);
+    }
 }
