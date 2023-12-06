@@ -1,7 +1,7 @@
 package com.gulfnet.tmt.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gulfnet.tmt.config.GulfNetTMTServiceConfig;
 import com.gulfnet.tmt.entity.sql.User;
 import com.gulfnet.tmt.entity.sql.UserPasswordAudit;
 import com.gulfnet.tmt.exceptions.GulfNetTMTException;
@@ -12,6 +12,7 @@ import com.gulfnet.tmt.model.response.LoginResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.repository.sql.UserPasswordAuditRepository;
 import com.gulfnet.tmt.security.AuthenticationService;
+import com.gulfnet.tmt.util.AppConstants;
 import com.gulfnet.tmt.util.EmailTemplates;
 import com.gulfnet.tmt.util.EncryptionUtil;
 import com.gulfnet.tmt.util.ErrorConstants;
@@ -40,26 +41,27 @@ public class LoginService {
     private final UserPasswordAuditRepository userPasswordAuditRepository;
     private final ObjectMapper mapper;
     private final EmailService emailService;
+    private final GulfNetTMTServiceConfig gulfNetTMTServiceConfig;
 
-    public ResponseDto<LoginResponse> login(String requestBody) {
-        Optional<LoginRequest> loginRequest = getLoginRequest(requestBody);
+    public ResponseDto<LoginResponse> login(String requestBody, String appType) {
+        Optional<LoginRequest> loginRequest = getLoginRequest(requestBody, appType);
         log.debug("loginRequest {}", loginRequest);
         if (loginRequest.isEmpty()) {
             throw new ValidationException(ErrorConstants.NOT_VALID_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_VALID_ERROR_MESSAGE,"Login Request"));
         }
         LoginRequest loginRequestData = loginRequest.get();
-        LoginValidator.requestValidation(loginRequestData);
+        LoginValidator.requestValidation(loginRequestData,appType);
         LoginResponse loginResponse = new LoginResponse(authenticationService.signIn(loginRequestData));
         return ResponseDto.<LoginResponse>builder().status(0).data(List.of(loginResponse)).build();
     }
 
-    public ResponseDto<String> changePassword(String requestBody, Action action) {
-        PasswordRequest passwordRequest = getPasswordRequest(requestBody)
+    public ResponseDto<String> changePassword(String requestBody, Action action, String appType) {
+        PasswordRequest passwordRequest = getPasswordRequest(requestBody, appType)
                 .orElseThrow(() -> new GulfNetTMTException(ErrorConstants.DECRYPTION_ERROR_CODE, ErrorConstants.DECRYPTION_ERROR_MESSAGE));
         validatedPasswordRequest(passwordRequest);
         User user = userService.getUserByUserName(passwordRequest.getUserName()).orElseThrow(() -> new GulfNetTMTException(ErrorConstants.NOT_FOUND_ERROR_CODE, ErrorConstants.NOT_FOUND_ERROR_MESSAGE));
-        if (user.getPassword().equals(EncryptionUtil.encrypt(passwordRequest.getCurrentPassword()))) {
-            user.setPassword(EncryptionUtil.encrypt(passwordRequest.getConfirmPassword()));
+        if (user.getPassword().equals(EncryptionUtil.encrypt(passwordRequest.getCurrentPassword(), gulfNetTMTServiceConfig.getAppSecurityKey()))) {
+            user.setPassword(EncryptionUtil.encrypt(passwordRequest.getConfirmPassword(), gulfNetTMTServiceConfig.getAppSecurityKey()));
             userService.saveUser(user);
             saveUserPasswordAudit(action, user);
             emailService.sendEmail(user.getEmail(),
@@ -92,8 +94,8 @@ public class LoginService {
         throw new GulfNetTMTException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_CODE, "User"));
     }
 
-    public ResponseDto<String> resetPassword(String requestBody) {
-        PasswordRequest passwordRequest = getPasswordRequest(requestBody)
+    public ResponseDto<String> resetPassword(String requestBody, String appType) {
+        PasswordRequest passwordRequest = getPasswordRequest(requestBody, appType)
                 .orElseThrow(() -> new GulfNetTMTException(ErrorConstants.DECRYPTION_ERROR_CODE, ErrorConstants.DECRYPTION_ERROR_MESSAGE));
         User user = userService.getUserByUserName(passwordRequest.getUserName())
                 .orElseThrow(() -> new GulfNetTMTException(ErrorConstants.NOT_FOUND_ERROR_CODE, ErrorConstants.NOT_FOUND_ERROR_MESSAGE));
@@ -129,7 +131,7 @@ public class LoginService {
     }
     private void updateResetPassword(UserPasswordAudit userPasswordAudit, User user, PasswordRequest passwordRequest) {
         validateOTP(userPasswordAudit.getOtp(), userPasswordAudit);
-        user.setPassword(EncryptionUtil.encrypt(passwordRequest.getConfirmPassword()));
+        user.setPassword(EncryptionUtil.encrypt(passwordRequest.getConfirmPassword(), gulfNetTMTServiceConfig.getAppSecurityKey()));
         userService.saveUser(user);
         userPasswordAudit.setStatus(Status.COMPLETED.getValue());
         userPasswordAuditRepository.save(userPasswordAudit);
@@ -145,13 +147,19 @@ public class LoginService {
         userPasswordAudit.setStatus(Status.COMPLETED.getValue());
         userPasswordAuditRepository.save(userPasswordAudit);
     }
-    private Optional<PasswordRequest> getPasswordRequest(String requestBody) {
+    private Optional<PasswordRequest> getPasswordRequest(String requestBody, String appType) {
         try {
-            String decrypt = EncryptionUtil.decrypt(requestBody);
-            return Optional.of(mapper.readValue(decrypt, PasswordRequest.class));
-        } catch (JsonProcessingException e) {
-           throw new GulfNetTMTException(ErrorConstants.NOT_VALID_ERROR_CODE, "Error in mapping");
+            if (AppConstants.APP_TYPE_MOBILE.get(0).equalsIgnoreCase(appType)) {
+                String decrypt = EncryptionUtil.adminDecrypt(requestBody, gulfNetTMTServiceConfig.getAppSecurityKey());
+                return Optional.of(mapper.readValue(decrypt, PasswordRequest.class));
+            } else if (AppConstants.APP_TYPE_MOBILE.get(1).equalsIgnoreCase(appType)) {
+                String decrypt = EncryptionUtil.mobileDecrypt(requestBody, gulfNetTMTServiceConfig.getAppSecurityKey());
+                return Optional.of(mapper.readValue(decrypt, PasswordRequest.class));
+            }
+        } catch (Exception e) {
+          log.error("Error in  getPasswordRequest request for requestBody {} , appType {}", requestBody, appType, e);
         }
+        return Optional.empty();
     }
     private void updateExistingRequest(UUID userId) {
         List<UserPasswordAudit> userPasswordAudits = userPasswordAuditRepository.findByUserIdAndStatusAndAction(userId, Status.PENDING.getValue(), Action.RESET_PASSWORD.getValue());
@@ -172,12 +180,17 @@ public class LoginService {
         return userPasswordAudit;
     }
 
-    private Optional<LoginRequest> getLoginRequest(String requestBody) {
+    private Optional<LoginRequest> getLoginRequest(String requestBody, String appType) {
         try {
-            String decrypt = EncryptionUtil.decrypt(requestBody);
-            return Optional.of(mapper.readValue(decrypt, LoginRequest.class));
+            if (appType.equalsIgnoreCase(AppConstants.APP_TYPE_MOBILE.get(0))) {
+                String decrypt = EncryptionUtil.adminDecrypt(requestBody, gulfNetTMTServiceConfig.getAppSecurityKey());
+                return Optional.of(mapper.readValue(decrypt, LoginRequest.class));
+            } else if (appType.equalsIgnoreCase(AppConstants.APP_TYPE_MOBILE.get(1))) {
+                String decrypt = EncryptionUtil.mobileDecrypt(requestBody, gulfNetTMTServiceConfig.getAppSecurityKey());
+                return Optional.of(mapper.readValue(decrypt, LoginRequest.class));
+            }
         } catch (Exception e) {
-            log.error("Error in LoginRequest decryption : ", e);
+            log.error("Error in getLoginRequest request for requestBody {} , appType {}", requestBody, appType, e);
         }
         return Optional.empty();
     }

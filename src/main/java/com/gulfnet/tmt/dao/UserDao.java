@@ -40,9 +40,10 @@ public class UserDao {
     private final UserGroupRepository userGroupRepository;
     private final AppRoleDao appRoleDao;
     private final GroupDao groupDao;
+    private static final String key = "4995f5e3-0280-4e6a-ad40-917136cbb884";
     public User getAuthenticatedUser(String username, String password, String appType) {
-        log.info("UserName : {}, password : {}", username, EncryptionUtil.encrypt(password));
-        return userRepository.findByUserNameAndPasswordAndAppType(username, EncryptionUtil.encrypt(password), appType);
+        log.info("UserName : {}, password : {}", username, EncryptionUtil.encrypt(password, key));
+        return userRepository.findByUserNameAndPasswordAndAppType(username, EncryptionUtil.encrypt(password, key), appType);
     }
     public User saveUser(User user) {
         return userRepository.save(user);

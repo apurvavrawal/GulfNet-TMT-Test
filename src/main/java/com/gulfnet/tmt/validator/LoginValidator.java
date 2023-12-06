@@ -13,7 +13,7 @@ import java.util.List;
 
 public final class LoginValidator {
 
-    public static void requestValidation(LoginRequest request ) {
+    public static void requestValidation(LoginRequest request, String appType) {
         List<ErrorDto> errorMessages = new ArrayList<>();
         if (StringUtils.isEmpty(request.getUserName())) {
             errorMessages.add(new ErrorDto(ErrorConstants.MANDATORY_ERROR_CODE, MessageFormat.format(ErrorConstants.MANDATORY_ERROR_MESSAGE, "userName")));
@@ -31,6 +31,9 @@ public final class LoginValidator {
             errorMessages.add(new ErrorDto(ErrorConstants.MANDATORY_ERROR_CODE, MessageFormat.format(ErrorConstants.MANDATORY_ERROR_MESSAGE, "machineInfo")));
         }
         if (!"ADMIN".equalsIgnoreCase(request.getAppType()) && !"MOBILE".equalsIgnoreCase(request.getAppType())) {
+            errorMessages.add(new ErrorDto(ErrorConstants.NOT_VALID_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_VALID_ERROR_MESSAGE, "appType")));
+        }
+        if (!request.getAppType().equalsIgnoreCase(appType)) {
             errorMessages.add(new ErrorDto(ErrorConstants.NOT_VALID_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_VALID_ERROR_MESSAGE, "appType")));
         }
         if (CollectionUtils.isNotEmpty(errorMessages)) {

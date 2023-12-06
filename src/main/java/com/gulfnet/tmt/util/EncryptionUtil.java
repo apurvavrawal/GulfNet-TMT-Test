@@ -21,9 +21,8 @@ public class EncryptionUtil {
     private static final String SECRET_KEY_FACTORY_ALGORITHM = "AES";
     private static final int ITERATION_COUNT = 65536;
     private static final int KEY_LENGTH = 256;
-    private static final String password = "YourSecretPassword";
 
-    public static String encrypt(String plainText) {
+    public static String encrypt(String plainText, String password) {
         try {
             SecretKey secretKey = generateSecretKey(password);
             Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
@@ -44,8 +43,25 @@ public class EncryptionUtil {
             throw new GulfNetSecurityException(ErrorConstants.ENCRYPTION_ERROR_CODE, ErrorConstants.ENCRYPTION_ERROR_MESSAGE);
         }
     }
+    public static String mobileEncrypt(String plainText, String password) {
+        try {
+            SecretKey secretKey = generateSecretKey(password);
+            Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
 
-    public static String decrypt(String encryptedText)  {
+            byte[] ivBytes = new byte[16]; // Initialization Vector (IV) should be random
+            IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivSpec);
+
+            byte[] encryptedBytes = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
+
+            return Base64.getEncoder().encodeToString(encryptedBytes);
+        } catch (Exception e) {
+            throw new GulfNetSecurityException(ErrorConstants.ENCRYPTION_ERROR_CODE, ErrorConstants.ENCRYPTION_ERROR_MESSAGE);
+        }
+    }
+
+    public static String adminDecrypt(String encryptedText, String password)  {
         try {
             SecretKey secretKey = generateSecretKey(password);
             Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
@@ -62,6 +78,26 @@ public class EncryptionUtil {
             cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec);
 
             byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
+
+            return new String(decryptedBytes, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new GulfNetSecurityException(ErrorConstants.DECRYPTION_ERROR_CODE, ErrorConstants.DECRYPTION_ERROR_MESSAGE);
+        }
+    }
+
+    public static String mobileDecrypt(String encryptedText, String password)  {
+        try {
+            SecretKey secretKey = generateSecretKey(password);
+            Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
+
+            byte[] encryptedBytesWithIV = Base64.getDecoder().decode(encryptedText );
+            byte[] ivBytes = new byte[16];
+
+            IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec);
+
+            byte[] decryptedBytes = cipher.doFinal(encryptedBytesWithIV);
 
             return new String(decryptedBytes, StandardCharsets.UTF_8);
         } catch (Exception e) {

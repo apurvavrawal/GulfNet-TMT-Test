@@ -41,5 +41,9 @@ public class GulfNetTMTServiceConfig {
     private String regExEmail;
 
     @Value("${data.image.onpremises}")
-    private Boolean isImageDataStoredOnpremises;
+    private Boolean isAppOnPremises;
+
+    @Value("${app.sec.key}")
+    private String appSecurityKey;
+
 }

@@ -19,12 +19,12 @@ public class LoginController {
 
     private final LoginService loginService;
 
-    @PostMapping("/login")
-    @Operation(summary = "Login API")
+    @PostMapping("/{appType}/login")
+    @Operation(summary = "Admin Login API")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Encrypted of userName, password, appType, machineInfo, location values ")
-    public ResponseDto<LoginResponse> loginUser(@RequestBody LoginPostRequest loginRequest) {
+    public ResponseDto<LoginResponse> adminLogin(@RequestBody LoginPostRequest loginRequest, @PathVariable String appType) {
         log.info("Received request for login {}", loginRequest);
-        return loginService.login(loginRequest.getLoginRequest());
+        return loginService.login(loginRequest.getLoginRequest(), appType);
     }
 
     @GetMapping("/resetPassword")
@@ -41,20 +41,20 @@ public class LoginController {
         return loginService.verifyOTP(userName, otp);
     }
 
-    @PostMapping("/resetPassword")
+    @PostMapping("/{appType}/resetPassword")
     @Operation(summary = "ResetPassword API")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Encrypted of userName, otp, changePassword, confirmPassword")
-    public ResponseDto<String> resetPassword(@RequestBody PasswordPostRequest passwordRequest) {
+    public ResponseDto<String> resetPassword(@RequestBody PasswordPostRequest passwordRequest, @PathVariable String appType) {
         log.info("Start processing reset password request {}", passwordRequest);
-        return loginService.resetPassword(passwordRequest.getPasswordRequest());
+        return loginService.resetPassword(passwordRequest.getPasswordRequest(), appType);
     }
 
-    @PostMapping("/changePassword")
+    @PostMapping("/{appType}/changePassword")
     @Operation(summary = "ChangePassword API")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Encrypted of userName, currentPassword, changePassword, confirmPassword")
-    public ResponseDto<String> changePassword(@RequestBody PasswordPostRequest passwordRequest) {
+    public ResponseDto<String> changePassword(@RequestBody PasswordPostRequest passwordRequest, @PathVariable String appType) {
         log.info("Received request for change Password {}", passwordRequest);
-        return loginService.changePassword(passwordRequest.getPasswordRequest(), Action.CHANGE_PASSWORD);
+        return loginService.changePassword(passwordRequest.getPasswordRequest(), Action.CHANGE_PASSWORD, appType);
     }
 
 }

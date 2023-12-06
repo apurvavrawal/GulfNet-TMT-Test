@@ -1,6 +1,7 @@
 package com.gulfnet.tmt.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gulfnet.tmt.config.GulfNetTMTServiceConfig;
 import com.gulfnet.tmt.dao.UserDao;
 import com.gulfnet.tmt.entity.sql.User;
 import com.gulfnet.tmt.exceptions.GulfNetTMTException;
@@ -43,13 +44,13 @@ public class UserService {
     private final FileStorageService fileStorageService;
     private final SettingsRepository settingsRepository;
     private final EmailService emailService;
-
+    private final GulfNetTMTServiceConfig gulfNetTMTServiceConfig;
     public ResponseDto<UserPostResponse> saveUser(UserPostRequest userPostRequest) {
         try {
             userValidator.validateUserRequest(userPostRequest, "CREATE");
             String password = PasswordGenerator.generatePatternedPassword(RandomGenerator.getDefault().nextInt(10, 15));
             User user = mapper.convertValue(userPostRequest, User.class);
-            user.setPassword(EncryptionUtil.encrypt(password));
+            user.setPassword(EncryptionUtil.encrypt(password , gulfNetTMTServiceConfig.getAppSecurityKey()));
             user.setProfilePhoto(fileStorageService.uploadFile(userPostRequest.getProfilePhoto(), "User"));
             user = userDao.saveUser(user, userPostRequest.getUserRole(), userPostRequest.getUserGroup());
             emailService.sendEmail(user.getEmail(),
