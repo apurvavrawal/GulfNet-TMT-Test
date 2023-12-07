@@ -1,13 +1,12 @@
 package com.gulfnet.tmt.repository.sql;
 
 import com.gulfnet.tmt.entity.sql.Group;
+import com.gulfnet.tmt.model.response.GroupResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import javax.persistence.NamedQueries;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,6 +16,18 @@ public interface GroupRepository extends JpaRepository<Group, UUID> {
 
     Optional<Group> findByName(String name);
 
-    @Query("FROM Group g WHERE LOWER(g.name) like %:search% Or LOWER(g.code) like %:search%")
-    Page<Group> findAllGroupsBySearch(String search, Pageable pageable);
+    @Query("SELECT new com.gulfnet.tmt.model.response.GroupResponse( OG.id, OG.code, OG.name, OG.type, OG.icon, COUNT(GTU.ID) as userCount, OG.dateCreated, OG.dateUpdated, OG.createdBy, OG.updatedBy)"+
+            " FROM Group OG " +
+            " LEFT JOIN UserGroup UG ON UG.group.id = OG.ID " +
+            " LEFT JOIN User GTU ON GTU.ID = UG.user.id " +
+            " WHERE (LOWER(OG.name) like %:search% Or LOWER(OG.code) like %:search%)"+
+            " GROUP BY OG.ID")
+    Page<GroupResponse> findAllGroupsBySearch(String search, Pageable pageable);
+
+    @Query("SELECT new com.gulfnet.tmt.model.response.GroupResponse( OG.ID, OG.code, OG.name, OG.type, OG.icon, COUNT(GTU.ID) as userCount, OG.dateCreated, OG.dateUpdated, OG.createdBy, OG.updatedBy)"+
+            " FROM Group OG " +
+            " LEFT JOIN UserGroup UG ON UG.group.id = OG.ID " +
+            " LEFT JOIN User GTU ON GTU.ID = UG.user.id " +
+            " GROUP BY OG.ID")
+    Page<GroupResponse> findAllGroups(Pageable pageable);
 }

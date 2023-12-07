@@ -1,6 +1,7 @@
 package com.gulfnet.tmt.controller;
 
 import com.gulfnet.tmt.model.request.GroupRequest;
+import com.gulfnet.tmt.model.response.GroupUserResponse;
 import com.gulfnet.tmt.model.response.GroupResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.service.GroupService;
@@ -44,5 +45,10 @@ public class GroupController {
     public ResponseDto<GroupResponse> getGroups(@RequestParam(value = "search", required = false) String search, @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC)Pageable pageable) {
         log.info("Received request for group id {}", search);
         return groupService.getAllGroups(search, pageable);
+    }
+
+    @GetMapping("/{groupId}/users")
+    public ResponseDto<GroupUserResponse> getGroupUsers(@PathVariable UUID groupId, @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC) Pageable pageable) {
+        return groupService.getGroupUsers(groupId, pageable);
     }
 }

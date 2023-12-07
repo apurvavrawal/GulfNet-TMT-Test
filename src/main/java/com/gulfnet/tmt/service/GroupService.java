@@ -2,10 +2,12 @@ package com.gulfnet.tmt.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gulfnet.tmt.dao.GroupDao;
+import com.gulfnet.tmt.dao.UserDao;
 import com.gulfnet.tmt.entity.sql.Group;
 import com.gulfnet.tmt.exceptions.GulfNetTMTException;
 import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.request.GroupRequest;
+import com.gulfnet.tmt.model.response.GroupUserResponse;
 import com.gulfnet.tmt.model.response.GroupResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.util.ErrorConstants;
@@ -30,6 +32,7 @@ public class GroupService {
     private final GroupDao groupDao;
     private final FileStorageService fileStorageService;
     private final ObjectMapper mapper;
+    private final UserDao userDao;
 
     public ResponseDto<GroupResponse> saveGroup(GroupRequest groupRequest) {
         try {
@@ -81,15 +84,24 @@ public class GroupService {
     }
 
     public ResponseDto<GroupResponse> getAllGroups(String search, Pageable pageable) {
-        Page<Group> groups = groupDao.findAllBySearch(search, pageable);
-        List<GroupResponse> groupResponses = new ArrayList<>();
-        for (Group group : groups.getContent()) {
-            groupResponses.add(mapper.convertValue(group, GroupResponse.class));
-        }
+        Page<GroupResponse> groups = groupDao.findAllBySearch(search, pageable);
         return ResponseDto.<GroupResponse>builder()
-                .data(groupResponses)
+                .data(groups.getContent())
                 .total(groups.getTotalElements())
                 .count(groups.stream().count())
                 .build();
+    }
+
+    public ResponseDto<GroupUserResponse> getGroupUsers(UUID id, Pageable pageable) {
+        Page<GroupUserResponse> groupPostResponses = userDao.findGroupPostResponseByIdIn(id, pageable);
+        List<GroupUserResponse> groupUserResponseList = new ArrayList<>();
+        for (GroupUserResponse groupUserResponse : groupPostResponses) {
+            groupUserResponseList.add(groupUserResponse);
+        }
+        return ResponseDto.<GroupUserResponse>builder()
+                .data(groupUserResponseList)
+                .count(groupPostResponses.stream().count())
+                .build();
+
     }
 }

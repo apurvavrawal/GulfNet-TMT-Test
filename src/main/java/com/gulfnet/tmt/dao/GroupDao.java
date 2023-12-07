@@ -1,6 +1,7 @@
 package com.gulfnet.tmt.dao;
 
 import com.gulfnet.tmt.entity.sql.Group;
+import com.gulfnet.tmt.model.response.GroupResponse;
 import com.gulfnet.tmt.repository.sql.GroupRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +17,7 @@ import java.util.UUID;
 public class GroupDao {
 
     private final GroupRepository groupRepository;
+
     public Group saveGroup(Group group) {
         return groupRepository.save(group);
     }
@@ -30,10 +32,11 @@ public class GroupDao {
         return groupRepository.findById(groupId);
     }
 
-    public Page<Group> findAllBySearch(String search, Pageable pageable) {
+    public Page<GroupResponse> findAllBySearch(String search, Pageable pageable) {
         if(StringUtils.isEmpty(search)){
-            return groupRepository.findAll(pageable);
+            return groupRepository.findAllGroups(pageable);
         }
         return groupRepository.findAllGroupsBySearch(search.toLowerCase(), pageable);
     }
+
 }

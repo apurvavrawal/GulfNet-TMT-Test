@@ -1,16 +1,19 @@
 package com.gulfnet.tmt.dao;
 
 import com.gulfnet.tmt.entity.sql.AppRole;
+import com.gulfnet.tmt.entity.sql.Group;
 import com.gulfnet.tmt.entity.sql.User;
+import com.gulfnet.tmt.entity.sql.UserGroup;
 import com.gulfnet.tmt.entity.sql.UserRole;
-import com.gulfnet.tmt.entity.sql.*;
 import com.gulfnet.tmt.exceptions.ValidationException;
+import com.gulfnet.tmt.model.response.GroupUserResponse;
 import com.gulfnet.tmt.repository.sql.UserGroupRepository;
 import com.gulfnet.tmt.repository.sql.UserRepository;
 import com.gulfnet.tmt.repository.sql.UserRoleRepository;
 import com.gulfnet.tmt.specifications.UserSpecifications;
 import com.gulfnet.tmt.util.EncryptionUtil;
 import com.gulfnet.tmt.util.ErrorConstants;
+import com.gulfnet.tmt.util.enums.Status;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +59,7 @@ public class UserDao {
     public User saveUser(User user, List<String> role, List<String> groups) {
         List<UserRole> userRoles = getUserRoles(user, role);
         user.setUserRole(userRoles);
-        if (APP_TYPE_MOBILE.get(1).equalsIgnoreCase(user.getAppType()) ) {
+        if (APP_TYPE_MOBILE.get(1).equalsIgnoreCase(user.getAppType())) {
             List<UserGroup> userGroups = getUserGroups(user, groups);
             user.setUserGroups(userGroups);
         }
@@ -112,5 +115,9 @@ public class UserDao {
 
     public Optional<User> findByUserName(String userName) {
         return userRepository.findByUserName(userName);
+    }
+
+    public Page<GroupUserResponse> findGroupPostResponseByIdIn(UUID groupId, Pageable pageable) {
+        return userRepository.findActiveUserOfGroup(Status.ACTIVE.getValue(), groupId, pageable);
     }
 }
