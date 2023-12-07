@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,5 +27,15 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             " LEFT JOIN Group og ON ug.group.id = og.id " +
             "WHERE ug.group.id = :groupId AND u.status = :status")
     Page<GroupUserResponse> findActiveUserOfGroup(@Param("status") String status, @Param("groupId") UUID groupId, Pageable pageable);
+
+    @Query("SELECT COUNT(u.id), u.appType FROM User u GROUP BY u.appType")
+    List<Object[]> countUsersByAppType();
+
+    @Query( "SELECT COUNT(gu.id), ar.name " +
+            "FROM User gu " +
+            "JOIN UserRole ur ON gu.id = ur.user.id " +
+            "JOIN AppRole ar ON ar.id = ur.role.id " +
+            "GROUP BY ur.role.id, ar.name")
+    List<Object[]> countMobileUsersByRole();
 
 }
