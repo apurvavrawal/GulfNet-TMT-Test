@@ -46,7 +46,7 @@ public class LoginController {
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Encrypted of userName, otp, changePassword, confirmPassword")
     public ResponseDto<String> resetPassword(@RequestBody PasswordPostRequest passwordRequest, @PathVariable String appType) {
         log.info("Start processing reset password request {}", passwordRequest);
-        return loginService.resetPassword(passwordRequest.getPasswordRequest(), appType);
+        return loginService.resetPassword(passwordRequest.getPasswordRequest(), Action.RESET_PASSWORD, appType);
     }
 
     @PostMapping("/{appType}/changePassword")

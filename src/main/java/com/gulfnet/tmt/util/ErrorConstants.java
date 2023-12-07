@@ -17,6 +17,7 @@ public final class ErrorConstants {
     public static String NOT_VALID_ERROR_MESSAGE = "{0} is invalid.";
     public static String NOT_VALID_ERROR_MESSAGE_DESC = "{0} is invalid. {1}";
     public static String NOT_VALID_ERROR_MESSAGE_PASSWORD = "Password is not valid, It should have at least One Capital/Number/Special character and minimum length is 8.";
+    public static String NOT_VALID_ERROR_MESSAGE_CHANGE_PASSWORD = "Password is not valid, It should not be same as previous one.";
     public static String NOT_MATCH_ERROR_CODE = "723";
     public static String NOT_MATCH_ERROR_MESSAGE = "{0} and {1} is not matching.";
     public static String MANDATORY_ERROR_CODE = "724";
