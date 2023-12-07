@@ -1,11 +1,8 @@
 package com.gulfnet.tmt.dao;
 
-import com.gulfnet.tmt.entity.sql.AppRole;
-import com.gulfnet.tmt.entity.sql.Group;
-import com.gulfnet.tmt.entity.sql.User;
-import com.gulfnet.tmt.entity.sql.UserGroup;
-import com.gulfnet.tmt.entity.sql.UserRole;
+import com.gulfnet.tmt.entity.sql.*;
 import com.gulfnet.tmt.exceptions.ValidationException;
+import com.gulfnet.tmt.model.request.UserFilterRequest;
 import com.gulfnet.tmt.model.response.GroupUserResponse;
 import com.gulfnet.tmt.repository.sql.UserGroupRepository;
 import com.gulfnet.tmt.repository.sql.UserRepository;
@@ -17,6 +14,7 @@ import com.gulfnet.tmt.util.enums.Status;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -69,15 +67,6 @@ public class UserDao {
     public Optional<User> getUserByUserName(String userName) {
         return userRepository.findByUserName(userName);
     }
-    public Page<User> findAll(String appType, String search, Pageable pageable) {
-        Specification<User> specification = Specification.where(UserSpecifications.withAppType(appType));
-        if (StringUtils.isEmpty(search)) {
-            log.info("fetching all users");
-            return userRepository.findAll(specification, pageable);
-        }
-        log.info("fetching users based on the search criteria:{}", search);
-        return userRepository.findAll(specification.and(UserSpecifications.withSearch(search)), pageable);
-    }
     private List<UserRole> getUserRoles(User user, List<String> roles) {
         List<AppRole> appRolesByCode = appRoleDao.getAppRolesByCode(roles);
         List<UserRole> userRoles = new ArrayList<>();
@@ -119,5 +108,28 @@ public class UserDao {
 
     public Page<GroupUserResponse> findGroupPostResponseByIdIn(UUID groupId, Pageable pageable) {
         return userRepository.findActiveUserOfGroup(Status.ACTIVE.getValue(), groupId, pageable);
+    }
+
+    public Page<User> findAll(String appType, String search, UserFilterRequest userFilterRequest, Pageable pageable) {
+        Specification<User> specification = buildSpecification(appType, userFilterRequest);
+        if (StringUtils.isEmpty(search)) {
+            log.info("fetching all users");
+            return userRepository.findAll(specification, pageable);
+        }
+        log.info("fetching users based on the search criteria:{}", search);
+        return userRepository.findAll(specification.and(UserSpecifications.withSearch(search)), pageable);
+    }
+    public Specification<User> buildSpecification(String appType, UserFilterRequest userFilterRequest) {
+        Specification<User> specification = Specification.where(UserSpecifications.withAppType(appType));
+        if (CollectionUtils.isNotEmpty(userFilterRequest.getUserGroups())) {
+            specification = specification.and(UserSpecifications.hasUserGroups(userFilterRequest.getUserGroups()));
+        }
+        if (CollectionUtils.isNotEmpty(userFilterRequest.getUserRoles())) {
+            specification = specification.and(UserSpecifications.hasUserRoles(userFilterRequest.getUserRoles()));
+        }
+        if(StringUtils.isNotEmpty(userFilterRequest.getStatus())){
+            specification = specification.and(UserSpecifications.withStatus(userFilterRequest.getStatus()));
+        }
+        return specification;
     }
 }

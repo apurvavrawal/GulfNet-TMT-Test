@@ -6,6 +6,7 @@ import com.gulfnet.tmt.dao.UserDao;
 import com.gulfnet.tmt.entity.sql.User;
 import com.gulfnet.tmt.exceptions.GulfNetTMTException;
 import com.gulfnet.tmt.exceptions.ValidationException;
+import com.gulfnet.tmt.model.request.UserFilterRequest;
 import com.gulfnet.tmt.model.request.UserPostRequest;
 import com.gulfnet.tmt.model.response.ProfileResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
@@ -115,9 +116,9 @@ public class UserService {
         return ResponseDto.<UserPostResponse>builder().status(0).data(List.of(mapper.convertValue(userUpdated, UserPostResponse.class))).build();
     }
 
-    public ResponseDto<UserPostResponse> getAllUsers(String appType, String search, Pageable pageable) {
+    public ResponseDto<UserPostResponse> getAllUsers(UserFilterRequest userFilterRequest, String appType, String search, Pageable pageable) {
         List<UserPostResponse> allUsers = new ArrayList<>();
-        Page<User> users = userDao.findAll(appType, search, pageable);
+        Page<User> users = userDao.findAll(appType, search, userFilterRequest, pageable);
         log.info(" Users data from page number:{}, page size:{}", pageable.getPageNumber(), pageable.getPageSize());
         users.stream().forEach(u -> allUsers.add(mapper.convertValue(u, UserPostResponse.class)));
         return ResponseDto.<UserPostResponse>builder().status(0)
@@ -138,5 +139,4 @@ public class UserService {
                 .data(List.of(profileResponse))
                 .build();
     }
-
 }

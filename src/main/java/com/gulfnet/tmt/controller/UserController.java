@@ -1,11 +1,11 @@
 package com.gulfnet.tmt.controller;
 
+import com.gulfnet.tmt.model.request.UserFilterRequest;
 import com.gulfnet.tmt.model.request.UserPostRequest;
 import com.gulfnet.tmt.model.response.ProfileResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.model.response.UserPostResponse;
 import com.gulfnet.tmt.service.UserService;
-import com.gulfnet.tmt.util.AppConstants;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,13 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,21 +49,17 @@ public class UserController {
     }
 
     @PutMapping(path = "/{userId}",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @Operation(summary = "Update User")
     public ResponseDto<UserPostResponse> updateUser(@PathVariable UUID userId, UserPostRequest user) {
         log.info("Received Request to update the user:{} with data:{}", userId, user);
         return userService.updateUser(userId, user);
     }
 
-    @GetMapping("/admin")
-    public ResponseDto<UserPostResponse> getAdminUsers(@RequestParam(value = "search", required = false) String search, @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC) Pageable pageable) {
+    @PostMapping("/{appType}")
+    @Operation(summary = "Get Users by searching, filtering, appType, sorting, pagination etc...")
+    public ResponseDto<UserPostResponse> getUsers(@PathVariable String appType, @RequestBody UserFilterRequest userFilterRequest, @RequestParam(value = "search", required = false) String search, @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC) Pageable pageable) {
         log.info("Received request for getting the users {}", search);
-        return userService.getAllUsers(AppConstants.APP_TYPE_MOBILE.get(0), search, pageable);
-    }
-
-    @GetMapping("/mobile")
-    public ResponseDto<UserPostResponse> getMobileUsers(@RequestParam(value = "search", required = false) String search, @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        log.info("Received request for getting the users {}", search);
-        return userService.getAllUsers(AppConstants.APP_TYPE_MOBILE.get(1), search, pageable);
+        return userService.getAllUsers(userFilterRequest, appType, search, pageable);
     }
 
     @GetMapping("/profile")
@@ -79,4 +68,5 @@ public class UserController {
         log.info("Received user get request for userName {}", userName);
         return userService.getProfile(userName);
     }
+
 }
