@@ -101,6 +101,7 @@ public class GroupService {
         return ResponseDto.<GroupUserResponse>builder()
                 .data(groupUserResponseList)
                 .count(groupPostResponses.stream().count())
+                .total(groupPostResponses.getTotalElements())
                 .build();
 
     }

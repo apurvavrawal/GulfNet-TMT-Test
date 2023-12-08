@@ -60,6 +60,8 @@ public class UserDao {
         if (APP_TYPE_MOBILE.get(1).equalsIgnoreCase(user.getAppType())) {
             List<UserGroup> userGroups = getUserGroups(user, groups);
             user.setUserGroups(userGroups);
+        } else {
+            user.setUserGroups(new ArrayList<>());
         }
         user = userRepository.save(user);
         return user;

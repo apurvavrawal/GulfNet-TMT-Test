@@ -33,9 +33,19 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Query( "SELECT COUNT(gu.id), ar.name " +
             "FROM User gu " +
-            "JOIN UserRole ur ON gu.id = ur.user.id " +
-            "JOIN AppRole ar ON ar.id = ur.role.id " +
+            "LEFT JOIN UserRole ur ON gu.id = ur.user.id " +
+            "LEFT JOIN AppRole ar ON ar.id = ur.role.id " +
             "GROUP BY ur.role.id, ar.name")
     List<Object[]> countMobileUsersByRole();
+
+    @Query("SELECT count(gu.id), ar.name, og.name "+
+            "FROM User gu "+
+            "LEFT JOIN UserRole ur on gu.id = ur.user.id "+
+            "LEFT JOIN UserGroup ug on gu.id = ug.user.id "+
+            "LEFT JOIN AppRole ar on ar.id = ur.role.id "+
+            "LEFT JOIN Group og on og.id = ug.group.id "+
+            "GROUP BY ur.role.id, ar.name, og.name "+
+            "ORDER BY  og.name, ar.name")
+    List<Object[]> countMobileUsersByGroup();
 
 }
