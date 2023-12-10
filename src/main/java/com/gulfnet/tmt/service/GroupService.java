@@ -7,7 +7,7 @@ import com.gulfnet.tmt.entity.sql.Group;
 import com.gulfnet.tmt.exceptions.GulfNetTMTException;
 import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.request.GroupRequest;
-import com.gulfnet.tmt.model.response.GroupUserResponse;
+import com.gulfnet.tmt.model.response.UserBasicInfoResponse;
 import com.gulfnet.tmt.model.response.GroupResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.util.ErrorConstants;
@@ -92,13 +92,13 @@ public class GroupService {
                 .build();
     }
 
-    public ResponseDto<GroupUserResponse> getGroupUsers(UUID id, Pageable pageable) {
-        Page<GroupUserResponse> groupPostResponses = userDao.findGroupPostResponseByIdIn(id, pageable);
-        List<GroupUserResponse> groupUserResponseList = new ArrayList<>();
-        for (GroupUserResponse groupUserResponse : groupPostResponses) {
+    public ResponseDto<UserBasicInfoResponse> getGroupUsers(UUID id, Pageable pageable) {
+        Page<UserBasicInfoResponse> groupPostResponses = userDao.findGroupPostResponseByIdIn(id, pageable);
+        List<UserBasicInfoResponse> groupUserResponseList = new ArrayList<>();
+        for (UserBasicInfoResponse groupUserResponse : groupPostResponses) {
             groupUserResponseList.add(groupUserResponse);
         }
-        return ResponseDto.<GroupUserResponse>builder()
+        return ResponseDto.<UserBasicInfoResponse>builder()
                 .data(groupUserResponseList)
                 .count(groupPostResponses.stream().count())
                 .total(groupPostResponses.getTotalElements())

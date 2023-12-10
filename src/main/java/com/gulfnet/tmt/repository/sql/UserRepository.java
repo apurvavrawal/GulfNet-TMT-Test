@@ -1,7 +1,7 @@
 package com.gulfnet.tmt.repository.sql;
 
 import com.gulfnet.tmt.entity.sql.User;
-import com.gulfnet.tmt.model.response.GroupUserResponse;
+import com.gulfnet.tmt.model.response.UserBasicInfoResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -22,11 +22,11 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Page<User> findAll(Specification<User> specification, Pageable pageable);
 
-    @Query("SELECT new com.gulfnet.tmt.model.response.GroupUserResponse( u.id, u.userName, u.firstName, u.lastName, u.phone, u.email, u.profilePhoto) FROM User u " +
+    @Query("SELECT new com.gulfnet.tmt.model.response.UserBasicInfoResponse( u.id, u.userName, u.firstName, u.lastName, u.phone, u.email, u.profilePhoto) FROM User u " +
             " LEFT JOIN UserGroup ug ON u.id = ug.user.id " +
             " LEFT JOIN Group og ON ug.group.id = og.id " +
             "WHERE ug.group.id = :groupId AND u.status = :status")
-    Page<GroupUserResponse> findActiveUserOfGroup(@Param("status") String status, @Param("groupId") UUID groupId, Pageable pageable);
+    Page<UserBasicInfoResponse> findActiveUserOfGroup(@Param("status") String status, @Param("groupId") UUID groupId, Pageable pageable);
 
     @Query("SELECT COUNT(u.id), u.appType FROM User u GROUP BY u.appType")
     List<Object[]> countUsersByAppType();

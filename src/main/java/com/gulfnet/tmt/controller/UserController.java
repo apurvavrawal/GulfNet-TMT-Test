@@ -1,9 +1,11 @@
 package com.gulfnet.tmt.controller;
 
+import com.gulfnet.tmt.model.request.UserContactsRequest;
 import com.gulfnet.tmt.model.request.UserFilterRequest;
 import com.gulfnet.tmt.model.request.UserPostRequest;
 import com.gulfnet.tmt.model.response.ProfileResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
+import com.gulfnet.tmt.model.response.UserContactsResponse;
 import com.gulfnet.tmt.model.response.UserPostResponse;
 import com.gulfnet.tmt.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -67,6 +69,20 @@ public class UserController {
     public ResponseDto<ProfileResponse> getProfile(@RequestParam(value = "userName") String userName) {
         log.info("Received user get request for userName {}", userName);
         return userService.getProfile(userName);
+    }
+
+    @PostMapping("/{userId}/contacts")
+    @Operation(summary = "Save/Update User Contact")
+    public ResponseDto<String> saveUserContact(@PathVariable UUID userId, @RequestBody UserContactsRequest userContactsRequest) {
+        log.info("Received user save/remove contact request for userId {}", userId);
+        return userService.saveUserContacts(userId, userContactsRequest);
+    }
+
+    @GetMapping("/{userId}/contacts")
+    @Operation(summary = "Get User Contacts")
+    public ResponseDto<UserContactsResponse> getUserContacts(@PathVariable UUID userId, Pageable pageable) {
+        log.info("Received user contact request for userId {}", userId);
+        return userService.getUserContacts(userId, pageable);
     }
 
 }

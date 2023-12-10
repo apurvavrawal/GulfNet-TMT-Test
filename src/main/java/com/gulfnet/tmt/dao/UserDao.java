@@ -3,7 +3,10 @@ package com.gulfnet.tmt.dao;
 import com.gulfnet.tmt.entity.sql.*;
 import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.request.UserFilterRequest;
-import com.gulfnet.tmt.model.response.GroupUserResponse;
+import com.gulfnet.tmt.model.response.UserBasicInfoResponse;
+import com.gulfnet.tmt.model.response.UserContactsResponse;
+import com.gulfnet.tmt.repository.jdbc.UserContactJDBCRepository;
+import com.gulfnet.tmt.repository.sql.UserContactRepository;
 import com.gulfnet.tmt.repository.sql.UserGroupRepository;
 import com.gulfnet.tmt.repository.sql.UserRepository;
 import com.gulfnet.tmt.repository.sql.UserRoleRepository;
@@ -39,6 +42,8 @@ public class UserDao {
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
     private final UserGroupRepository userGroupRepository;
+    private final UserContactJDBCRepository userContactJDBCRepository;
+    private final UserContactRepository userContactRepository;
     private final AppRoleDao appRoleDao;
     private final GroupDao groupDao;
     private static final String key = "4995f5e3-0280-4e6a-ad40-917136cbb884";
@@ -108,7 +113,7 @@ public class UserDao {
         return userRepository.findByUserName(userName);
     }
 
-    public Page<GroupUserResponse> findGroupPostResponseByIdIn(UUID groupId, Pageable pageable) {
+    public Page<UserBasicInfoResponse> findGroupPostResponseByIdIn(UUID groupId, Pageable pageable) {
         return userRepository.findActiveUserOfGroup(Status.ACTIVE.getValue(), groupId, pageable);
     }
 
@@ -133,5 +138,26 @@ public class UserDao {
             specification = specification.and(UserSpecifications.withStatus(userFilterRequest.getStatus()));
         }
         return specification;
+    }
+
+    public UserContactsResponse getUserContacts(UUID userId, Pageable pageable) {
+        return userContactJDBCRepository.findUserContacts(userId, pageable);
+    }
+
+    public void saveUserContacts(UUID userId, List<UUID> newContactIds) {
+        List<UserContact> userContacts = new ArrayList<>();
+        userContactRepository.findByUserId(userId).stream().filter(userContact -> newContactIds.contains(userContact.getUserContactId())).forEach(userContact -> newContactIds.remove(userContact.getUserContactId()));
+        for(UUID contactUserId : newContactIds){
+            UserContact uc = new UserContact();
+            uc.setUserId(userId);
+            uc.setUserContactId(contactUserId);
+            userContacts.add(uc);
+        }
+        userContactRepository.saveAll(userContacts);
+    }
+
+    public void removeUserContacts(UUID userId, List<UUID> removeContactIds) {
+        List<UserContact> userContacts = userContactRepository.findByUserIdAndUserContactIdIn(userId, removeContactIds);
+        userContactRepository.deleteAll(userContacts);
     }
 }

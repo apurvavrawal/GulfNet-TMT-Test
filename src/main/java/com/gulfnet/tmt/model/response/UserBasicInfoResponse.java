@@ -16,7 +16,7 @@ import java.util.UUID;
 @ToString
 @Builder
 @NoArgsConstructor
-public class GroupUserResponse {
+public class UserBasicInfoResponse {
 
     private UUID id;
     private String userName;
@@ -25,6 +25,7 @@ public class GroupUserResponse {
     private String phone;
     private String email;
     private String profilePhoto;
+    private String status;
 
     public String getProfilePhoto() {
         return  ImageUtil.getB64EncodedStringFromImagePathOrURL(profilePhoto);

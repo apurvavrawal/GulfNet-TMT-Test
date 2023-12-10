@@ -6,12 +6,10 @@ import com.gulfnet.tmt.dao.UserDao;
 import com.gulfnet.tmt.entity.sql.User;
 import com.gulfnet.tmt.exceptions.GulfNetTMTException;
 import com.gulfnet.tmt.exceptions.ValidationException;
+import com.gulfnet.tmt.model.request.UserContactsRequest;
 import com.gulfnet.tmt.model.request.UserFilterRequest;
 import com.gulfnet.tmt.model.request.UserPostRequest;
-import com.gulfnet.tmt.model.response.ProfileResponse;
-import com.gulfnet.tmt.model.response.ResponseDto;
-import com.gulfnet.tmt.model.response.SettingsResponse;
-import com.gulfnet.tmt.model.response.UserPostResponse;
+import com.gulfnet.tmt.model.response.*;
 import com.gulfnet.tmt.repository.sql.SettingsRepository;
 import com.gulfnet.tmt.util.EmailTemplates;
 import com.gulfnet.tmt.util.EncryptionUtil;
@@ -137,6 +135,22 @@ public class UserService {
                 .build();
         return ResponseDto.<ProfileResponse>builder()
                 .data(List.of(profileResponse))
+                .build();
+    }
+
+    public ResponseDto<UserContactsResponse> getUserContacts(UUID userId, Pageable pageable) {
+        UserContactsResponse userContactsResponse = userDao.getUserContacts(userId, pageable);
+        return ResponseDto.<UserContactsResponse>builder()
+                .data(List.of(userContactsResponse))
+                .build();
+    }
+
+    public ResponseDto<String> saveUserContacts(UUID userId, UserContactsRequest userContactsRequest) {
+        userDao.saveUserContacts(userId, userContactsRequest.getNewContactIds());
+        userDao.removeUserContacts(userId, userContactsRequest.getRemoveContactIds());
+
+        return ResponseDto.<String>builder()
+                .data(List.of("Contact List Updated Successfully."))
                 .build();
     }
 }
