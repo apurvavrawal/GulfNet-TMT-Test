@@ -22,7 +22,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Page<User> findAll(Specification<User> specification, Pageable pageable);
 
-    @Query("SELECT new com.gulfnet.tmt.model.response.UserBasicInfoResponse( u.id, u.userName, u.firstName, u.lastName, u.phone, u.email, u.profilePhoto) FROM User u " +
+    @Query("SELECT new com.gulfnet.tmt.model.response.UserBasicInfoResponse( u.id, u.userName, u.firstName, u.lastName, u.phone, u.email, u.profilePhoto, u.status) FROM User u " +
             " LEFT JOIN UserGroup ug ON u.id = ug.user.id " +
             " LEFT JOIN Group og ON ug.group.id = og.id " +
             "WHERE ug.group.id = :groupId AND u.status = :status")
