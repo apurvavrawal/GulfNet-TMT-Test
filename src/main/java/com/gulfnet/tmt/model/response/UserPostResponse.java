@@ -25,6 +25,7 @@ public class UserPostResponse {
     private String email;
     private String profilePhoto;
     private String languagePreference;
+    private String status;
 
     private List<UserRole> userRole;
     private List<UserGroup> userGroups;
