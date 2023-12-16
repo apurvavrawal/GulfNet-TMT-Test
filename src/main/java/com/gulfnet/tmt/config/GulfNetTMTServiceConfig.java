@@ -46,4 +46,7 @@ public class GulfNetTMTServiceConfig {
     @Value("${app.sec.key}")
     private String appSecurityKey;
 
+    @Value("${doraku.configuration.enable}")
+    private boolean isDorakuConfigure;
+
 }

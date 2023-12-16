@@ -28,6 +28,8 @@ public class UserPostRequest {
 
     private String email;
 
+    private String dorakuUserCode;
+
     @JsonSerialize(using = MultipartFileSerializer.class)
     private MultipartFile profilePhoto;
 

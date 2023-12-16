@@ -117,6 +117,11 @@ public final class UserValidator {
                     MessageFormat.format(ErrorConstants.NOT_VALID_ERROR_MESSAGE, user.getLanguagePreference() + " language ")));
         }
 
+        if (APP_TYPE_MOBILE.get(1).equalsIgnoreCase(user.getAppType()) && gulfNetTMTServiceConfig.isDorakuConfigure() && StringUtils.isEmpty(user.getDorakuUserCode())) {
+            errors.add(new ErrorDto(ErrorConstants.MANDATORY_ERROR_CODE,
+                    MessageFormat.format(ErrorConstants.MANDATORY_ERROR_MESSAGE, "Doraku User Code")));
+        }
+
         if (CollectionUtils.isEmpty(user.getUserRole())) {
             errors.add(new ErrorDto(ErrorConstants.MANDATORY_ERROR_CODE,
                     MessageFormat.format(ErrorConstants.MANDATORY_ERROR_MESSAGE, "User Role")));

@@ -1,5 +1,6 @@
 package com.gulfnet.tmt.model.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.gulfnet.tmt.entity.sql.UserGroup;
 import com.gulfnet.tmt.entity.sql.UserRole;
 import com.gulfnet.tmt.util.ImageUtil;
@@ -14,6 +15,7 @@ import java.util.List;
 @ToString
 @Builder
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserPostResponse {
 
     private String id;
@@ -26,6 +28,7 @@ public class UserPostResponse {
     private String profilePhoto;
     private String languagePreference;
     private String status;
+    private String dorakuUserCode;
 
     private List<UserRole> userRole;
     private List<UserGroup> userGroups;
