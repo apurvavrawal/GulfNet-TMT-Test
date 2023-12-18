@@ -15,6 +15,7 @@ import com.gulfnet.tmt.util.EmailTemplates;
 import com.gulfnet.tmt.util.EncryptionUtil;
 import com.gulfnet.tmt.util.ErrorConstants;
 import com.gulfnet.tmt.util.PasswordGenerator;
+import com.gulfnet.tmt.util.enums.Status;
 import com.gulfnet.tmt.validator.UserValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -89,6 +90,10 @@ public class UserService {
 
     public Optional<User> getUserByUserName(String userName) {
         return userDao.getUserByUserName(userName);
+    }
+
+    public User getUserByUserNameAndStatus(String userName) {
+        return userDao.getUserByUserNameAndStatus(userName, Status.ACTIVE.getValue());
     }
 
     public ResponseDto<UserPostResponse> updateUser(UUID userId, UserPostRequest userPostRequest) {

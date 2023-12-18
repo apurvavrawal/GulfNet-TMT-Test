@@ -74,6 +74,10 @@ public class UserDao {
     public Optional<User> getUserByUserName(String userName) {
         return userRepository.findByUserName(userName);
     }
+
+    public User getUserByUserNameAndStatus(String userName, String status) {
+        return userRepository.findByUserNameAndStatus(userName, status);
+    }
     private List<UserRole> getUserRoles(User user, List<String> roles) {
         List<AppRole> appRolesByCode = appRoleDao.getAppRolesByCode(roles);
         List<UserRole> userRoles = new ArrayList<>();

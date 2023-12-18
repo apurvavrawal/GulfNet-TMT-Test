@@ -20,6 +20,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findByUserName(String userName);
 
+    User findByUserNameAndStatus(String userName, String status);
+
     Page<User> findAll(Specification<User> specification, Pageable pageable);
 
     @Query("SELECT new com.gulfnet.tmt.model.response.UserBasicInfoResponse( u.id, u.userName, u.firstName, u.lastName, u.phone, u.email, u.profilePhoto, u.status) FROM User u " +

@@ -27,5 +27,9 @@ public final class ErrorConstants {
     public static String OTP_EXPIRED = "Otp is expired";
 
     public static String SYSTEM_ERROR_CODE = "500";
-
+    public static String ALREADY_LOGGED_IN_ERROR_CODE = "601";
+    public static String ALREADY_LOGGED_IN_ERROR_MESSAGE = "You are already logged in from another device," +
+            " Do you still want to continue to login here?";
+    public static String JWT_TOKEN_EXPIRED_ERROR_CODE = "401";
+    public static String JWT_TOKEN_EXPIRED_ERROR_MESSAGE = "JWT Token is expired.";
 }

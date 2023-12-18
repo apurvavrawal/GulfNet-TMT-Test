@@ -11,6 +11,6 @@ import lombok.*;
 @NoArgsConstructor
 public class LoginPostRequest {
 
-    @Schema(example = "(\\\"{\"userName\":\"USERNAME\",\"password\":\"12345\",\"appType\":\"ADMIN\",\"machineInfo\":\"Device Details\",\"location\":\"location of User\"}\")")
+    @Schema(example = "(\\\"{\"userName\":\"USERNAME\",\"password\":\"12345\",\"appType\":\"ADMIN\",\"machineInfo\":\"Device Details\",\"location\":\"location of User\",\"forceLogin\":\"ture/false\"}\")")
     String loginRequest;
 }

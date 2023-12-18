@@ -2,6 +2,10 @@ package com.gulfnet.tmt.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.gulfnet.tmt.entity.sql.LoginAudit;
+import com.gulfnet.tmt.exceptions.GulfNetTMTException;
+import com.gulfnet.tmt.util.DateConversionUtil;
+import com.gulfnet.tmt.util.ErrorConstants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -11,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.function.Function;
 
@@ -26,9 +31,9 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
+    public boolean isTokenValid(String token, UserDetails userDetails, LoginAudit loginAudit) {
         final String userName = extractUserName(token);
-        return (userName.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        return (userName.equals(userDetails.getUsername())) && isTokenExpired(token, loginAudit);
     }
 
     public String generateToken(UserDetails userDetails,Date expiryTime, String scope) {
@@ -44,8 +49,9 @@ public class JwtService {
         return claimsResolvers.apply(claims);
     }
 
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+    private boolean isTokenExpired(String token, LoginAudit loginAudit) {
+        Date loginExpiryTime = DateConversionUtil.conversion(loginAudit);
+        return extractExpiration(token).equals(loginExpiryTime);
     }
 
     private Date extractExpiration(String token) {

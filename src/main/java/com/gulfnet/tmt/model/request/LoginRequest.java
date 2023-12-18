@@ -20,4 +20,6 @@ public class LoginRequest {
     private String password;
     private String machineInfo;
     private String location;
+    @Builder.Default
+    private boolean forceLogin = false;
 }
