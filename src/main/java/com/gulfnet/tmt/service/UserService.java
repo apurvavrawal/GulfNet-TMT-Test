@@ -92,7 +92,7 @@ public class UserService {
         return userDao.getUserByUserName(userName);
     }
 
-    public User getUserByUserNameAndStatus(String userName) {
+    public Optional<User> getUserByUserNameAndStatus(String userName) {
         return userDao.getUserByUserNameAndStatus(userName, Status.ACTIVE.getValue());
     }
 
@@ -158,5 +158,4 @@ public class UserService {
                 .data(List.of("Contact List Updated Successfully."))
                 .build();
     }
-
 }

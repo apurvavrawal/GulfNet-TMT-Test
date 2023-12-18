@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Repository
 public interface LoginAuditRepository extends JpaRepository<LoginAudit, UUID> {
-    Optional<LoginAudit> findByUserId(UUID id);
+    Optional<LoginAudit> findTopByUserIdOrderByLoginExpiryDateDesc(UUID id);
 
     @Modifying
     @Transactional

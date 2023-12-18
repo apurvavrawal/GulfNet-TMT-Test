@@ -47,15 +47,13 @@ public class AuthenticationService {
     }
 
     public String signIn(LoginRequest loginRequestData) {
-        User authenticatedUser = userDao.getAuthenticatedUser(loginRequestData.getUserName(), loginRequestData.getPassword(), loginRequestData.getAppType());
-        if(ObjectUtils.isEmpty(authenticatedUser)) {
-            throw new GulfNetTMTException(ErrorConstants.LOGIN_USER_NOT_FOUND_ERROR_CODE, ErrorConstants.LOGIN_USER_NOT_FOUND_ERROR_MESSAGE);
-        }
+        User authenticatedUser = userDao.getAuthenticatedUser(loginRequestData.getUserName(), loginRequestData.getPassword(), loginRequestData.getAppType())
+                .orElseThrow( () -> new GulfNetTMTException(ErrorConstants.LOGIN_USER_NOT_FOUND_ERROR_CODE, ErrorConstants.LOGIN_USER_NOT_FOUND_ERROR_MESSAGE));
         Date expiryTime = getExpiryTime(loginRequestData);
         Authentication authentication = authentication(authenticatedUser);
         String jwtToken = createJWTToken(authentication, authenticatedUser, expiryTime);
         log.debug("jwtToken {}", jwtToken);
-        Optional<LoginAudit> loginAuditResponse = loginAuditRepository.findByUserId(authenticatedUser.getId());
+        Optional<LoginAudit> loginAuditResponse = loginAuditRepository.findTopByUserIdOrderByLoginExpiryDateDesc(authenticatedUser.getId());
         loginAuditResponse.ifPresent(loginAudit -> {
             checkLoginDevice(loginAudit, loginRequestData);
             updateLoginAudit(authenticatedUser, loginRequestData, expiryTime);

@@ -16,11 +16,11 @@ import java.util.UUID;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
-    User findByUserNameAndPasswordAndAppType(String userName, String password, String appType);
+    Optional<User> findByUserNameAndPasswordAndAppTypeAndStatus(String userName, String password, String appType, String status);
 
     Optional<User> findByUserName(String userName);
 
-    User findByUserNameAndStatus(String userName, String status);
+    Optional<User> findByUserNameAndStatus(String userName, String status);
 
     Page<User> findAll(Specification<User> specification, Pageable pageable);
 

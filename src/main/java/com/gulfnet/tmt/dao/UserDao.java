@@ -47,9 +47,9 @@ public class UserDao {
     private final AppRoleDao appRoleDao;
     private final GroupDao groupDao;
     private static final String key = "4995f5e3-0280-4e6a-ad40-917136cbb884";
-    public User getAuthenticatedUser(String username, String password, String appType) {
+    public Optional<User> getAuthenticatedUser(String username, String password, String appType) {
         log.info("UserName : {}, password : {}", username, EncryptionUtil.encrypt(password, key));
-        return userRepository.findByUserNameAndPasswordAndAppType(username, EncryptionUtil.encrypt(password, key), appType);
+        return userRepository.findByUserNameAndPasswordAndAppTypeAndStatus(username, EncryptionUtil.encrypt(password, key), appType, Status.ACTIVE.getValue());
     }
     public User saveUser(User user) {
         return userRepository.save(user);
@@ -75,8 +75,17 @@ public class UserDao {
         return userRepository.findByUserName(userName);
     }
 
-    public User getUserByUserNameAndStatus(String userName, String status) {
+    public Optional<User> getUserByUserNameAndStatus(String userName, String status) {
         return userRepository.findByUserNameAndStatus(userName, status);
+    }
+    public Page<User> findAll(String appType, String search, Pageable pageable) {
+        Specification<User> specification = Specification.where(UserSpecifications.withAppType(appType));
+        if (StringUtils.isEmpty(search)) {
+            log.info("fetching all users");
+            return userRepository.findAll(specification, pageable);
+        }
+        log.info("fetching users based on the search criteria:{}", search);
+        return userRepository.findAll(specification.and(UserSpecifications.withSearch(search)), pageable);
     }
     private List<UserRole> getUserRoles(User user, List<String> roles) {
         List<AppRole> appRolesByCode = appRoleDao.getAppRolesByCode(roles);

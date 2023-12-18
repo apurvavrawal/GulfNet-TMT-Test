@@ -13,7 +13,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
@@ -69,19 +68,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt = authHeader.substring(7);
         final String userName = jwtService.extractUserName(jwt);
         if (StringUtils.isNotEmpty(userName) && SecurityContextHolder.getContext().getAuthentication() == null) {
-            User userDetails = userService.getUserByUserNameAndStatus(userName);
-            LoginAudit loginAudit = loginAuditRepository.findByUserId(userDetails.getId())
+            User userDetails = userService.getUserByUserNameAndStatus(userName).orElseThrow(() -> new GulfNetTMTException(ErrorConstants.LOGIN_USER_NOT_FOUND_ERROR_CODE, ErrorConstants.LOGIN_USER_NOT_FOUND_ERROR_MESSAGE));
+
+            LoginAudit loginAudit = loginAuditRepository.findTopByUserIdOrderByLoginExpiryDateDesc(userDetails.getId())
                     .orElseThrow(() -> new GulfNetTMTException(ErrorConstants.JWT_TOKEN_EXPIRED_ERROR_CODE, ErrorConstants.JWT_TOKEN_EXPIRED_ERROR_MESSAGE));
-            if (ObjectUtils.isNotEmpty(userDetails) && jwtService.isTokenValid(jwt, userDetails, loginAudit)) {
-                SecurityContext context = SecurityContextHolder.createEmptyContext();
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails.getUsername(), null, userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                context.setAuthentication(authToken);
-                SecurityContextHolder.setContext(context);
-            } else {
+
+            if (!jwtService.isTokenValid(jwt, userDetails, loginAudit)) {
                 throw new GulfNetTMTException(ErrorConstants.JWT_TOKEN_EXPIRED_ERROR_CODE, ErrorConstants.JWT_TOKEN_EXPIRED_ERROR_MESSAGE);
             }
+
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    userDetails.getUsername(), null, userDetails.getAuthorities());
+            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            context.setAuthentication(authToken);
+            SecurityContextHolder.setContext(context);
         }
     }
 
