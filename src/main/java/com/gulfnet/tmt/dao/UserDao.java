@@ -6,6 +6,7 @@ import com.gulfnet.tmt.model.request.UserFilterRequest;
 import com.gulfnet.tmt.model.response.UserBasicInfoResponse;
 import com.gulfnet.tmt.model.response.UserContactsResponse;
 import com.gulfnet.tmt.repository.jdbc.UserContactJDBCRepository;
+import com.gulfnet.tmt.repository.sql.LoginAuditRepository;
 import com.gulfnet.tmt.repository.sql.UserContactRepository;
 import com.gulfnet.tmt.repository.sql.UserGroupRepository;
 import com.gulfnet.tmt.repository.sql.UserRepository;
@@ -46,6 +47,7 @@ public class UserDao {
     private final UserContactRepository userContactRepository;
     private final AppRoleDao appRoleDao;
     private final GroupDao groupDao;
+    private final LoginAuditRepository loginAuditRepository;
     private static final String key = "4995f5e3-0280-4e6a-ad40-917136cbb884";
     public Optional<User> getAuthenticatedUser(String username, String password, String appType) {
         log.info("UserName : {}, password : {}", username, EncryptionUtil.encrypt(password, key));
@@ -172,5 +174,9 @@ public class UserDao {
     public void removeUserContacts(UUID userId, List<UUID> removeContactIds) {
         List<UserContact> userContacts = userContactRepository.findByUserIdAndUserContactIdIn(userId, removeContactIds);
         userContactRepository.deleteAll(userContacts);
+    }
+
+    public void deleteEntityById(UUID userId) {
+        loginAuditRepository.deleteEntityById(userId);
     }
 }
