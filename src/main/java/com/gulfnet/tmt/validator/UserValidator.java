@@ -96,13 +96,13 @@ public final class UserValidator {
                     MessageFormat.format(ErrorConstants.NOT_VALID_ERROR_MESSAGE, "Email")));
         }
 
-        if (StringUtils.isEmpty(user.getPhone())){
-            errors.add(new ErrorDto(ErrorConstants.MANDATORY_ERROR_CODE,
-                    MessageFormat.format(ErrorConstants.MANDATORY_ERROR_MESSAGE, "Phone")));
-        } else if (!Pattern.matches(gulfNetTMTServiceConfig.getRegExPhone(), user.getPhone())) {
-            errors.add(new ErrorDto(ErrorConstants.NOT_VALID_ERROR_CODE,
-                    MessageFormat.format(ErrorConstants.NOT_VALID_ERROR_MESSAGE, "Phone")));
-        }
+//        if (StringUtils.isEmpty(user.getPhone())){
+//            errors.add(new ErrorDto(ErrorConstants.MANDATORY_ERROR_CODE,
+//                    MessageFormat.format(ErrorConstants.MANDATORY_ERROR_MESSAGE, "Phone")));
+//        } else if (!Pattern.matches(gulfNetTMTServiceConfig.getRegExPhone(), user.getPhone())) {
+//            errors.add(new ErrorDto(ErrorConstants.NOT_VALID_ERROR_CODE,
+//                    MessageFormat.format(ErrorConstants.NOT_VALID_ERROR_MESSAGE, "Phone")));
+//        }
 
         if (!APP_TYPE_MOBILE.contains(user.getAppType())) {
             errors.add(new ErrorDto(ErrorConstants.NOT_VALID_ERROR_CODE,
@@ -117,10 +117,10 @@ public final class UserValidator {
                     MessageFormat.format(ErrorConstants.NOT_VALID_ERROR_MESSAGE, user.getLanguagePreference() + " language ")));
         }
 
-        if (APP_TYPE_MOBILE.get(1).equalsIgnoreCase(user.getAppType()) && gulfNetTMTServiceConfig.isDorakuConfigure() && StringUtils.isEmpty(user.getDorakuUserCode())) {
-            errors.add(new ErrorDto(ErrorConstants.MANDATORY_ERROR_CODE,
-                    MessageFormat.format(ErrorConstants.MANDATORY_ERROR_MESSAGE, "Doraku User Code")));
-        }
+//        if (APP_TYPE_MOBILE.get(1).equalsIgnoreCase(user.getAppType()) && gulfNetTMTServiceConfig.isDorakuConfigure() && StringUtils.isEmpty(user.getDorakuUserCode())) {
+//            errors.add(new ErrorDto(ErrorConstants.MANDATORY_ERROR_CODE,
+//                    MessageFormat.format(ErrorConstants.MANDATORY_ERROR_MESSAGE, "Doraku User Code")));
+//        }
 
         if (CollectionUtils.isEmpty(user.getUserRole())) {
             errors.add(new ErrorDto(ErrorConstants.MANDATORY_ERROR_CODE,
