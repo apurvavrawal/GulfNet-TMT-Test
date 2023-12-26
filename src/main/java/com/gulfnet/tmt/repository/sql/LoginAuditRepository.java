@@ -20,4 +20,9 @@ public interface LoginAuditRepository extends JpaRepository<LoginAudit, UUID> {
     @Transactional
     @Query("UPDATE LoginAudit l SET l.loginExpiryDate = :expiryTime, l.machineInfo = :machineInfo WHERE l.userId = :id")
     void updateUserIdAndMachineInfo(@Param("id") UUID id,@Param("machineInfo") String machineInfo, @Param("expiryTime") Date expiryTime);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM LoginAudit l WHERE l.userId = :id")
+    void deleteEntityById(@Param("id") UUID userId);
 }

@@ -9,7 +9,10 @@ import com.gulfnet.tmt.util.enums.Action;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 
 @RestController
@@ -55,6 +58,13 @@ public class LoginController {
     public ResponseDto<String> changePassword(@RequestBody PasswordPostRequest passwordRequest, @PathVariable String appType) {
         log.info("Received request for change Password {}", passwordRequest);
         return loginService.changePassword(passwordRequest.getPasswordRequest(), Action.CHANGE_PASSWORD, appType);
+    }
+
+    @DeleteMapping("/logout/{userId}")
+    @Operation(summary = "Logout API")
+    public ResponseEntity<String> logout(@PathVariable UUID userId) {
+        loginService.logout(userId);
+        return ResponseEntity.ok("Logout Successfully");
     }
 
 }

@@ -2,6 +2,7 @@ package com.gulfnet.tmt.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gulfnet.tmt.config.GulfNetTMTServiceConfig;
+import com.gulfnet.tmt.dao.UserDao;
 import com.gulfnet.tmt.entity.sql.User;
 import com.gulfnet.tmt.entity.sql.UserPasswordAudit;
 import com.gulfnet.tmt.exceptions.GulfNetTMTException;
@@ -48,6 +49,7 @@ public class LoginService {
     private final ObjectMapper mapper;
     private final EmailService emailService;
     private final GulfNetTMTServiceConfig gulfNetTMTServiceConfig;
+    private final UserDao userDao;
 
     public ResponseDto<LoginResponse> login(String requestBody, String appType) {
         Optional<LoginRequest> loginRequest = getLoginRequest(requestBody, appType);
@@ -176,6 +178,10 @@ public class LoginService {
         }
 
         return empty();
+    }
+
+    public void logout(UUID userId) {
+        userDao.deleteEntityById(userId);
     }
 }
 
