@@ -53,18 +53,12 @@ public final class UserValidator {
         if (!errors.isEmpty()) throw new ValidationException(errors);
     }
 
-    public void validateUserProfileRequest(MultipartFile profilePhoto, String language) {
-        if(StringUtils.isEmpty(language) && profilePhoto == null) {
+    public void validateUserProfileRequest(String language) {
+        if(StringUtils.isEmpty(language)) {
             throw new ValidationException(ErrorConstants.MANDATORY_ERROR_CODE, MessageFormat.format(ErrorConstants.MANDATORY_ERROR_MESSAGE,"Anyone profilePhoto or language"));
         }
         List<ErrorDto> errors = new ArrayList<>();
-        if(profilePhoto != null && !profilePhoto.isEmpty()) {
-            try {
-                fileUploadValidator.validate(profilePhoto);
-            } catch (ValidationException ex) {
-                errors.addAll(ex.getErrorMessages());
-            }
-        }
+
         if(StringUtils.isNotEmpty(language) && Language.get(language).isEmpty()) {
             errors.add(new ErrorDto(ErrorConstants.NOT_VALID_ERROR_CODE,
                     MessageFormat.format(ErrorConstants.NOT_VALID_ERROR_MESSAGE, language + " language ")));
