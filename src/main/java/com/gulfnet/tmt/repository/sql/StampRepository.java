@@ -21,5 +21,5 @@ public interface StampRepository extends JpaRepository<Stamp, UUID> {
 
     Page<Stamp> findAllByStatus(String status, Pageable pageable);
 
-    long count();
+    long countByStatus(String status);
 }

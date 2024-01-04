@@ -40,6 +40,6 @@ public class StampDao {
     }
 
     public long getCount() {
-       return stampRepository.count();
+       return stampRepository.countByStatus(Status.ACTIVE.getName());
     }
 }
