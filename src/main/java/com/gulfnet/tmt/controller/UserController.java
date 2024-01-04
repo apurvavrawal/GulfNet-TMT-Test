@@ -45,9 +45,9 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     @Operation(summary = "Update User Profile")
-    public ResponseDto<UserPostResponse> updateProfile(@PathVariable UUID userId, @RequestParam(value = "profilePhoto", required = false) MultipartFile profilePhoto, @RequestParam(value = "languagePreference", required = false) String languagePreference) {
-        log.info("Received user profile request for userId : {}, profilePhoto : {} and language : {} ", userId, profilePhoto, languagePreference);
-        return userService.updateUserProfile(userId, profilePhoto, languagePreference);
+    public ResponseDto<UserPostResponse> updateProfile(@PathVariable UUID userId, @RequestParam(value = "languagePreference", required = false) String languagePreference) {
+        log.info("Received user profile request for userId : {} and language : {} ", userId, languagePreference);
+        return userService.updateUserProfile(userId , languagePreference);
     }
 
     @PutMapping(path = "/{userId}",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
