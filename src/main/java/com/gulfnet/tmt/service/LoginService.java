@@ -74,7 +74,7 @@ public class LoginService {
         emailService.sendEmail(user.getEmail(),
                 EmailTemplates.PASSWORD_CHANGE_SUBJECT,
                 MessageFormat.format(EmailTemplates.CHANGE_PASSWORD_SUCCESS, passwordRequest.getUserName()));
-        return ResponseDto.<String>builder().status(0).data(List.of("Password updated Successfully.")).build();
+        return ResponseDto.<String>builder().status(0).data(List.of("Password updated successfully!")).build();
     }
 
     public ResponseDto<String> resetPasswordRequest(String userName, Action action) {
@@ -85,7 +85,7 @@ public class LoginService {
                 EmailTemplates.RESET_PASSWORD_SUBJECT,
                 MessageFormat.format(EmailTemplates.RESET_PASSWORD_REQUEST, userName, String.valueOf(userPasswordAudit.getOtp())));
         userPasswordAuditRepository.save(userPasswordAudit);
-        return ResponseDto.<String>builder().status(0).data(List.of("OTP send Successfully for Reset Password .")).build();
+        return ResponseDto.<String>builder().status(0).data(List.of("OTP send successfully for reset password.")).build();
     }
 
     public ResponseDto<String> verifyOTP(String userName, long otp) {
@@ -94,7 +94,7 @@ public class LoginService {
         if (CollectionUtils.isNotEmpty(userPasswordAudits)) {
             UserPasswordAudit userPasswordAudit = userPasswordAudits.get(0);
             validateOTP(otp, userPasswordAudit);
-            return ResponseDto.<String>builder().status(0).data(List.of("Otp Verified Successfully")).build();
+            return ResponseDto.<String>builder().status(0).data(List.of("OTP verified successfully")).build();
         }
         throw new GulfNetTMTException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_CODE, "User"));
     }
@@ -108,7 +108,7 @@ public class LoginService {
         List<UserPasswordAudit> userPasswordAudits = userPasswordAuditRepository.findByUserIdAndStatusAndAction(user.getId(), Status.PENDING.getValue(), Action.RESET_PASSWORD.getValue());
         if (CollectionUtils.isNotEmpty(userPasswordAudits)) {
             updateResetPassword(userPasswordAudits.get(0), user, passwordRequest);
-            return ResponseDto.<String>builder().status(0).data(List.of("Password update Successfully.")).build();
+            return ResponseDto.<String>builder().status(0).data(List.of("Password updated successfully!")).build();
         }
         throw new GulfNetTMTException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_CODE, "User"));
     }
