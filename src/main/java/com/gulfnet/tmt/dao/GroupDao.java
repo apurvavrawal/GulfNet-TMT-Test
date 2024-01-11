@@ -38,5 +38,12 @@ public class GroupDao {
         }
         return groupRepository.findAllGroupsBySearch(search.toLowerCase(), pageable);
     }
+    public void updateGroupStatusById(String status, UUID id) {
+        groupRepository.updateGroupStatusById(status, id);
+    }
+
+    public void deleteById(UUID id){
+        groupRepository.deleteById(id);
+    }
 
 }

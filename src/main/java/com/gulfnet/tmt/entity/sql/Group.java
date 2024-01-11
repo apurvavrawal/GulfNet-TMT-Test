@@ -31,6 +31,7 @@ public class Group {
     private String name;
     private String type;
     private String icon;
+    private String status;
 
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)

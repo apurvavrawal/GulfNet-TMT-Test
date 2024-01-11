@@ -11,11 +11,14 @@ import com.gulfnet.tmt.model.response.UserBasicInfoResponse;
 import com.gulfnet.tmt.model.response.GroupResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.util.ErrorConstants;
+import com.gulfnet.tmt.util.enums.ResponseMessage;
+import com.gulfnet.tmt.util.enums.Status;
 import com.gulfnet.tmt.validator.GroupValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -101,5 +104,17 @@ public class GroupService {
                 .total(groupPostResponses.getTotalElements())
                 .build();
 
+    }
+    public String deleteGroupById(UUID id) {
+
+        Group group = groupDao.findById(id).orElseThrow(
+                () -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "Group")));
+        if (ObjectUtils.isEmpty(group)) {
+            return ResponseMessage.GROUP_NOT_FOUND.getName();
+        } else {
+            groupDao.updateGroupStatusById(Status.INACTIVE.getName(), id);
+           // groupDao.deleteById(id);
+            return ResponseMessage.GROUP_DELETE_SUCCESSFULLY.getName();
+        }
     }
 }

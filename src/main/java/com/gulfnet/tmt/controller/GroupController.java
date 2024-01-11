@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -50,5 +51,11 @@ public class GroupController {
     @GetMapping("/{groupId}/users")
     public ResponseDto<UserBasicInfoResponse> getGroupUsers(@PathVariable UUID groupId, @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC) Pageable pageable) {
         return groupService.getGroupUsers(groupId, pageable);
+    }
+
+    @DeleteMapping("/{groupId}")
+    public ResponseEntity<String> deleteGroup(@PathVariable UUID groupId) {
+        log.info("Received group deletion request for groupId {}", groupId);
+        return ResponseEntity.ok(groupService.deleteGroupById(groupId));
     }
 }

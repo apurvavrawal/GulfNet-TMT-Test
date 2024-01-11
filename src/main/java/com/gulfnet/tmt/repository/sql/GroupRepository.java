@@ -5,7 +5,10 @@ import com.gulfnet.tmt.model.response.GroupResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -30,4 +33,9 @@ public interface GroupRepository extends JpaRepository<Group, UUID> {
             " LEFT JOIN User GTU ON GTU.ID = UG.user.id " +
             " GROUP BY OG.ID")
     Page<GroupResponse> findAllGroups(Pageable pageable);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Group g SET g.status = :status WHERE g.id = :id")
+    void updateGroupStatusById(@Param("status") String status, @Param("id") UUID id);
 }
