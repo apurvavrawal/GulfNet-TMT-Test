@@ -34,8 +34,8 @@ dependencies {
 
 	implementation group: 'javax.persistence', name: 'javax.persistence-api', version: '2.2'
 
-	implementation 'org.springframework:spring-messaging:5.3.15'
-	implementation 'org.springframework:spring-websocket:5.3.15'
+	implementation 'org.springframework:spring-messaging'
+	implementation 'org.springframework:spring-websocket'
 
 
 
