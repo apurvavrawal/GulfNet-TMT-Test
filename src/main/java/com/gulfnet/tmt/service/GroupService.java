@@ -55,30 +55,38 @@ public class GroupService {
     }
 
     public ResponseDto<GroupResponse> updateGroup(UUID groupId, GroupRequest groupRequest) {
-        Group groupDB = groupDao.findById(groupId).orElseThrow(
-                () -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "Group")));
+        try {
+            Group groupDB = groupDao.findById(groupId).orElseThrow(
+                    () -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "Group")));
 
-        groupValidator.validation(groupRequest, Optional.of(groupId));
-        Group group = mapper.convertValue(groupRequest, Group.class);
-        group.setIcon(groupDao.findById(groupId).get().getIcon());
+            groupValidator.validation(groupRequest, Optional.of(groupId));
+            Group group = mapper.convertValue(groupRequest, Group.class);
 
-        group.setId(groupId);
-        group.setCreatedBy(groupDB.getCreatedBy());
-        group.setDateCreated(groupDB.getDateCreated());
+            if(groupRequest.getIcon() != null) {
+                group.setIcon(fileStorageService.uploadFile(groupRequest.getIcon(), "group"));
+            }
+            else{
+                group.setIcon(groupDao.findById(groupId).get().getIcon());
+            }
+
+            group.setId(groupId);
+            group.setCreatedBy(groupDB.getCreatedBy());
+            group.setDateCreated(groupDB.getDateCreated());
 
         group.setStatus(Status.ACTIVE.name());
         group = groupDao.saveGroup(group);
         GroupResponse groupResponse = mapper.convertValue(group, GroupResponse.class);
 
-        return ResponseDto.<GroupResponse>builder()
-                .data(List.of(groupResponse))
-                .build();
+            return ResponseDto.<GroupResponse>builder()
+                    .data(List.of(groupResponse))
+                    .build();
 
+        } catch (IOException e) {
+            throw new GulfNetTMTException(ErrorConstants.SYSTEM_ERROR_CODE, e.getMessage());
+        }
     }
 
     public ResponseDto<GroupResponse> getGroup(UUID groupId) {
-       // Group group = groupDao.findByIdAndStatusI(groupId,Status.ACTIVE.getName());
-
         Group group = groupDao.findById(groupId).orElseThrow(
                 () -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "Group")));
         GroupResponse groupResponse = mapper.convertValue(group, GroupResponse.class);
@@ -110,14 +118,12 @@ public class GroupService {
 
     }
     public String deleteGroupById(UUID id) {
-
         Group group = groupDao.findById(id).orElseThrow(
                 () -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "Group")));
         if (ObjectUtils.isEmpty(group)) {
             return ResponseMessage.GROUP_NOT_FOUND.getName();
         } else {
             groupDao.updateGroupStatusById(Status.INACTIVE.getName(), id);
-           // groupDao.deleteById(id);
             return ResponseMessage.GROUP_DELETE_SUCCESSFULLY.getName();
         }
     }
