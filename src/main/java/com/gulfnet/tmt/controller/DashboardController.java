@@ -19,7 +19,7 @@ public class DashboardController {
     private final DashboardService dashboardService;
 
     @GetMapping
-    @Operation(summary = "Dashboard API")
+    @Operation(summary = "Retrieve information for the dashboard view")
     public ResponseDto<DashboardResponse> getDashboardData() {
         return dashboardService.getDashboardData();
     }

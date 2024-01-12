@@ -30,56 +30,56 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @Operation(summary = "User Creation API")
+    @Operation(summary = "Save User details for registration.")
     public ResponseDto<UserPostResponse> saveUser(UserPostRequest user) {
         log.info("Received user creation request for {}", user);
         return userService.saveUser(user);
     }
 
     @GetMapping("/{userId}")
-    @Operation(summary = "User Get API")
+    @Operation(summary = "Retrieve User information by ID")
     public ResponseDto<UserPostResponse> getUser(@PathVariable UUID userId) {
         log.info("Received user get request for {}", userId);
         return userService.getUser(userId);
     }
 
     @PatchMapping("/{userId}")
-    @Operation(summary = "Update User Profile")
+    @Operation(summary = "Modify User profile settings")
     public ResponseDto<UserPostResponse> updateProfile(@PathVariable UUID userId, @RequestParam(value = "languagePreference", required = false) String languagePreference) {
         log.info("Received user profile request for userId : {} and language : {} ", userId, languagePreference);
         return userService.updateUserProfile(userId , languagePreference);
     }
 
     @PutMapping(path = "/{userId}",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @Operation(summary = "Update User")
+    @Operation(summary = "Modify existing User data.")
     public ResponseDto<UserPostResponse> updateUser(@PathVariable UUID userId, UserPostRequest user) {
         log.info("Received Request to update the user:{} with data:{}", userId, user);
         return userService.updateUser(userId, user);
     }
 
     @PostMapping("/{appType}")
-    @Operation(summary = "Get Users by searching, filtering, appType, sorting, pagination etc...")
+    @Operation(summary = "Retrieve users based on search and filters like ( appType, sorting, pagination etc...)")
     public ResponseDto<UserPostResponse> getUsers(@PathVariable String appType, @RequestBody UserFilterRequest userFilterRequest, @RequestParam(value = "search", required = false) String search, @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC) Pageable pageable) {
         log.info("Received request for getting the users {}", search);
         return userService.getAllUsers(userFilterRequest, appType, search, pageable);
     }
 
     @GetMapping("/profile")
-    @Operation(summary = "Get User Profile")
+    @Operation(summary = "Fetch User profile details.")
     public ResponseDto<ProfileResponse> getProfile(@RequestParam(value = "userName") String userName) {
         log.info("Received user get request for userName {}", userName);
         return userService.getProfile(userName);
     }
 
     @PostMapping("/{userId}/contacts")
-    @Operation(summary = "Save/Update User Contact")
+    @Operation(summary = "Save/Update Manage User contacts.")
     public ResponseDto<String> saveUserContact(@PathVariable UUID userId, @RequestBody UserContactsRequest userContactsRequest) {
         log.info("Received user save/remove contact request for userId {}", userId);
         return userService.saveUserContacts(userId, userContactsRequest);
     }
 
     @GetMapping("/{userId}/contacts")
-    @Operation(summary = "Get User Contacts")
+    @Operation(summary = "Retrieve user's contact information.")
     public ResponseDto<UserContactsResponse> getUserContacts(@PathVariable UUID userId, Pageable pageable) {
         log.info("Received user contact request for userId {}", userId);
         return userService.getUserContacts(userId, pageable);
