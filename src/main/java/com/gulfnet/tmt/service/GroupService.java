@@ -42,6 +42,7 @@ public class GroupService {
             groupValidator.validation(groupRequest, Optional.empty());
             Group group = mapper.convertValue(groupRequest, Group.class);
             group.setIcon(fileStorageService.uploadFile(groupRequest.getIcon(), "group"));
+            group.setStatus(Status.ACTIVE.getName());
             group = groupDao.saveGroup(group);
             GroupResponse groupResponse = mapper.convertValue(group, GroupResponse.class);
             return ResponseDto.<GroupResponse>builder()
@@ -65,6 +66,7 @@ public class GroupService {
         group.setCreatedBy(groupDB.getCreatedBy());
         group.setDateCreated(groupDB.getDateCreated());
 
+        group.setStatus(Status.ACTIVE.name());
         group = groupDao.saveGroup(group);
         GroupResponse groupResponse = mapper.convertValue(group, GroupResponse.class);
 
@@ -75,8 +77,7 @@ public class GroupService {
     }
 
     public ResponseDto<GroupResponse> getGroup(UUID groupId) {
-        Group group = groupDao.findById(groupId).orElseThrow(
-                () -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "Group")));
+        Group group = groupDao.findByIdAndStatusI(groupId,Status.ACTIVE.getName());
         GroupResponse groupResponse = mapper.convertValue(group, GroupResponse.class);
         return ResponseDto.<GroupResponse>builder()
                 .data(List.of(groupResponse))

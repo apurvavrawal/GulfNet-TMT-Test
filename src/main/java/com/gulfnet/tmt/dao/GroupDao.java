@@ -3,6 +3,7 @@ package com.gulfnet.tmt.dao;
 import com.gulfnet.tmt.entity.sql.Group;
 import com.gulfnet.tmt.model.response.GroupResponse;
 import com.gulfnet.tmt.repository.sql.GroupRepository;
+import com.gulfnet.tmt.util.enums.Status;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -30,6 +31,10 @@ public class GroupDao {
 
     public Optional<Group> findById(UUID groupId) {
         return groupRepository.findById(groupId);
+    }
+
+    public Group findByIdAndStatusI(UUID groupId,String status) {
+        return groupRepository.findByIdAndStatus(groupId,status);
     }
 
     public Page<GroupResponse> findAllBySearch(String search, Pageable pageable) {

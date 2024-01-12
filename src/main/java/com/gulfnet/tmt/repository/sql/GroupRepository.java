@@ -1,6 +1,7 @@
 package com.gulfnet.tmt.repository.sql;
 
 import com.gulfnet.tmt.entity.sql.Group;
+import com.gulfnet.tmt.entity.sql.Stamp;
 import com.gulfnet.tmt.model.response.GroupResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,4 +39,6 @@ public interface GroupRepository extends JpaRepository<Group, UUID> {
     @Transactional
     @Query("UPDATE Group g SET g.status = :status WHERE g.id = :id")
     void updateGroupStatusById(@Param("status") String status, @Param("id") UUID id);
+
+    Group findByIdAndStatus(UUID id, String status);
 }
