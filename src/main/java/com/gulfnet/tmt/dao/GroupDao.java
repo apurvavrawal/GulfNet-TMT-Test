@@ -33,9 +33,9 @@ public class GroupDao {
         return groupRepository.findById(groupId);
     }
 
-    public Group findByIdAndStatusI(UUID groupId,String status) {
-        return groupRepository.findByIdAndStatus(groupId,status);
-    }
+//    public Group findByIdAndStatusI(UUID groupId,String status) {
+//        return groupRepository.findByIdAndStatus(groupId,status);
+//    }
 
     public Page<GroupResponse> findAllBySearch(String search, Pageable pageable) {
         if(StringUtils.isEmpty(search)){

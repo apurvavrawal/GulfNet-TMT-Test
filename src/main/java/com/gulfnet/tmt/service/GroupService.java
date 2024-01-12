@@ -77,7 +77,10 @@ public class GroupService {
     }
 
     public ResponseDto<GroupResponse> getGroup(UUID groupId) {
-        Group group = groupDao.findByIdAndStatusI(groupId,Status.ACTIVE.getName());
+       // Group group = groupDao.findByIdAndStatusI(groupId,Status.ACTIVE.getName());
+
+        Group group = groupDao.findById(groupId).orElseThrow(
+                () -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "Group")));
         GroupResponse groupResponse = mapper.convertValue(group, GroupResponse.class);
         return ResponseDto.<GroupResponse>builder()
                 .data(List.of(groupResponse))

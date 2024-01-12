@@ -40,5 +40,5 @@ public interface GroupRepository extends JpaRepository<Group, UUID> {
     @Query("UPDATE Group g SET g.status = :status WHERE g.id = :id")
     void updateGroupStatusById(@Param("status") String status, @Param("id") UUID id);
 
-    Group findByIdAndStatus(UUID id, String status);
+   // Group findByIdAndStatus(UUID id, String status);
 }
