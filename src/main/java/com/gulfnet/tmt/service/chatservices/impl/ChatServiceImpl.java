@@ -47,7 +47,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ResponseDto<ChatResponse> getMessageById(String chatId) {
-        Chat chat = chatDao.findMessageById(chatId).orElseThrow(()-> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_CODE, "Chat")));
+        Chat chat = chatDao.findMessageById(chatId).orElseThrow(()-> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "Chat")));
         return ResponseDto.<ChatResponse>builder().status(0).data(List.of(mapper.convertValue(chat, ChatResponse.class))).build();
     }
 }

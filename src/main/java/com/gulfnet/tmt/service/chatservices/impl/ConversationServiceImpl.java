@@ -23,7 +23,7 @@ public class ConversationServiceImpl implements ConversationService {
     private final ObjectMapper mapper;
     @Override
     public ResponseDto<ConversationResponse> getConversationList(String userId) {
-        Conversation conversation = conversationDao.getConversationListByUserId(userId).orElseThrow(()-> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_CODE, "Conversation")));
+        Conversation conversation = conversationDao.getConversationListByUserId(userId).orElseThrow(()-> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "Conversation")));
         return ResponseDto.<ConversationResponse>builder().status(0).data(List.of(mapper.convertValue(conversation, ConversationResponse.class))).build();
     }
 }
