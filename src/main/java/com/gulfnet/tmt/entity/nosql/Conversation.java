@@ -1,12 +1,9 @@
 package com.gulfnet.tmt.entity.nosql;
 
-import com.gulfnet.tmt.entity.sql.User;
-import com.gulfnet.tmt.util.enums.ChatStatus;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.gulfnet.tmt.entity.sql.Group;
+import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,16 +11,22 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "user_details")
-public class UserDetail {
-
+@Document(collection = "conversation")
+@Builder
+public class Conversation {
     @Id
+    @Indexed(unique = true)
     private String id;
+
+    @DBRef
+    private UserDetail userDetail;
+    private String userId;
     private String firstName;
     private String lastName;
     private String profilePhoto;
-    private ChatStatus chatStatus;
 
     @DBRef
-    private User user;
+    private Group group;
+    private String groupId;
+
 }

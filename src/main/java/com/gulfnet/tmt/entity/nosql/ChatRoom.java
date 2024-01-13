@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
@@ -11,13 +12,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Document(collection = "conversations")
+@Document(collection = "chat_room")
 public class ChatRoom {
     @Id
     @Indexed(unique = true)
     private String id;
 
+    @DBRef
+    private Conversation conversation;
     private String conversationId;
+
     private String senderId;
     private String receiverId;
 
