@@ -18,9 +18,9 @@ public class ChatRoom {
     @Indexed(unique = true)
     private String id;
 
-    @DBRef
-    private Conversation conversation;
-    private String conversationId;
+   // @DBRef
+   // private Conversation conversation;
+    private String chatId;
 
     private String senderId;
     private String receiverId;

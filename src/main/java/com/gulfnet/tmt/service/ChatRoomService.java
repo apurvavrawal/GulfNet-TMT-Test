@@ -3,6 +3,7 @@ package com.gulfnet.tmt.service;
 import com.gulfnet.tmt.entity.nosql.ChatRoom;
 import com.gulfnet.tmt.repository.nosql.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -12,32 +13,33 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ChatRoomService {
 
+    @Autowired
     private final ChatRoomRepository chatRoomRepository;
 
     public Optional<String> getChatRoomId(String senderId , String receiverId , boolean createNewRoomIfNotExists){
 
         return chatRoomRepository.findBySenderIdAndReceiverId(senderId,receiverId)
-                .map(ChatRoom::getId)
+                .map(ChatRoom::getChatId)
                 .or(()-> {
                     if(createNewRoomIfNotExists){
-                        var chatId = createChatId(senderId, receiverId);
-                        return Optional.of(chatId);
+                        var newChatId = createChatId(senderId, receiverId);
+                        return newChatId;
                     }
                     return Optional.empty();
                 });
     }
 
-    private String createChatId(String senderId, String receiverId) {
+    private Optional<String> createChatId(String senderId, String receiverId) {
         var chatId = String.format("%s_%s", senderId, receiverId);
 
         ChatRoom senderReceiver = ChatRoom.builder()
-                .id(chatId)
+                .chatId(chatId)
                 .senderId(senderId)
                 .receiverId(receiverId)
                 .build();
 
         ChatRoom receiverSender = ChatRoom.builder()
-                .id(chatId)
+                .chatId(chatId)
                 .senderId(receiverId)
                 .receiverId(senderId)
                 .build();
@@ -45,6 +47,6 @@ public class ChatRoomService {
         chatRoomRepository.save(senderReceiver);
         chatRoomRepository.save(receiverSender);
 
-        return chatId;
+        return Optional.of(chatId);
     }
 }

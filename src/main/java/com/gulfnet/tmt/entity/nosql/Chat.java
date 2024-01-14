@@ -20,19 +20,19 @@ public class Chat {
     @Id
     @Indexed(unique=true)
     private String id;
+    //@DBRef
+    //private ChatRoom chatRoom;
+    private String chatId;
 
     @DBRef
     private UserDetail sender; //sender_id
     private String senderId;
+    private String senderName;
 
     @DBRef
     private UserDetail receiver; // receiver_id
     private String receiverId;
-
-    @DBRef
-    private ChatRoom chatRoom; // chat_id
-    private String conversationId;
-
+    private String receiverName;
 
     private String content;
     private String attachmentURL;
@@ -41,4 +41,7 @@ public class Chat {
     private Date dateCreated;
     @LastModifiedDate
     private Date dateModified;
+
+    @DBRef
+    private ReadReceipt readReceipt;
 }
