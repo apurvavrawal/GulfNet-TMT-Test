@@ -25,11 +25,19 @@ public class ChatServiceImpl implements ChatService {
     private final ObjectMapper mapper;
 
     @Override
-    public Chat save(Chat chatMessage) {
+    public Chat save(ChatResponse chatMessage) {
         var chatId = chatRoomService.getChatRoomId(chatMessage.getSenderId(), chatMessage.getReceiverId(),true).orElseThrow();
-        chatMessage.setId(chatId);
-        chatDao.save(chatMessage);
-        return chatMessage;
+        //chatMessage.setId(chatId);
+        Chat newChat = new Chat();
+        newChat.setChatId(chatId);
+        newChat.setContent(chatMessage.getContent());
+        newChat.setSenderId(chatMessage.getSenderId());
+        newChat.setSenderName(chatMessage.getSenderName());
+        newChat.setReceiverId(chatMessage.getReceiverId());
+        newChat.setReceiverName(chatMessage.getReceiverName());
+        newChat.setAttachmentURL("");
+
+        return chatDao.save(newChat);
     }
 
     @Override

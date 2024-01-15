@@ -22,7 +22,9 @@ public class ChatResponse {
 
     private String id;
     private String senderId;
+    private String senderName;
     private String receiverId;
+    private String receiverName;
     private String conversationId;
     private String content;
     private Timestamp dateCreated;
