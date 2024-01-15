@@ -1,8 +1,11 @@
 package com.gulfnet.tmt.controller;
 
 import com.gulfnet.tmt.entity.nosql.UserDetail;
+import com.gulfnet.tmt.model.response.ChatUserResponse;
+import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.service.UserDetailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -35,8 +38,8 @@ public class UserDetailController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<UserDetail>> findConnectedUsers(){
-        return ResponseEntity.ok(userDetailService.findConnectedUsers());
+    public ResponseDto<ChatUserResponse> findConnectedUsers(Pageable pageable){
+        return userDetailService.findConnectedUsers(pageable);
     }
 
 }

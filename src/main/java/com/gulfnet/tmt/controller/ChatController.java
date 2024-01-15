@@ -8,8 +8,6 @@ import com.gulfnet.tmt.service.ChatRoomService;
 import com.gulfnet.tmt.service.chatservices.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -25,11 +23,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RequiredArgsConstructor
 @Slf4j
 public class ChatController {
-
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final ChatService chatService;
     private final ChatRoomService chatRoomService;
 
+    // Message mapping where msg is saved
     @MessageMapping("/chat")
     public void processMessage(@Payload Chat chatMessage){
         //   receiver/queue/messages

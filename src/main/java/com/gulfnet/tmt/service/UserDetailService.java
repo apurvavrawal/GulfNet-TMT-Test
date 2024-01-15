@@ -1,9 +1,12 @@
 package com.gulfnet.tmt.service;
 
 import com.gulfnet.tmt.entity.nosql.UserDetail;
+import com.gulfnet.tmt.model.response.ChatUserResponse;
+import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.repository.nosql.UserDetailRepository;
 import com.gulfnet.tmt.util.enums.ChatStatus;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,8 +29,11 @@ public class UserDetailService {
         }
     }
 
-    public List<UserDetail> findConnectedUsers(){
-        return userDetailRepository.findAllByChatStatus(ChatStatus.ONLINE);
+    public ResponseDto<ChatUserResponse> findConnectedUsers(Pageable pageable){
+        ChatUserResponse chatUserResponse = (ChatUserResponse) userDetailRepository.findAllByChatStatus(ChatStatus.ONLINE);
+        return ResponseDto.<ChatUserResponse>builder()
+                .data(List.of(chatUserResponse))
+                .build();
     }
 
 }

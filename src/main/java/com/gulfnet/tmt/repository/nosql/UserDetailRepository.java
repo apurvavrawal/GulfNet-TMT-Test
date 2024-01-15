@@ -9,5 +9,6 @@ import java.util.List;
 
 @Repository
 public interface UserDetailRepository extends MongoRepository<UserDetail, String> {
+
     List<UserDetail> findAllByChatStatus(ChatStatus chatStatus);
 }
