@@ -45,19 +45,14 @@ public class GulfNetTMTApplication implements WebMvcConfigurer {
     @Bean
     public ModelMapper modelMapper() {
         // Add the custom converter
-		ModelMapper modelMapper = new ModelMapper();
+        ModelMapper modelMapper = new ModelMapper();
         // Configure the model mapper, e.g., set field matching strategy
-		modelMapper.getConfiguration().setFieldMatchingEnabled(true).setFieldAccessLevel(AccessLevel.PRIVATE);
+        modelMapper.getConfiguration().setFieldMatchingEnabled(true).setFieldAccessLevel(AccessLevel.PRIVATE);
         // Add the custom converter
         modelMapper.addConverter(new UserRoleMapper());
         return modelMapper;
     }
 
-    @Bean
-    public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-                .info(new Info().description("All Api Documentation").title("GulfNetTMT Application").version("1.1"));
-    }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
