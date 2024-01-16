@@ -12,16 +12,16 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.security.Principal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.RestController;
 
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @Slf4j
 public class ChatController {
@@ -33,18 +33,19 @@ public class ChatController {
 
     // Process the one-to-one message and save to DataBase
     @MessageMapping("/chat/privateMessage")
-    public void processPrivateMessage(Principal principal, ChatResponse chatResponse) {
+    public void processPrivateMessage(Principal principal, Chat chat) {
         logger.debug("Received message from principal: {}", principal);
 
         if (principal == null) {throw new IllegalStateException("Principal cannot be null");}
-        String recipient = chatResponse.getReceiverName(); // Recipient's username
-        if (recipient == null) {throw new IllegalStateException("Recipient cannot be null");}
-        String responseMessage = chatResponse.getContent();
+        String senderName = principal.getName(); // Recipient's username
+        String receiverName = chat.getReceiverName();
+        if (receiverName == null) {throw new IllegalStateException("Recipient cannot be null");}
+        String responseMessage = chat.getContent();
         // Send the message to the recipient's queue
 
-        Chat savedMsg = chatService.save(chatResponse);
+        Chat savedMsg = chatService.save(chat);
         log.info("Message processing with following metadata: {}", savedMsg);
-        simpMessagingTemplate.convertAndSendToUser(recipient, "/queue/reply", responseMessage);
+        simpMessagingTemplate.convertAndSendToUser(receiverName, "/queue/reply", responseMessage);
     }
 
     // Process the group message and save to DataBase
@@ -66,7 +67,7 @@ public class ChatController {
 
     // Returns message details for requested chatId
     @GetMapping("/messages/{chatId}")
-    public ResponseDto<ChatResponse> getMessageById(@PathVariable String chatId) {
+    public ResponseDto<ChatResponse> getMessageById(@PathVariable("chatId") String chatId) {
         log.info("Request received for get message for chatId: {}", chatId);
         return chatService.getMessageById(chatId);
     }

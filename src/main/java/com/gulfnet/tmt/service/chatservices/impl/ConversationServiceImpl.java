@@ -1,29 +1,41 @@
 package com.gulfnet.tmt.service.chatservices.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gulfnet.tmt.dao.ConversationDao;
 import com.gulfnet.tmt.entity.nosql.Conversation;
-import com.gulfnet.tmt.exceptions.ValidationException;
-import com.gulfnet.tmt.model.response.ChatResponse;
-import com.gulfnet.tmt.model.response.ConversationResponse;
-import com.gulfnet.tmt.model.response.ResponseDto;
+import com.gulfnet.tmt.repository.nosql.ConversationRepository;
 import com.gulfnet.tmt.service.chatservices.ConversationService;
-import com.gulfnet.tmt.util.ErrorConstants;
+import com.gulfnet.tmt.util.enums.ConversationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.text.MessageFormat;
-import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ConversationServiceImpl implements ConversationService {
+    private final ConversationRepository conversationRepository;
+    public Optional<String> getChatRoomId(String senderId , String receiverId , boolean createNewRoomIfNotExists){
 
-    private final ConversationDao conversationDao;
-    private final ObjectMapper mapper;
-    @Override
-    public ResponseDto<ConversationResponse> getConversationList(String userId) {
-        Conversation conversation = conversationDao.getConversationListByUserId(userId).orElseThrow(()-> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "Conversation")));
-        return ResponseDto.<ConversationResponse>builder().status(0).data(List.of(mapper.convertValue(conversation, ConversationResponse.class))).build();
+        return conversationRepository.findBySenderIdAndReceiverId(senderId,receiverId)
+                .map(Conversation::getChatId)
+                .or(()-> {
+                    if(createNewRoomIfNotExists){
+                        var newChatId = createChatId(senderId, receiverId);
+                        return newChatId;
+                    }
+                    return Optional.empty();
+                });
+    }
+
+    private Optional<String> createChatId(String senderId, String receiverId) {
+        var chatId = String.format("%s_%s", senderId, receiverId);
+
+        Conversation senderReceiver = Conversation.builder()
+                .chatId(chatId)
+                .conversationType(ConversationType.ONE_TO_ONE)
+                .build();
+
+        conversationRepository.save(senderReceiver);
+
+        return Optional.of(chatId);
     }
 }

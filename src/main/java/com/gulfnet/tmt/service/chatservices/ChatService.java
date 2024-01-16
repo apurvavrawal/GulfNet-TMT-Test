@@ -5,8 +5,9 @@ import com.gulfnet.tmt.model.response.ChatResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import org.springframework.data.domain.Pageable;
 
+
 public interface ChatService {
-    Chat save(ChatResponse chatMessage);
+    Chat save(Chat chat);
 
     ResponseDto<ChatResponse> getChatMessages(String senderId, String receiverId, Pageable pageable);
 

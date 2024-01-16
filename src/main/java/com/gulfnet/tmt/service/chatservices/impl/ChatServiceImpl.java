@@ -6,8 +6,8 @@ import com.gulfnet.tmt.entity.nosql.Chat;
 import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.response.ChatResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
-import com.gulfnet.tmt.service.ChatRoomService;
 import com.gulfnet.tmt.service.chatservices.ChatService;
+import com.gulfnet.tmt.service.chatservices.ConversationService;
 import com.gulfnet.tmt.util.ErrorConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,27 +15,31 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
     private final ChatDao chatDao;
-    private final ChatRoomService chatRoomService;
+    private final ConversationService conversationService;
     private final ObjectMapper mapper;
 
     @Override
-    public Chat save(ChatResponse chatMessage) {
-        var chatId = chatRoomService.getChatRoomId(chatMessage.getSenderId(), chatMessage.getReceiverId(),true).orElseThrow();
+    public Chat save(Chat chat) {
+        var chatId = conversationService.getChatRoomId(chat.getSenderId(), chat.getReceiverId(),true).orElseThrow();
         //chatMessage.setId(chatId);
         Chat newChat = new Chat();
-        newChat.setChatId(chatId);
-        newChat.setContent(chatMessage.getContent());
-        newChat.setSenderId(chatMessage.getSenderId());
-        newChat.setSenderName(chatMessage.getSenderName());
-        newChat.setReceiverId(chatMessage.getReceiverId());
-        newChat.setReceiverName(chatMessage.getReceiverName());
-        newChat.setAttachmentURL("");
+        newChat.setConversationId(chatId);
+        newChat.setContent(chat.getContent());
+        newChat.setSenderId(chat.getSenderId());
+        newChat.setSenderName(chat.getSenderName());
+        newChat.setReceiverId(chat.getReceiverId());
+        newChat.setReceiverName(chat.getReceiverName());
+        Date currentDate = new Date();
+        newChat.setDateCreated(currentDate);
+        newChat.setAttachmentURL("Currently_No_Attachment");
 
         return chatDao.save(newChat);
     }

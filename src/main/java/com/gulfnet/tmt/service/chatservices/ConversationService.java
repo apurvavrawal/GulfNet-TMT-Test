@@ -1,8 +1,7 @@
 package com.gulfnet.tmt.service.chatservices;
 
-import com.gulfnet.tmt.model.response.ConversationResponse;
-import com.gulfnet.tmt.model.response.ResponseDto;
+import java.util.Optional;
 
 public interface ConversationService {
-    ResponseDto<ConversationResponse> getConversationList(String userId);
+    Optional<String> getChatRoomId(String senderId, String receiverId, boolean b);
 }

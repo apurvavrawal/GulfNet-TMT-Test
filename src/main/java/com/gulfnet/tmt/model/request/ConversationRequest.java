@@ -1,4 +1,4 @@
-package com.gulfnet.tmt.model.response;
+package com.gulfnet.tmt.model.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,11 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ConversationResponse {
-    private String conversationId;
-    private String chatUserId;
+public class ConversationRequest {
     private String firstName;
     private String lastName;
-    private String groupName;
-    private String profilePhoto;
 }

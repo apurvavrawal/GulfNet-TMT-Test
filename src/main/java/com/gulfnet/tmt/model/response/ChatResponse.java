@@ -1,16 +1,8 @@
 package com.gulfnet.tmt.model.response;
 
-import com.gulfnet.tmt.entity.nosql.ChatRoom;
-import com.gulfnet.tmt.entity.nosql.UserDetail;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.sql.Timestamp;
-import java.util.Date;
 
 @AllArgsConstructor
 @Getter
@@ -25,7 +17,7 @@ public class ChatResponse {
     private String senderName;
     private String receiverId;
     private String receiverName;
-    private String conversationId;
+    private String chatId;
     private String content;
     private Timestamp dateCreated;
 }

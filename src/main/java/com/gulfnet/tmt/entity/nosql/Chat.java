@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -20,17 +21,12 @@ public class Chat {
     @Id
     @Indexed(unique=true)
     private String id;
-    //@DBRef
-    //private ChatRoom chatRoom;
-    private String chatId;
 
-    @DBRef
-    private UserDetail sender; //sender_id
+    private String conversationId;
+
     private String senderId;
     private String senderName;
 
-    @DBRef
-    private UserDetail receiver; // receiver_id
     private String receiverId;
     private String receiverName;
 
@@ -42,6 +38,4 @@ public class Chat {
     @LastModifiedDate
     private Date dateModified;
 
-    @DBRef
-    private ReadReceipt readReceipt;
 }
