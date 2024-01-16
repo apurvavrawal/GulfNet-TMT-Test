@@ -24,8 +24,8 @@ public class ChatDao {
         return chatRepository.findById(chatId);
     }
 
-    public Page<ChatResponse> findChatMessagesById(String senderId, String receiverId, Pageable pageable) {
-        return chatRepository.findAllBySenderIdAndReceiverId(senderId, receiverId, pageable);
+    public Page<ChatResponse> findChatMessagesById(String conversationId, Pageable pageable) {
+        return chatRepository.findAllByConversationId(conversationId, pageable);
     }
 
     public Chat save(Chat chatMessage) {

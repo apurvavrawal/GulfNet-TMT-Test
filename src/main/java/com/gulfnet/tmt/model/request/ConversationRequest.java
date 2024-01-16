@@ -1,5 +1,6 @@
 package com.gulfnet.tmt.model.request;
 
+import com.gulfnet.tmt.util.enums.ConversationType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ConversationRequest {
-    private String firstName;
-    private String lastName;
+    private String senderId;
+    private String receiverId;
+    private ConversationType conversationType;
 }

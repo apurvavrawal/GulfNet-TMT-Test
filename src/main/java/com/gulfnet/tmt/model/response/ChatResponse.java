@@ -3,6 +3,7 @@ package com.gulfnet.tmt.model.response;
 import lombok.*;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
 @AllArgsConstructor
 @Getter
@@ -17,7 +18,7 @@ public class ChatResponse {
     private String senderName;
     private String receiverId;
     private String receiverName;
-    private String chatId;
+    private String conversationId;
     private String content;
-    private Timestamp dateCreated;
+    private Date dateCreated;
 }

@@ -51,18 +51,18 @@ public class ChatController {
     // Process the group message and save to DataBase
     @MessageMapping("/chat/sendMessage")
     @SendTo("/user/queue/reply")
-    public String processGroupMessage(ChatResponse chatResponse) {
-        log.info("Request received for processing Message with Id: {}", chatResponse.getId());
-        return chatResponse.getContent();
+    public String processGroupMessage(Chat chat) {
+        log.info("Request received for processing Message with Id: {}", chat.getId());
+        Chat savedMeg = chatService.save(chat);
+        return chat.getContent();
     }
 
     // Returns List of Chats between sender and receiver by their Id
-    @GetMapping("/messages/{senderId}/{receiverId}")
-    public ResponseDto<ChatResponse> getChatMessages(@PathVariable("senderId") String senderId,
-                                                            @PathVariable("receiverId") String receiverId,
+    @GetMapping("/messages/{conversationId}")
+    public ResponseDto<ChatResponse> getMessageHistory(@PathVariable("conversationId") String conversationId,
                                                             @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC)Pageable pageable){
-        log.info("Request received for get message with senderId: {} and receiverId: {}", senderId, receiverId);
-        return chatService.getChatMessages(senderId, receiverId, pageable);
+        log.info("Request received for get message with conversationId: {}", conversationId);
+        return chatService.getChatMessages(conversationId, pageable);
     }
 
     // Returns message details for requested chatId

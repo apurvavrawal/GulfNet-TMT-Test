@@ -17,10 +17,9 @@ public class Conversation {
     @Indexed(unique = true)
     private String id;
 
-    private String chatId;
+//    private String conversationId;
     private String senderId;
     private String receiverId;
-
     private ConversationType conversationType;
 
 }

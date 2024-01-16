@@ -45,8 +45,8 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ResponseDto<ChatResponse> getChatMessages(String senderId, String receiverId, Pageable pageable) {
-        Page<ChatResponse> chats = chatDao.findChatMessagesById(senderId, receiverId, pageable);
+    public ResponseDto<ChatResponse> getChatMessages(String conversationId, Pageable pageable) {
+        Page<ChatResponse> chats = chatDao.findChatMessagesById(conversationId, pageable);
         return ResponseDto.<ChatResponse>builder()
                 .data(chats.getContent())
                 .count(chats.stream().count())

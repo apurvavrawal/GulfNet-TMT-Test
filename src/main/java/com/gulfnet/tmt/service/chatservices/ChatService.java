@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 public interface ChatService {
     Chat save(Chat chat);
 
-    ResponseDto<ChatResponse> getChatMessages(String senderId, String receiverId, Pageable pageable);
+    ResponseDto<ChatResponse> getChatMessages(String conversationId, Pageable pageable);
 
     ResponseDto<ChatResponse> getMessageById(String chatId);
 }
