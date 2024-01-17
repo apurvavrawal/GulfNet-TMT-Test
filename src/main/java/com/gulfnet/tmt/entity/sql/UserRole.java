@@ -24,7 +24,6 @@ public class UserRole {
     private AppRole role;
 
     @JsonBackReference
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name="USER_ID")
     private User user;
