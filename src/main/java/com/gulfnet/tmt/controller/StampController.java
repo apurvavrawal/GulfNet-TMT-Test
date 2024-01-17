@@ -47,8 +47,8 @@ public class StampController {
 
     @DeleteMapping("/{stampId}")
     @Operation(summary = "Remove a stamp by its unique ID.")
-    public ResponseEntity<String> deleteStamp(@PathVariable UUID stampId) {
+    public ResponseDto<StampResponse> deleteStamp(@PathVariable UUID stampId) {
         log.info("Received stamp deletion request for stampId {}", stampId);
-        return ResponseEntity.ok(stampService.deleteStampById(stampId));
+       return stampService.deleteStampById(stampId);
     }
 }
