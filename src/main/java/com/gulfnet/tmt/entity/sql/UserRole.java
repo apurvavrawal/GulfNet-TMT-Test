@@ -1,6 +1,7 @@
 package com.gulfnet.tmt.entity.sql;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -23,6 +24,7 @@ public class UserRole {
     private AppRole role;
 
     @JsonBackReference
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name="USER_ID")
     private User user;

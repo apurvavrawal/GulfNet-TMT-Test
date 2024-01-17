@@ -1,6 +1,7 @@
 package com.gulfnet.tmt.entity.sql;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,6 +25,7 @@ public class UserGroup {
     private Group group;
 
     @JsonBackReference
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name="USER_ID")
     private User user;
