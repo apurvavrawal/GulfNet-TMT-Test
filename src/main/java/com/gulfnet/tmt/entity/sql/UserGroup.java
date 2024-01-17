@@ -25,7 +25,6 @@ public class UserGroup {
     private Group group;
 
     @JsonBackReference
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name="USER_ID")
     private User user;
