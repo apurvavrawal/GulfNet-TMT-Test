@@ -10,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -30,5 +29,10 @@ public class ChatDao {
 
     public Chat save(Chat chatMessage) {
         return chatRepository.save(chatMessage);
+    }
+
+    public Chat findLatestChatMessage(String conversationId) {
+
+        return chatRepository.findFirstByConversationIdOrderByDateCreatedDesc(conversationId);
     }
 }

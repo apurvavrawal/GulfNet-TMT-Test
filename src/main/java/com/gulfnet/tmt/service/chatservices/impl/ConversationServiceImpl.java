@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gulfnet.tmt.dao.ChatDao;
 import com.gulfnet.tmt.dao.ConversationDao;
 import com.gulfnet.tmt.dao.UserDao;
+import com.gulfnet.tmt.entity.nosql.Chat;
 import com.gulfnet.tmt.entity.nosql.Conversation;
 import com.gulfnet.tmt.entity.sql.User;
 import com.gulfnet.tmt.exceptions.ValidationException;
@@ -105,8 +106,9 @@ public class ConversationServiceImpl implements ConversationService {
 
                     conversationListResponse.setConversationForPrivateResponse(conversationForPrivateResponse);
 
-
-                    //ChatResponse chatResponse = chatDao.findLatestChatMessage(requiredUser);
+                    Optional<Conversation> conver = conversationRepository.findBySenderIdAndConsumerId(userId, requiredUser);
+                    Chat chat = chatDao.findLatestChatMessage(conver.get().getId());
+                    conversationListResponse.setChat(chat);
 
                     return conversationListResponse;
                 }).toList();
