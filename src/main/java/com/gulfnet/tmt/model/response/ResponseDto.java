@@ -16,6 +16,7 @@ public class ResponseDto<T> {
     private Long count;
     private Long total;
     private List<ErrorDto> errors;
+    private String message;
 
     @Override
     public String toString() {
@@ -25,6 +26,7 @@ public class ResponseDto<T> {
                 ", count=" + count +
                 ", total=" + total +
                 ", errors=" + errors +
+                ", message=" + message +
                 '}';
     }
 }
