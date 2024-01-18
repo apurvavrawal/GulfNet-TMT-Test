@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
 public interface ConversationService {
-    Optional<String> getChatRoomId(String senderId, String receiverId, boolean b);
+    String getChatRoomId(String senderId, String receiverId, boolean b);
     ConversationResponse createConversation(ConversationRequest conversationRequest);
 
     ResponseDto<ConversationListResponse> getConversationList(String userId, Pageable pageable);

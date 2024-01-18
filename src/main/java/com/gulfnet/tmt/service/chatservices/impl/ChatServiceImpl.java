@@ -33,7 +33,7 @@ public class ChatServiceImpl implements ChatService {
              chatId = conversationService.getChatRoomId(chat.getReceiverId(), chat.getSenderId(),true);
         }
         Chat newChat = new Chat();
-        newChat.setConversationId(String.valueOf(chatId));
+        newChat.setConversationId(chatId);
         newChat.setContent(chat.getContent());
         newChat.setSenderId(chat.getSenderId());
         newChat.setSenderName(chat.getSenderName());
@@ -64,7 +64,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Chat saveGroupMessage(Chat chat) {
-        var chatId = conversationService.getChatRoomId(chat.getSenderId(), chat.getReceiverId(),true).orElseThrow();
+        var chatId = conversationService.getChatRoomId(chat.getSenderId(), chat.getReceiverId(),true);
 
         Chat newChat = new Chat();
         newChat.setConversationId(chatId);

@@ -34,18 +34,17 @@ public class ConversationServiceImpl implements ConversationService {
     private final UserDao userDao;
     private final ChatDao chatDao;
 
-    public Optional<String> getChatRoomId(String senderId , String receiverId , boolean createNewRoomIfNotExists){
+    public String getChatRoomId(String senderId , String receiverId , boolean createNewRoomIfNotExists){
 
         if(createNewRoomIfNotExists){
-            return conversationRepository
-                    .findBySenderIdAndConsumerId(senderId,receiverId)
-                    .map(Conversation::getId);
+            Conversation conversation = conversationRepository.findBySenderIdAndConsumerId(senderId,receiverId);
+            return conversation.getId();
         }
         else{
             ConversationRequest conversationRequest = new ConversationRequest(senderId, receiverId, ConversationType.PRIVATE);
             ConversationResponse conversationResponse = createConversation(conversationRequest);
             var newChatId = conversationResponse.getConversationId();
-            return newChatId.describeConstable();
+            return newChatId;
         }
     }
 
@@ -53,11 +52,11 @@ public class ConversationServiceImpl implements ConversationService {
     public ConversationResponse createConversation(ConversationRequest conversationRequest) throws ValidationException{
 
         // check if conversation already present or not if not then create new
-        Optional<Conversation> conv = conversationRepository.findBySenderIdAndConsumerId(conversationRequest.getSenderId(),conversationRequest.getConsumerId());
+        Conversation conv = conversationRepository.findBySenderIdAndConsumerId(conversationRequest.getSenderId(),conversationRequest.getConsumerId());
         ConversationResponse conversationResponse = new ConversationResponse();
-        if(conv.isEmpty()){
-            Optional<Conversation> otherConv = conversationRepository.findBySenderIdAndConsumerId(conversationRequest.getConsumerId(),conversationRequest.getSenderId());
-            if(otherConv.isEmpty()) {
+        if(conv == null){
+            Conversation otherConv = conversationRepository.findBySenderIdAndConsumerId(conversationRequest.getConsumerId(),conversationRequest.getSenderId());
+            if(otherConv == null) {
                 Conversation conversation = new Conversation();
                 conversation.setConversationType(conversationRequest.getConversationType());
                 conversation.setSenderId(conversationRequest.getSenderId());
