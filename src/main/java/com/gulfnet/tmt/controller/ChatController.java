@@ -42,7 +42,7 @@ public class ChatController {
         // Send the message to the recipient's queue
         Chat savedMsg = chatService.savePrivateMessage(chat);
         log.info("Message processing with following metadata: {}", savedMsg);
-        simpMessagingTemplate.convertAndSendToUser(receiverId, "/queue/reply", chat);
+        simpMessagingTemplate.convertAndSendToUser(receiverId, "/queue/reply", savedMsg);
     }
 
     // Process the group message and save to DataBase

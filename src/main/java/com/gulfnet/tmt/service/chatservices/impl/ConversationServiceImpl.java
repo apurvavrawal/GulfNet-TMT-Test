@@ -106,8 +106,7 @@ public class ConversationServiceImpl implements ConversationService {
 
                     conversationListResponse.setConversationForPrivateResponse(conversationForPrivateResponse);
 
-                    Optional<Conversation> conver = conversationRepository.findBySenderIdAndConsumerId(userId, requiredUser);
-                    Chat chat = chatDao.findLatestChatMessage(conver.get().getId());
+                    Chat chat = chatDao.findLatestChatMessage(conversation.getId());
                     conversationListResponse.setChat(chat);
 
                     return conversationListResponse;

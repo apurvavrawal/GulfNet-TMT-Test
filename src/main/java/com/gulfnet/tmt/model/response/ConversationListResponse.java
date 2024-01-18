@@ -15,5 +15,6 @@ public class ConversationListResponse {
     private String conversationId;
     private ConversationType conversationType;
     private ConversationForPrivateResponse conversationForPrivateResponse;
+    private ConversationListForGroupResponse conversationListForGroupResponse;
     private Chat chat;
 }
