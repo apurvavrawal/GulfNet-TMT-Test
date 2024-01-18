@@ -11,15 +11,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Document(collection = "conversation")
+@Document(collection = "conversations")
 public class Conversation {
     @Id
     @Indexed(unique = true)
     private String id;
-
-//    private String conversationId;
     private String senderId;
-    private String receiverId;
+    private String consumerId;
     private ConversationType conversationType;
 
 }

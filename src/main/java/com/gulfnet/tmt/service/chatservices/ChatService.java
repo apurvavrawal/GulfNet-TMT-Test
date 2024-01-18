@@ -7,9 +7,11 @@ import org.springframework.data.domain.Pageable;
 
 
 public interface ChatService {
-    Chat save(Chat chat);
+    Chat savePrivateMessage(Chat chat);
 
     ResponseDto<ChatResponse> getChatMessages(String conversationId, Pageable pageable);
 
     ResponseDto<ChatResponse> getMessageById(String chatId);
+
+    Chat saveGroupMessage(Chat chat);
 }

@@ -12,5 +12,5 @@ import java.util.UUID;
 
 @Repository
 public interface ChatRepository extends MongoRepository<Chat, String> {
-    Page<ChatResponse> findAllByConversationId(String conversationId, Pageable pageable);
+    Page<ChatResponse> findByConversationId(String conversationId, Pageable pageable);
 }

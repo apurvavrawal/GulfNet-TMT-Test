@@ -22,4 +22,8 @@ public class UserDetail {
     private String firstName;
     private String lastName;
     private String profilePhoto;
+    private ChatStatus chatStatus;
+
+    @DBRef
+    private User user;
 }

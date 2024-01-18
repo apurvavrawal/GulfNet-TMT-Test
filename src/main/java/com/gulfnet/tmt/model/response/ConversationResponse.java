@@ -13,6 +13,6 @@ import lombok.Setter;
 public class ConversationResponse {
     private String conversationId;
     private String senderId ;
-    private String receiverId;
+    private String consumerId;
     private ConversationType conversationType;
 }

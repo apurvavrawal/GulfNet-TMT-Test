@@ -12,6 +12,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ConversationRequest {
     private String senderId;
-    private String receiverId;
+    private String consumerId;
     private ConversationType conversationType;
 }

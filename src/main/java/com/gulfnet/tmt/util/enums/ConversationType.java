@@ -9,7 +9,7 @@ import java.util.Optional;
 @Getter
 @ToString
 public enum ConversationType {
-    ONE_TO_ONE("one to one"),
+    PRIVATE("private"),
     GROUP("group");
 
     private final String conversationType;

@@ -37,15 +37,15 @@ public class ChatController {
         logger.debug("Received message from principal: {}", principal);
 
         if (principal == null) {throw new IllegalStateException("Principal cannot be null");}
-        String senderName = principal.getName(); // Recipient's username
-        String receiverName = chat.getReceiverName();
-        if (receiverName == null) {throw new IllegalStateException("Recipient cannot be null");}
+        String senderName = principal.getName();
+        String receiverId = chat.getReceiverId();
+        if (receiverId == null) {throw new IllegalStateException("Recipient cannot be null");}
         String responseMessage = chat.getContent();
         // Send the message to the recipient's queue
 
-        Chat savedMsg = chatService.save(chat);
+        Chat savedMsg = chatService.savePrivateMessage(chat);
         log.info("Message processing with following metadata: {}", savedMsg);
-        simpMessagingTemplate.convertAndSendToUser(receiverName, "/queue/reply", responseMessage);
+        simpMessagingTemplate.convertAndSendToUser(receiverId, "/queue/reply", responseMessage);
     }
 
     // Process the group message and save to DataBase
@@ -53,15 +53,16 @@ public class ChatController {
     @SendTo("/user/queue/reply")
     public String processGroupMessage(Chat chat) {
         log.info("Request received for processing Message with Id: {}", chat.getId());
-        Chat savedMeg = chatService.save(chat);
+        Chat savedMsg = chatService.saveGroupMessage(chat);
+        log.info("Message processing with following metadata: {}", savedMsg);
         return chat.getContent();
     }
 
     // Returns List of Chats between sender and receiver by their Id
-    @GetMapping("/messages/{conversationId}")
+    @GetMapping("/messages/history/{conversationId}")
     public ResponseDto<ChatResponse> getMessageHistory(@PathVariable("conversationId") String conversationId,
                                                             @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC)Pageable pageable){
-        log.info("Request received for get message with conversationId: {}", conversationId);
+        log.info("Request received for get messages with conversationId: {}", conversationId);
         return chatService.getChatMessages(conversationId, pageable);
     }
 

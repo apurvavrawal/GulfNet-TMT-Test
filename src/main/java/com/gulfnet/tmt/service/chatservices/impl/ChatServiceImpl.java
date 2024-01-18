@@ -27,9 +27,9 @@ public class ChatServiceImpl implements ChatService {
     private final ObjectMapper mapper;
 
     @Override
-    public Chat save(Chat chat) {
+    public Chat savePrivateMessage(Chat chat) {
         var chatId = conversationService.getChatRoomId(chat.getSenderId(), chat.getReceiverId(),true).orElseThrow();
-        //chatMessage.setId(chatId);
+
         Chat newChat = new Chat();
         newChat.setConversationId(chatId);
         newChat.setContent(chat.getContent());
@@ -52,14 +52,16 @@ public class ChatServiceImpl implements ChatService {
                 .count(chats.stream().count())
                 .total(chats.getTotalElements())
                 .build();
-//        var chatId = chatRoomService.getChatRoomId(senderId, receiverId,false);
-//        return chatId.map(chatRoomId -> chatDao.findChatMessagesById(chatRoomId)).orElse(new ArrayList<>());
-
     }
 
     @Override
     public ResponseDto<ChatResponse> getMessageById(String chatId) {
         Chat chat = chatDao.findMessageById(chatId).orElseThrow(()-> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "Chat")));
         return ResponseDto.<ChatResponse>builder().status(0).data(List.of(mapper.convertValue(chat, ChatResponse.class))).build();
+    }
+
+    @Override
+    public Chat saveGroupMessage(Chat chat) {
+        return null;
     }
 }
