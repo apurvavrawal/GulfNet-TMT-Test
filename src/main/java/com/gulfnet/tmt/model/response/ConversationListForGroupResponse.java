@@ -9,6 +9,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 public class ConversationListForGroupResponse {
-    private String GroupName;
-    private String GroupIcon;
+    private String groupId;
+    private String groupName;
+    private String groupIcon;
 }

@@ -10,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,19 +45,34 @@ public class ChatController {
     }
 
     // Process the group message and save to DataBase
-    @MessageMapping("/chat/sendMessage")
+   /* @MessageMapping("/chat/sendMessage")
     @SendTo("/user/queue/reply")
     public String processGroupMessage(Chat chat) {
         log.info("Request received for processing Message with Id: {}", chat.getId());
         Chat savedMsg = chatService.saveGroupMessage(chat);
         log.info("Message processing for group chat with following metadata: {}", savedMsg);
         return chat.getContent();
+    }*/
+
+    // Group message send
+    @MessageMapping("/chat/groupMessage")
+    public void processGroupMessage(Chat chat) {
+        logger.debug("Received group message");
+
+        String groupId = chat.getReceiverId();
+        if (groupId == null) {
+            throw new IllegalStateException("Group ID cannot be null");
+        }
+        Chat savedMsg = chatService.saveGroupMessage(chat);
+        log.info("Message processing for group chat with following metadata: {}", savedMsg);
+
+        simpMessagingTemplate.convertAndSend("/queue/reply/" + groupId, savedMsg);
     }
 
     // Returns List of Chats between sender and receiver by their Id
     @GetMapping("/messages/history/{conversationId}")
     public ResponseDto<ChatResponse> getMessageHistory(@PathVariable("conversationId") String conversationId,
-                                                            @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.ASC)Pageable pageable){
+                                                            @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC)Pageable pageable){
         log.info("Request received for get messages with conversationId: {}", conversationId);
         return chatService.getChatMessages(conversationId, pageable);
     }
@@ -70,8 +84,8 @@ public class ChatController {
         return chatService.getMessageById(chatId);
     }
 
-    public void broadcastMessage(String message) {
+   /* public void broadcastMessage(String message) {
         // Broadcast message to all subscribers of '/user/topic/broadcast'
         simpMessagingTemplate.convertAndSend("/user/topic/broadcast", message);
-    }
+    }*/
 }
