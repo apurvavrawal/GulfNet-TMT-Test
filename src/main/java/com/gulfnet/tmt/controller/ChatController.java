@@ -58,7 +58,7 @@ public class ChatController {
     // Returns List of Chats between sender and receiver by their Id
     @GetMapping("/messages/history/{conversationId}")
     public ResponseDto<ChatResponse> getMessageHistory(@PathVariable("conversationId") String conversationId,
-                                                            @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.ASC)Pageable pageable){
+                                                            @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.ASC,size = 50, value = 50)Pageable pageable){
         log.info("Request received for get messages with conversationId: {}", conversationId);
         return chatService.getChatMessages(conversationId, pageable);
     }
