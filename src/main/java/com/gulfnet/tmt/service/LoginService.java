@@ -180,8 +180,12 @@ public class LoginService {
         return empty();
     }
 
-    public void logout(UUID userId) {
+    public ResponseDto<String> logout(UUID userId) {
         userDao.deleteEntityById(userId);
+        return ResponseDto.<String>builder()
+                .status(0)
+                .message("Logout Successfully")
+                .build();
     }
 }
 

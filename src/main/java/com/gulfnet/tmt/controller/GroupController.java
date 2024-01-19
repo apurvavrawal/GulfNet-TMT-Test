@@ -60,8 +60,9 @@ public class GroupController {
     }
 
     @DeleteMapping("/{groupId}")
-    public ResponseEntity<String> deleteGroup(@PathVariable UUID groupId) {
+    @Operation(summary = "Remove a group by its unique ID.")
+    public ResponseDto<GroupResponse> deleteGroup(@PathVariable UUID groupId) {
         log.info("Received group deletion request for groupId {}", groupId);
-        return ResponseEntity.ok(groupService.deleteGroupById(groupId));
+        return groupService.deleteGroupById(groupId);
     }
 }

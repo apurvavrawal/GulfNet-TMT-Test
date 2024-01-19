@@ -7,11 +7,8 @@ import com.gulfnet.tmt.entity.sql.Group;
 import com.gulfnet.tmt.exceptions.GulfNetTMTException;
 import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.request.GroupRequest;
-import com.gulfnet.tmt.model.response.UserBasicInfoResponse;
-import com.gulfnet.tmt.model.response.GroupResponse;
-import com.gulfnet.tmt.model.response.ResponseDto;
+import com.gulfnet.tmt.model.response.*;
 import com.gulfnet.tmt.util.ErrorConstants;
-import com.gulfnet.tmt.util.enums.ResponseMessage;
 import com.gulfnet.tmt.util.enums.Status;
 import com.gulfnet.tmt.validator.GroupValidator;
 import lombok.RequiredArgsConstructor;
@@ -117,14 +114,17 @@ public class GroupService {
                 .build();
 
     }
-    public String deleteGroupById(UUID id) {
+    public  ResponseDto<GroupResponse> deleteGroupById(UUID id) {
         Group group = groupDao.findById(id).orElseThrow(
                 () -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "Group")));
         if (ObjectUtils.isEmpty(group)) {
-            return ResponseMessage.GROUP_NOT_FOUND.getName();
+            return ResponseDto.<GroupResponse>builder().data(null).build();
         } else {
             groupDao.updateGroupStatusById(Status.INACTIVE.getName(), id);
-            return ResponseMessage.GROUP_DELETE_SUCCESSFULLY.getName();
+            return ResponseDto.<GroupResponse>builder()
+                    .status(0)
+                    .message("Group deleted successfully")
+                    .build();
         }
     }
 }

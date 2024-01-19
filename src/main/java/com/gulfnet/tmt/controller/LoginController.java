@@ -62,9 +62,7 @@ public class LoginController {
 
     @DeleteMapping("/logout/{userId}")
     @Operation(summary = "Terminate user session and log out successfully.")
-    public ResponseEntity<String> logout(@PathVariable UUID userId) {
-        loginService.logout(userId);
-        return ResponseEntity.ok("Logout Successfully");
+    public ResponseDto<String> logout(@PathVariable UUID userId) {
+      return  loginService.logout(userId);
     }
-
 }
