@@ -24,6 +24,7 @@ public class GroupResponse {
     private Timestamp dateUpdated;
     private String updatedBy;
     private String createdBy;
+    private String status;
 
     public String getIcon() {
         return  ImageUtil.getB64EncodedStringFromImagePathOrURL(icon);
