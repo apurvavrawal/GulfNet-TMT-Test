@@ -28,10 +28,8 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Chat savePrivateMessage(Chat chat) {
-        var chatId = conversationService.getChatRoomId(chat.getSenderId(), chat.getReceiverId(),true);
-        if(chatId.isEmpty()){
-             chatId = conversationService.getChatRoomId(chat.getReceiverId(), chat.getSenderId(),true);
-        }
+        var chatId = conversationService.getChatRoomId(chat,true);
+
         Chat newChat = new Chat();
         newChat.setConversationId(chatId);
         newChat.setContent(chat.getContent());
@@ -64,7 +62,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Chat saveGroupMessage(Chat chat) {
-        var chatId = conversationService.getChatRoomId(chat.getSenderId(), chat.getReceiverId(),true);
+        var chatId = conversationService.getChatRoomId(chat,true);
 
         Chat newChat = new Chat();
         newChat.setConversationId(chatId);

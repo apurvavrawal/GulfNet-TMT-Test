@@ -1,6 +1,5 @@
 package com.gulfnet.tmt.service.chatservices.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gulfnet.tmt.dao.ChatDao;
 import com.gulfnet.tmt.dao.ConversationDao;
 import com.gulfnet.tmt.dao.UserDao;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Service;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -34,14 +32,17 @@ public class ConversationServiceImpl implements ConversationService {
     private final UserDao userDao;
     private final ChatDao chatDao;
 
-    public String getChatRoomId(String senderId , String receiverId , boolean createNewRoomIfNotExists){
+    public String getChatRoomId(Chat chat, boolean createNewRoomIfNotExists) {
 
-        if(createNewRoomIfNotExists){
-            Conversation conversation = conversationRepository.findBySenderIdAndConsumerId(senderId,receiverId);
+        // check from both sender and receiver side if conversation already present or not
+        if (createNewRoomIfNotExists) {
+            Conversation conversation = conversationRepository.findBySenderIdAndConsumerId(chat.getSenderId(), chat.getReceiverId());
+            if (conversation == null) {
+                conversation = conversationRepository.findBySenderIdAndConsumerId(chat.getReceiverId(), chat.getSenderId());
+            }
             return conversation.getId();
-        }
-        else{
-            ConversationRequest conversationRequest = new ConversationRequest(senderId, receiverId, ConversationType.PRIVATE);
+        } else {
+            ConversationRequest conversationRequest = new ConversationRequest(chat.getSenderId(), chat.getReceiverId(), ConversationType.PRIVATE);
             ConversationResponse conversationResponse = createConversation(conversationRequest);
             var newChatId = conversationResponse.getConversationId();
             return newChatId;

@@ -41,7 +41,7 @@ public class ChatController {
         if (receiverId == null) {throw new IllegalStateException("Recipient cannot be null");}
         // Send the message to the recipient's queue
         Chat savedMsg = chatService.savePrivateMessage(chat);
-        log.info("Message processing with following metadata: {}", savedMsg);
+        log.info("Message processing for private chat with following metadata: {}", savedMsg);
         simpMessagingTemplate.convertAndSendToUser(receiverId, "/queue/reply", savedMsg);
     }
 
@@ -51,7 +51,7 @@ public class ChatController {
     public String processGroupMessage(Chat chat) {
         log.info("Request received for processing Message with Id: {}", chat.getId());
         Chat savedMsg = chatService.saveGroupMessage(chat);
-        log.info("Message processing with following metadata: {}", savedMsg);
+        log.info("Message processing for group chat with following metadata: {}", savedMsg);
         return chat.getContent();
     }
 
