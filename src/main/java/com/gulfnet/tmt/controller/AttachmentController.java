@@ -26,13 +26,8 @@ public class AttachmentController {
     private AttachmentService attachmentService;
 
     @PostMapping("/upload")
-    public ResponseDto<AttachmentResponse> uploadFile(@RequestParam("file") MultipartFile file) {
-        return attachmentService.uploadFile(file);
-    }
-
-    @PostMapping("/uploadfiles")
-    public ResponseDto<List<AttachmentResponse>> uploadFiles(@RequestParam("files") List<MultipartFile> files) {
-      return attachmentService.uploadMultipleFiles(files);
+    public ResponseDto<List<AttachmentResponse>> uploadFiles(@RequestParam("files") List<MultipartFile> files, @RequestParam String attachmentType) {
+        return attachmentService.uploadFiles(files,attachmentType);
     }
 
     @GetMapping("/download/{fileName}")

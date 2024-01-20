@@ -9,15 +9,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-//@Entity
-//@Table(name = "attachment")
 @Document(collection = "attachment")
 public class Attachment {
 
     @Id
-   // @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer fileId;
     private String fileName;
     private String fileType;
     private String fileLocation;
+    private String attachmentType;
 }

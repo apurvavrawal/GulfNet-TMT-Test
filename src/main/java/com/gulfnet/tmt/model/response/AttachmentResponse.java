@@ -15,9 +15,6 @@ public class AttachmentResponse {
     private String fileName;
     private String fileType;
     private String fileLocation;
-
-//    public String getFileName() {
-//        return  ImageUtil.getB64EncodedStringFromImagePathOrURL(fileName);
-//    }
+    private String attachmentType;
 
 }

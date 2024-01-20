@@ -32,56 +32,31 @@ public class AttachmentService {
    // private static final String FOLDER_PATH = "C:\\Users\\JSPNLP-\\uploadfie\\";
 
     @Autowired
-    GulfNetTMTServiceConfig gulfNetTMTServiceConfig;
+    private GulfNetTMTServiceConfig gulfNetTMTServiceConfig;
 
     @Autowired
     private AttachmentRepository attachmentRepository;
 
-    public ResponseDto<AttachmentResponse> uploadFile(MultipartFile file) {
-        String path = null;
-        AttachmentResponse attachmentResponse = null;
-        try {
-
-            path = gulfNetTMTServiceConfig.getLocalFileUploadPath()+file.getOriginalFilename();
-           // path = FOLDER_PATH + file.getOriginalFilename();
-            Attachment item = Attachment.builder()
-                    .fileName(file.getOriginalFilename())
-                    .fileType(file.getContentType())
-                    .fileLocation(path)
-                    .build();
-
-            Attachment attachment = attachmentRepository.save(item);
-            file.transferTo(new File(path).toPath());
-            attachmentResponse = mapper.convertValue(attachment, AttachmentResponse.class);
-        } catch (IOException e) {
-            throw new GulfNetTMTException(ErrorConstants.SYSTEM_ERROR_CODE, e.getMessage());
-        }
-        return ResponseDto.<AttachmentResponse>builder()
-                .status(0)
-                .data(List.of(attachmentResponse))
-                .message("File upload sucessfully")
-                .build();
-    }
-
-    public ResponseDto<List<AttachmentResponse>> uploadMultipleFiles(List<MultipartFile> files) {
+    public ResponseDto<List<AttachmentResponse>> uploadFiles(List<MultipartFile> files, String attachmentType) {
         List<AttachmentResponse> attachmentResponses = new ArrayList<>();
 
         for (MultipartFile file : files) {
             try {
-                String fileName = file.getOriginalFilename();
-                String filePath = gulfNetTMTServiceConfig.getLocalFileUploadPath() + File.separator + fileName;
+                File currentFile = new File(gulfNetTMTServiceConfig.getLocalFilePath(),
+                        System.currentTimeMillis() + "_" + attachmentType + "_" + file.getOriginalFilename());
 
                 Attachment item = Attachment.builder()
-                        .fileName(fileName)
+                        .fileName(file.getOriginalFilename())
                         .fileType(file.getContentType())
-                        .fileLocation(filePath)
+                        .fileLocation(currentFile.getAbsolutePath())
+                        .attachmentType(attachmentType)
                         .build();
 
-                Attachment savedAttachment = attachmentRepository.save(item);
-                file.transferTo(new File(filePath).toPath());
+                Attachment attachment = attachmentRepository.save(item);
 
-                AttachmentResponse attachmentResponse = mapper.convertValue(savedAttachment, AttachmentResponse.class);
-                attachmentResponses.add(attachmentResponse);
+                file.transferTo(currentFile.toPath());
+                AttachmentResponse response = mapper.convertValue(attachment, AttachmentResponse.class);
+                attachmentResponses.add(response);
             } catch (IOException e) {
                 throw new GulfNetTMTException(ErrorConstants.SYSTEM_ERROR_CODE, e.getMessage());
             }
