@@ -24,7 +24,7 @@ public interface GroupRepository extends JpaRepository<Group, UUID> {
             " FROM Group OG " +
             " LEFT JOIN UserGroup UG ON UG.group.id = OG.ID " +
             " LEFT JOIN User GTU ON GTU.ID = UG.user.id " +
-            " WHERE (LOWER(OG.name) like %:search% Or LOWER(OG.code) like %:search%) AND OG.status = :status "+
+            " WHERE (LOWER(OG.name) like %:search% Or LOWER(OG.code) like %:search%) AND OG.status IS NULL OR LOWER(OG.status) = LOWER(:status) "+
             " GROUP BY OG.ID")
     Page<GroupResponse> findAllGroupsBySearch(@Param("status") String status,String search, Pageable pageable);
 
@@ -32,7 +32,7 @@ public interface GroupRepository extends JpaRepository<Group, UUID> {
             " FROM Group OG " +
             " LEFT JOIN UserGroup UG ON UG.group.id = OG.ID " +
             " LEFT JOIN User GTU ON GTU.ID = UG.user.id " +
-            " WHERE  OG.status = :status" +
+            " WHERE  OG.status IS NULL OR LOWER(OG.status) = LOWER(:status)"  +
             " GROUP BY OG.ID")
     Page<GroupResponse> findAllGroups(@Param("status") String status,Pageable pageable);
 
