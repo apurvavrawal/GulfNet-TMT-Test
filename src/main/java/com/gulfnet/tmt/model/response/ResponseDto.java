@@ -18,7 +18,6 @@ public class ResponseDto<T> {
     private String message;
     private List<ErrorDto> errors;
 
-
     @Override
     public String toString() {
         return "ResponseDto{" +
