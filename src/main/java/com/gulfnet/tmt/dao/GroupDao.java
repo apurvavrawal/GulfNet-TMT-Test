@@ -35,9 +35,9 @@ public class GroupDao {
 
     public Page<GroupResponse> findAllBySearch(String search, Pageable pageable) {
         if(StringUtils.isEmpty(search)){
-            return groupRepository.findAllGroups(pageable);
+            return groupRepository.findAllGroups(Status.ACTIVE.getName(),pageable);
         }
-        return groupRepository.findAllGroupsBySearch(search.toLowerCase(), pageable);
+        return groupRepository.findAllGroupsBySearch(Status.ACTIVE.getName(),search.toLowerCase(), pageable);
     }
     public void updateGroupStatusById(String status, UUID id) {
         groupRepository.updateGroupStatusById(status, id);
