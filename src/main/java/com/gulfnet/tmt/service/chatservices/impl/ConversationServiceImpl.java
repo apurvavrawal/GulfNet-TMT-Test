@@ -5,12 +5,14 @@ import com.gulfnet.tmt.dao.ConversationDao;
 import com.gulfnet.tmt.dao.UserDao;
 import com.gulfnet.tmt.entity.nosql.Chat;
 import com.gulfnet.tmt.entity.nosql.Conversation;
+import com.gulfnet.tmt.entity.sql.Group;
 import com.gulfnet.tmt.entity.sql.User;
 import com.gulfnet.tmt.entity.sql.UserGroup;
 import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.request.ConversationRequest;
 import com.gulfnet.tmt.model.response.*;
 import com.gulfnet.tmt.repository.nosql.ConversationRepository;
+import com.gulfnet.tmt.repository.sql.GroupRepository;
 import com.gulfnet.tmt.repository.sql.UserGroupRepository;
 import com.gulfnet.tmt.service.chatservices.ConversationService;
 import com.gulfnet.tmt.util.ErrorConstants;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -34,6 +37,7 @@ public class ConversationServiceImpl implements ConversationService {
     private final UserDao userDao;
     private final UserGroupRepository userGroupRepository;
     private final ChatDao chatDao;
+    private final GroupRepository groupRepository;
 
     public String getChatRoomId(Chat chat, boolean chatRoomExists) {
 
@@ -121,17 +125,19 @@ public class ConversationServiceImpl implements ConversationService {
                     conversationListResponse.setConversationForPrivateResponse(conversationForPrivateResponse);
 
                     // Assign Group details for Group Chat
-                    UserGroup userGroup = userGroupRepository.findById(UUID.fromString(requiredUser))
-                            .orElseThrow(()-> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE,
-                                    MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE,"Group")));
+                    if(conversation.getConversationType() == ConversationType.GROUP)
+                    {
+                        Group group = groupRepository.findById(UUID.fromString(conversation.getConsumerId()))
+                                .orElseThrow(()-> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE,
+                                        MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE,"Group")));
 
-                    ConversationListForGroupResponse conversationListForGroupResponse = new ConversationListForGroupResponse();
+                        ConversationListForGroupResponse conversationListForGroupResponse = new ConversationListForGroupResponse();
 
-                    conversationListForGroupResponse.setGroupId(String.valueOf(userGroup.getGroup().getId()));
-                    conversationListForGroupResponse.setGroupName(userGroup.getGroup().getName());
-                    conversationListForGroupResponse.setGroupIcon(userGroup.getGroup().getIcon());
-
-                    conversationListResponse.setConversationListForGroupResponse(conversationListForGroupResponse);
+                        conversationListForGroupResponse.setGroupId(String.valueOf(group.getId()));
+                        conversationListForGroupResponse.setGroupName(group.getName());
+                        conversationListForGroupResponse.setGroupIcon(group.getIcon());
+                        conversationListResponse.setConversationListForGroupResponse(conversationListForGroupResponse);
+                    }
 
                     // Assign Last Message with each chat
                     Chat chat = chatDao.findLatestChatMessage(conversation.getId());
