@@ -5,6 +5,7 @@ import com.gulfnet.tmt.dao.ChatDao;
 import com.gulfnet.tmt.entity.nosql.Chat;
 import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.response.ChatResponse;
+import com.gulfnet.tmt.model.response.GroupChatResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.service.chatservices.ChatService;
 import com.gulfnet.tmt.service.chatservices.ConversationService;
@@ -59,8 +60,19 @@ public class ChatServiceImpl implements ChatService {
 
         return chatDao.save(newChat);
     }
+
     @Override
-    public ResponseDto<ChatResponse> getChatMessages(String conversationId, Pageable pageable) {
+    public ResponseDto<GroupChatResponse> getChatMessagesForGroup(String groupId, Pageable pageable) {
+        Page<GroupChatResponse> chats = chatDao.findChatMessagesByReceiverId(groupId, pageable);
+        return ResponseDto.<GroupChatResponse>builder()
+                .data(chats.getContent())
+                .count(chats.stream().count())
+                .total(chats.getTotalElements())
+                .build();
+    }
+
+    @Override
+    public ResponseDto<ChatResponse> getChatMessagesForPrivate(String conversationId, Pageable pageable) {
         Page<ChatResponse> chats = chatDao.findChatMessagesById(conversationId, pageable);
         return ResponseDto.<ChatResponse>builder()
                 .data(chats.getContent())

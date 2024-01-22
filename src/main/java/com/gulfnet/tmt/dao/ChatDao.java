@@ -2,6 +2,7 @@ package com.gulfnet.tmt.dao;
 
 import com.gulfnet.tmt.entity.nosql.Chat;
 import com.gulfnet.tmt.model.response.ChatResponse;
+import com.gulfnet.tmt.model.response.GroupChatResponse;
 import com.gulfnet.tmt.repository.nosql.ChatRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,5 +35,9 @@ public class ChatDao {
     public Chat findLatestChatMessage(String conversationId) {
 
         return chatRepository.findFirstByConversationIdOrderByDateCreatedDesc(conversationId);
+    }
+
+    public Page<GroupChatResponse> findChatMessagesByReceiverId(String groupId, Pageable pageable) {
+        return chatRepository.findByReceiverId(groupId, pageable);
     }
 }

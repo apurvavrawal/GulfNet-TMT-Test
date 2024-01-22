@@ -60,6 +60,10 @@ public class ConversationServiceImpl implements ConversationService {
     public String getChatRoomIdForGroup(Chat chat) {
         // check from both sender and receiver side if conversation already present or not
         Conversation conversation = conversationRepository.findByUserIdAndConsumerId(chat.getSenderId(), chat.getReceiverId());
+
+        // update senderId as per the message send to the existing conversation of group.
+        conversation.setSenderId(chat.getSenderId());
+        conversationRepository.save(conversation);
         return conversation.getId();
     }
 
@@ -95,10 +99,10 @@ public class ConversationServiceImpl implements ConversationService {
     }
     public ConversationResponse createConversationForGroup(ConversationRequest conversationRequest, UUID userId) {
         // check if conversation already present or not if not then create new
-        Conversation conv = conversationRepository.findBySenderIdAndConsumerId(conversationRequest.getSenderId(),conversationRequest.getConsumerId());
+        Conversation conv = conversationRepository.findByUserIdAndConsumerId(String.valueOf(userId),conversationRequest.getConsumerId());
         ConversationResponse conversationResponse = new ConversationResponse();
         if(conv == null) {
-            Conversation otherConv = conversationRepository.findBySenderIdAndConsumerId(conversationRequest.getConsumerId(), conversationRequest.getSenderId());
+            Conversation otherConv = conversationRepository.findByUserIdAndConsumerId(String.valueOf(userId), conversationRequest.getSenderId());
             if (otherConv == null) {
                 Conversation conversation = new Conversation();
                 conversation.setConversationType(conversationRequest.getConversationType());

@@ -2,6 +2,7 @@ package com.gulfnet.tmt.controller;
 
 import com.gulfnet.tmt.entity.nosql.Chat;
 import com.gulfnet.tmt.model.response.ChatResponse;
+import com.gulfnet.tmt.model.response.GroupChatResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.service.chatservices.ChatService;
 import lombok.RequiredArgsConstructor;
@@ -45,16 +46,6 @@ public class ChatController {
     }
 
     // Process the group message and save to DataBase
-   /* @MessageMapping("/chat/sendMessage")
-    @SendTo("/user/queue/reply")
-    public String processGroupMessage(Chat chat) {
-        log.info("Request received for processing Message with Id: {}", chat.getId());
-        Chat savedMsg = chatService.saveGroupMessage(chat);
-        log.info("Message processing for group chat with following metadata: {}", savedMsg);
-        return chat.getContent();
-    }*/
-
-    // Group message send
     @MessageMapping("/chat/groupMessage")
     public void processGroupMessage(Chat chat) {
         logger.debug("Received group message");
@@ -66,15 +57,23 @@ public class ChatController {
         Chat savedMsg = chatService.saveGroupMessage(chat);
         log.info("Message processing for group chat with following metadata: {}", savedMsg);
 
-        simpMessagingTemplate.convertAndSend("/queue/reply/" + groupId, savedMsg);
+        simpMessagingTemplate.convertAndSendToUser(groupId,"/queue/reply", savedMsg);
     }
 
-    // Returns List of Chats between sender and receiver by their Id
-    @GetMapping("/messages/history/{conversationId}")
-    public ResponseDto<ChatResponse> getMessageHistory(@PathVariable("conversationId") String conversationId,
+    // Returns List of Chats(private) between sender and receiver by conversationId
+    @GetMapping("/messages/history/private-chat/{conversationId}")
+    public ResponseDto<ChatResponse> getMessageHistoryForPrivateChat(@PathVariable("conversationId") String conversationId,
                                                             @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC)Pageable pageable){
         log.info("Request received for get messages with conversationId: {}", conversationId);
-        return chatService.getChatMessages(conversationId, pageable);
+        return chatService.getChatMessagesForPrivate(conversationId, pageable);
+    }
+
+    // Returns List of Chats in group by groupId
+    @GetMapping("/messages/history/group-chat/{groupId}")
+    public ResponseDto<GroupChatResponse> getMessageHistoryForGroupChat(@PathVariable("groupId") String groupId,
+                                                                        @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.ASC, size = 50, value = 50)Pageable pageable){
+        log.info("Request received for get messages with groupId: {}", groupId);
+        return chatService.getChatMessagesForGroup(groupId, pageable);
     }
 
     // Returns message details for requested chatId
@@ -84,8 +83,8 @@ public class ChatController {
         return chatService.getMessageById(chatId);
     }
 
-   /* public void broadcastMessage(String message) {
+    public void broadcastMessage(String message) {
         // Broadcast message to all subscribers of '/user/topic/broadcast'
         simpMessagingTemplate.convertAndSend("/user/topic/broadcast", message);
-    }*/
+    }
 }
