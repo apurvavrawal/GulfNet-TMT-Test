@@ -48,17 +48,12 @@ public class AttachmentService {
 
     public ResponseDto<List<AttachmentResponse>> uploadFiles(List<MultipartFile> files, String attachmentType) {
         List<AttachmentResponse> attachmentResponses = new ArrayList<>();
+        String fileFolder = "/attachment/";
 
-        String fileFolder = null;
-        if(attachmentType.equalsIgnoreCase(IMAGE)){
-            fileFolder =  "/attachment/images";
-        } else if(attachmentType.equalsIgnoreCase(AUDIO)){
-            fileFolder =  "/attachment/audio";
-        }else if(attachmentType.equalsIgnoreCase(VIDEO)){
-            fileFolder =  "/attachment/videos";
-        }else if(attachmentType.equalsIgnoreCase(DOCUMENT)){
-            fileFolder =  "/attachment/documents";
-        }
+        if(attachmentType.equalsIgnoreCase(IMAGE)) fileFolder += IMAGE;
+        else if(attachmentType.equalsIgnoreCase(AUDIO)) fileFolder += AUDIO;
+        else if(attachmentType.equalsIgnoreCase(VIDEO)) fileFolder += VIDEO;
+        else if(attachmentType.equalsIgnoreCase(DOCUMENT)) fileFolder += DOCUMENT;
 
         for (MultipartFile file : files) {
             try {
