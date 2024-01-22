@@ -16,7 +16,9 @@ public class ConversationDao {
     private final ConversationRepository conversationRepository;
 
     public List<Conversation> getConversationList(String userId) {
-        return conversationRepository.findBySenderIdOrConsumerId(userId, userId);
+        List<Conversation> conversationList = conversationRepository.findBySenderIdOrConsumerId(userId, userId);
+        conversationList = conversationRepository.findByUserId(userId);
+        return conversationList;
     }
 
     public Conversation createConversation(Conversation conversation) {

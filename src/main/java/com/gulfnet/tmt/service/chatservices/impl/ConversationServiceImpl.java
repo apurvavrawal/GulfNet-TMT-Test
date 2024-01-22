@@ -59,10 +59,7 @@ public class ConversationServiceImpl implements ConversationService {
     @Override
     public String getChatRoomIdForGroup(Chat chat) {
         // check from both sender and receiver side if conversation already present or not
-        Conversation conversation = conversationRepository.findBySenderIdAndConsumerId(chat.getSenderId(), chat.getReceiverId());
-        if (conversation == null) {
-            conversation = conversationRepository.findBySenderIdAndConsumerId(chat.getReceiverId(), chat.getSenderId());
-        }
+        Conversation conversation = conversationRepository.findByUserIdAndConsumerId(chat.getSenderId(), chat.getReceiverId());
         return conversation.getId();
     }
 
@@ -79,6 +76,7 @@ public class ConversationServiceImpl implements ConversationService {
                 conversation.setConversationType(conversationRequest.getConversationType());
                 conversation.setSenderId(conversationRequest.getSenderId());
                 conversation.setConsumerId(conversationRequest.getConsumerId());
+                conversation.setUserId(conversationRequest.getSenderId());
 
                 // Save the conversation to the database
                 Conversation savedConversation = conversationDao.createConversation(conversation);
@@ -95,7 +93,34 @@ public class ConversationServiceImpl implements ConversationService {
         }
         return conversationResponse;
     }
+    public ConversationResponse createConversationForGroup(ConversationRequest conversationRequest, UUID userId) {
+        // check if conversation already present or not if not then create new
+        Conversation conv = conversationRepository.findBySenderIdAndConsumerId(conversationRequest.getSenderId(),conversationRequest.getConsumerId());
+        ConversationResponse conversationResponse = new ConversationResponse();
+        if(conv == null) {
+            Conversation otherConv = conversationRepository.findBySenderIdAndConsumerId(conversationRequest.getConsumerId(), conversationRequest.getSenderId());
+            if (otherConv == null) {
+                Conversation conversation = new Conversation();
+                conversation.setConversationType(conversationRequest.getConversationType());
+                conversation.setSenderId(conversationRequest.getSenderId());
+                conversation.setConsumerId(conversationRequest.getConsumerId());
+                conversation.setUserId(String.valueOf(userId));
+                // Save the conversation to the database
+                Conversation savedConversation = conversationDao.createConversation(conversation);
 
+                conversationResponse.setSenderId(conversationRequest.getSenderId());
+                conversationResponse.setConsumerId(conversationRequest.getConsumerId());
+                conversationResponse.setConversationId(savedConversation.getId());
+                conversationResponse.setConversationType(savedConversation.getConversationType());
+            } else {
+                conversationResponse = setAlreadyExistConversation(conversationRequest);
+            }
+        }
+        else{
+            conversationResponse = setAlreadyExistConversation(conversationRequest);
+        }
+        return conversationResponse;
+    }
     @Override
     public ResponseDto<ConversationListResponse> getConversationList(String userId, Pageable pageable) {
 
@@ -107,23 +132,26 @@ public class ConversationServiceImpl implements ConversationService {
                     conversationListResponse.setConversationId(conversation.getId());
                     conversationListResponse.setConversationType(conversation.getConversationType());
 
-                    String requiredUser = Objects.equals(userId, conversation.getSenderId()) ?
-                            conversation.getConsumerId() :
-                            conversation.getSenderId();
-
                     // Assign User details for Private Chat
-                    User user = userDao.findUser(UUID.fromString(requiredUser))
-                            .orElseThrow(() -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE,
-                                    MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "User")));
-                    ConversationForPrivateResponse conversationForPrivateResponse = new ConversationForPrivateResponse();
+                    if(conversation.getConversationType() == ConversationType.PRIVATE)
+                    {
+                        String requiredUser = Objects.equals(userId, conversation.getSenderId()) ?
+                                conversation.getConsumerId() :
+                                conversation.getSenderId();
 
-                    conversationForPrivateResponse.setUserId(String.valueOf(user.getId()));
-                    conversationForPrivateResponse.setFirstName(user.getFirstName());
-                    conversationForPrivateResponse.setLastName(user.getLastName());
-                    conversationForPrivateResponse.setProfilePhoto(user.getProfilePhoto());
+                        User user = userDao.findUser(UUID.fromString(requiredUser))
+                                .orElseThrow(() -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE,
+                                        MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "User")));
+                        ConversationForPrivateResponse conversationForPrivateResponse = new ConversationForPrivateResponse();
 
-                    conversationListResponse.setConversationForPrivateResponse(conversationForPrivateResponse);
+                        conversationForPrivateResponse.setUserId(String.valueOf(user.getId()));
+                        conversationForPrivateResponse.setFirstName(user.getFirstName());
+                        conversationForPrivateResponse.setLastName(user.getLastName());
+                        conversationForPrivateResponse.setProfilePhoto(user.getProfilePhoto());
 
+                        conversationListResponse.setConversationForPrivateResponse(conversationForPrivateResponse);
+
+                    }
                     // Assign Group details for Group Chat
                     if(conversation.getConversationType() == ConversationType.GROUP)
                     {
@@ -158,5 +186,4 @@ public class ConversationServiceImpl implements ConversationService {
         conversationResponse.setConversationType(conversationRequest.getConversationType());
         return conversationResponse;
     }
-
 }

@@ -70,11 +70,14 @@ public class UserService {
             ConversationRequest conversationRequest = new ConversationRequest();
 
             List<UserGroup> userGroups = getAllGroups(user, userPostRequest.getUserGroup());
+            User finalUser = user;
             userGroups.forEach(group ->{
                 conversationRequest.setSenderId("");
                 conversationRequest.setConsumerId(String.valueOf(group.getGroup().getId()));
                 conversationRequest.setConversationType(ConversationType.GROUP);
-                conversationServiceImpl.createConversation(conversationRequest);
+
+                conversationServiceImpl.createConversationForGroup(conversationRequest, finalUser.getId());
+
             });
 
             //emailService.sendEmail(user.getEmail(),
