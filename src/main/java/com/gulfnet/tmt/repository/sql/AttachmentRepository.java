@@ -9,9 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface AttachmentRepository extends MongoRepository<Attachment,Integer> {
-
-   // Optional<Attachment> findByFileId(Integer id);
-
-    Optional<Attachment> findByFileName(String fileName);
+    Optional<Attachment> findByFileLocation(String fileLocation);
 }
 

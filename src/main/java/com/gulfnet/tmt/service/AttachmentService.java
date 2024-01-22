@@ -1,5 +1,6 @@
 package com.gulfnet.tmt.service;
 
+import com.amazonaws.util.IOUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gulfnet.tmt.config.GulfNetTMTServiceConfig;
 import com.gulfnet.tmt.entity.sql.Attachment;
@@ -9,31 +10,35 @@ import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.repository.sql.AttachmentRepository;
 import com.gulfnet.tmt.util.ErrorConstants;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AttachmentService {
 
     private final ObjectMapper mapper;
-   // private static final String FOLDER_PATH = "C:\\Users\\JSPNLP-\\uploadfie\\";
-
     @Autowired
     private GulfNetTMTServiceConfig gulfNetTMTServiceConfig;
-
     @Autowired
     private AttachmentRepository attachmentRepository;
 
@@ -48,7 +53,7 @@ public class AttachmentService {
                 Attachment item = Attachment.builder()
                         .fileName(file.getOriginalFilename())
                         .fileType(file.getContentType())
-                        .fileLocation(currentFile.getAbsolutePath())
+                        .fileLocation(URLEncoder.encode(currentFile.getAbsolutePath(),StandardCharsets.UTF_8))
                         .attachmentType(attachmentType)
                         .build();
 
@@ -69,21 +74,18 @@ public class AttachmentService {
                 .build();
     }
 
-    public ResponseEntity<Object> downloadFile(String fileName) {
+    public Resource loadFileAsResource(String fileName) {
         try {
-            Optional<Attachment> fileItem = attachmentRepository.findByFileName(fileName);
-            if (fileItem.isPresent()) {
-                Attachment item = fileItem.get();
-                String path = item.getFileLocation();
-                byte[] content = Files.readAllBytes(Path.of(path));
-                return ResponseEntity.status(HttpStatus.FOUND)
-                        .contentType(MediaType.valueOf(item.getFileType())).body(content);
+            Path filePath = Paths.get(gulfNetTMTServiceConfig.getLocalFilePath()).resolve(fileName).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists()) {
+                return resource;
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found for fileName " + fileName);
+                throw new FileNotFoundException("File not found: " + fileName);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to read file content.");
+        } catch (MalformedURLException | FileNotFoundException ex) {
+            throw new GulfNetTMTException(ErrorConstants.SYSTEM_ERROR_CODE, ex.getMessage());
         }
     }
 }

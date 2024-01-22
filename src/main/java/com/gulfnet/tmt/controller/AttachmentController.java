@@ -1,37 +1,52 @@
 package com.gulfnet.tmt.controller;
 
-import com.gulfnet.tmt.entity.sql.Attachment;
+
 import com.gulfnet.tmt.model.response.AttachmentResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
-import com.gulfnet.tmt.repository.sql.AttachmentRepository;
 import com.gulfnet.tmt.service.AttachmentService;
-import org.apache.tomcat.util.http.fileupload.FileItem;
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.Resource;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.FileNotFoundException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
+@Slf4j
 public class AttachmentController {
 
     @Autowired
     private AttachmentService attachmentService;
 
     @PostMapping("/upload")
+    @Operation(summary = "Upload and store a new file")
     public ResponseDto<List<AttachmentResponse>> uploadFiles(@RequestParam("files") List<MultipartFile> files, @RequestParam String attachmentType) {
-        return attachmentService.uploadFiles(files,attachmentType);
+        return attachmentService.uploadFiles(files, attachmentType);
     }
 
-    @GetMapping("/download/{fileName}")
-    public ResponseEntity<Object> downloadFile(@PathVariable("fileName") String fileName) {
-        return attachmentService.downloadFile(fileName);
+    @GetMapping("/download")
+    @Operation(summary = "Download a file by file path")
+    public ResponseEntity<?> downloadFile(@RequestParam("filePath") String filePath) throws FileNotFoundException {
+        try {
+            String decodedFilePath = URLDecoder.decode(filePath, StandardCharsets.UTF_8);
+            Resource resource = attachmentService.loadFileAsResource(decodedFilePath);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+        } catch (Exception e) {
+            log.error("Error downloading file: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Internal server error");
+        }
     }
+
 }
+

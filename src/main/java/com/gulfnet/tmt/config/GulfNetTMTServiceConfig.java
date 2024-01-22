@@ -49,6 +49,4 @@ public class GulfNetTMTServiceConfig {
     @Value("${doraku.configuration.enable}")
     private boolean isDorakuConfigure;
 
-    @Value(("${local.file.upload.path}"))
-    private String localFileUploadPath;
 }
