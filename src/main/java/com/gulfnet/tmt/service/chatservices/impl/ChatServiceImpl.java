@@ -28,7 +28,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Chat savePrivateMessage(Chat chat) {
-        var chatId = conversationService.getChatRoomId(chat.getSenderId(), chat.getReceiverId(),true).orElseThrow();
+        var chatId = conversationService.getChatRoomId(chat,true);
 
         Chat newChat = new Chat();
         newChat.setConversationId(chatId);
@@ -62,6 +62,19 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Chat saveGroupMessage(Chat chat) {
-        return null;
+        var chatId = conversationService.getChatRoomId(chat,true);
+
+        Chat newChat = new Chat();
+        newChat.setConversationId(chatId);
+        newChat.setContent(chat.getContent());
+        newChat.setSenderId(chat.getSenderId());
+        newChat.setSenderName(chat.getSenderName());
+        newChat.setReceiverId(chat.getReceiverId());
+        newChat.setReceiverName(chat.getReceiverName());
+        Date currentDate = new Date();
+        newChat.setDateCreated(currentDate);
+        newChat.setAttachmentURL("Currently_No_Attachment");
+
+        return chatDao.save(newChat);
     }
 }

@@ -1,5 +1,6 @@
 package com.gulfnet.tmt.model.response;
 
+import com.gulfnet.tmt.entity.nosql.Chat;
 import com.gulfnet.tmt.util.enums.ConversationType;
 import lombok.*;
 
@@ -14,4 +15,6 @@ public class ConversationListResponse {
     private String conversationId;
     private ConversationType conversationType;
     private ConversationForPrivateResponse conversationForPrivateResponse;
+    private ConversationListForGroupResponse conversationListForGroupResponse;
+    private Chat chat;
 }

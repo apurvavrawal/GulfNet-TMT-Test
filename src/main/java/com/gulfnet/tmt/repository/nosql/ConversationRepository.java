@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 public interface ConversationRepository extends MongoRepository<Conversation, String> {
-    Optional<Conversation> findBySenderIdAndConsumerId(String senderId, String receiverId);
+    Conversation findBySenderIdAndConsumerId(String senderId, String receiverId);
 
     List<Conversation> findBySenderIdOrConsumerId(String senderId, String consumerId);
 
