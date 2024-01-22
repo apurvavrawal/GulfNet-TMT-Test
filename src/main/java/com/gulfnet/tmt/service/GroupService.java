@@ -33,12 +33,13 @@ public class GroupService {
     private final FileStorageService fileStorageService;
     private final ObjectMapper mapper;
     private final UserDao userDao;
+    private final String PATH = "/avatar/group";
 
     public ResponseDto<GroupResponse> saveGroup(GroupRequest groupRequest) {
         try {
             groupValidator.validation(groupRequest, Optional.empty());
             Group group = mapper.convertValue(groupRequest, Group.class);
-            group.setIcon(fileStorageService.uploadFile(groupRequest.getIcon(), "group"));
+            group.setIcon(fileStorageService.uploadFile(groupRequest.getIcon(), "group", PATH));
             group.setStatus(Status.ACTIVE.getName());
             group = groupDao.saveGroup(group);
             GroupResponse groupResponse = mapper.convertValue(group, GroupResponse.class);
@@ -60,7 +61,7 @@ public class GroupService {
             Group group = mapper.convertValue(groupRequest, Group.class);
 
             if(groupRequest.getIcon() != null) {
-                group.setIcon(fileStorageService.uploadFile(groupRequest.getIcon(), "group"));
+                group.setIcon(fileStorageService.uploadFile(groupRequest.getIcon(), "group",PATH));
             }
             else{
                 group.setIcon(groupDao.findById(groupId).get().getIcon());

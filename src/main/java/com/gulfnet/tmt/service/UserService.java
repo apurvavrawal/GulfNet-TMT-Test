@@ -44,13 +44,14 @@ public class UserService {
     private final SettingsRepository settingsRepository;
     private final EmailService emailService;
     private final GulfNetTMTServiceConfig gulfNetTMTServiceConfig;
+    private final String PATH = "/avatar/user";
     public ResponseDto<UserPostResponse> saveUser(UserPostRequest userPostRequest) {
         try {
             userValidator.validateUserRequest(userPostRequest, "CREATE");
             String password = PasswordGenerator.generatePatternedPassword(RandomGenerator.getDefault().nextInt(10, 15));
             User user = mapper.convertValue(userPostRequest, User.class);
             user.setPassword(EncryptionUtil.encrypt(password , gulfNetTMTServiceConfig.getAppSecurityKey()));
-            user.setProfilePhoto(fileStorageService.uploadFile(userPostRequest.getProfilePhoto(), "User"));
+            user.setProfilePhoto(fileStorageService.uploadFile(userPostRequest.getProfilePhoto(), "User",PATH));
             user = userDao.saveUser(user, userPostRequest.getUserRole(), userPostRequest.getUserGroup());
             emailService.sendEmail(user.getEmail(),
                     EmailTemplates.USER_ONBOARDING_SUBJECT,
@@ -99,7 +100,7 @@ public class UserService {
         user.setDateCreated(userDB.getDateCreated());
         try {
             if (userPostRequest.getProfilePhoto() != null && !userPostRequest.getProfilePhoto().isEmpty()) {
-                user.setProfilePhoto(fileStorageService.uploadFile(userPostRequest.getProfilePhoto(), "User"));
+                user.setProfilePhoto(fileStorageService.uploadFile(userPostRequest.getProfilePhoto(), "User",PATH));
             } else {
                 user.setProfilePhoto(userDB.getProfilePhoto());
             }
