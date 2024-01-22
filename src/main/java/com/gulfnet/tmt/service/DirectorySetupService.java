@@ -23,6 +23,7 @@ public class DirectorySetupService {
         createDirectoryIfNotExists(baseDirectory + "/attachment/videos");
         createDirectoryIfNotExists(baseDirectory + "/attachment/audio");
         createDirectoryIfNotExists(baseDirectory + "/attachment/documents");
+        createDirectoryIfNotExists(baseDirectory + "/attachment/common");
     }
 
     private void createDirectoryIfNotExists(String directoryPath) {

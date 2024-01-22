@@ -33,11 +33,12 @@ public class StampService {
     private final ObjectMapper mapper;
     private final StampDao stampDao;
     private final FileStorageService fileStorageService;
+    private final String PATH = "/attachment/common";
 
     public ResponseDto<StampResponse> saveStamp(MultipartFile file) {
         try {
             Stamp stampBuilder = Stamp.builder()
-                    .stampFile(fileStorageService.uploadFile(file, "Stamp"))
+                    .stampFile(fileStorageService.uploadFile(file, "Stamp",PATH))
                     .status(Status.ACTIVE.getName())
                     .build();
             Stamp stamp = stampDao.saveStamp(stampBuilder);
