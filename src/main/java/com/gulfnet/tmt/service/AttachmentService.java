@@ -41,13 +41,28 @@ public class AttachmentService {
     private GulfNetTMTServiceConfig gulfNetTMTServiceConfig;
     @Autowired
     private AttachmentRepository attachmentRepository;
+    private final String IMAGE = "images";
+    private final String VIDEO = "videos";
+    private final String AUDIO = "audio";
+    private final String DOCUMENT = "documents";
 
     public ResponseDto<List<AttachmentResponse>> uploadFiles(List<MultipartFile> files, String attachmentType) {
         List<AttachmentResponse> attachmentResponses = new ArrayList<>();
 
+        String fileFolder = null;
+        if(attachmentType.equalsIgnoreCase(IMAGE)){
+            fileFolder =  "/attachment/images";
+        } else if(attachmentType.equalsIgnoreCase(AUDIO)){
+            fileFolder =  "/attachment/audio";
+        }else if(attachmentType.equalsIgnoreCase(VIDEO)){
+            fileFolder =  "/attachment/videos";
+        }else if(attachmentType.equalsIgnoreCase(DOCUMENT)){
+            fileFolder =  "/attachment/documents";
+        }
+
         for (MultipartFile file : files) {
             try {
-                File currentFile = new File(gulfNetTMTServiceConfig.getLocalFilePath(),
+                File currentFile = new File(gulfNetTMTServiceConfig.getBaseMediaDirectory() + fileFolder ,
                         System.currentTimeMillis() + "_" + attachmentType + "_" + file.getOriginalFilename());
 
                 Attachment item = Attachment.builder()
@@ -76,7 +91,8 @@ public class AttachmentService {
 
     public Resource loadFileAsResource(String fileName) {
         try {
-            Path filePath = Paths.get(gulfNetTMTServiceConfig.getLocalFilePath()).resolve(fileName).normalize();
+
+            Path filePath = Paths.get(gulfNetTMTServiceConfig.getBaseMediaDirectory()).resolve(fileName).normalize();
             Resource resource = new UrlResource(filePath.toUri());
 
             if (resource.exists()) {

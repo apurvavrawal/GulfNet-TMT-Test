@@ -5,6 +5,7 @@ import com.gulfnet.tmt.model.response.AttachmentResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.service.AttachmentService;
 import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -20,7 +21,6 @@ import java.util.List;
 @RestController
 @Slf4j
 public class AttachmentController {
-
     @Autowired
     private AttachmentService attachmentService;
 
@@ -47,6 +47,5 @@ public class AttachmentController {
                     .body("Internal server error");
         }
     }
-
 }
 
