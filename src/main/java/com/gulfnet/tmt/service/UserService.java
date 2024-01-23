@@ -73,7 +73,7 @@ public class UserService {
             List<UserGroup> userGroups = getAllGroups(user, userPostRequest.getUserGroup());
             User finalUser = user;
             userGroups.forEach(group ->{
-                conversationRequest.setSenderId("");
+                conversationRequest.setSenderId(String.valueOf(finalUser.getId()));
                 conversationRequest.setConsumerId(String.valueOf(group.getGroup().getId()));
                 conversationRequest.setConversationType(ConversationType.GROUP);
 
