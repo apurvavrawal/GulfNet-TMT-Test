@@ -43,7 +43,7 @@ public class ChatController {
         Chat savedMsg = chatService.savePrivateMessage(chat);
         String conversationId = savedMsg.getConversationId();
         log.info("Message processing for private chat with following metadata: {}", savedMsg);
-        simpMessagingTemplate.convertAndSendToUser(receiverId+conversationId,"/queue/reply", savedMsg);
+        simpMessagingTemplate.convertAndSendToUser(receiverId,"/queue/reply", savedMsg);
     }
 
     // Process the group message and save to DataBase
