@@ -3,10 +3,15 @@ package com.gulfnet.tmt.service.chatservices.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gulfnet.tmt.dao.ChatDao;
 import com.gulfnet.tmt.entity.nosql.Chat;
+import com.gulfnet.tmt.entity.sql.Group;
+import com.gulfnet.tmt.entity.sql.User;
 import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.response.ChatResponse;
 import com.gulfnet.tmt.model.response.GroupChatResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
+import com.gulfnet.tmt.repository.nosql.ChatRepository;
+import com.gulfnet.tmt.repository.sql.GroupRepository;
+import com.gulfnet.tmt.repository.sql.UserRepository;
 import com.gulfnet.tmt.service.chatservices.ChatService;
 import com.gulfnet.tmt.service.chatservices.ConversationService;
 import com.gulfnet.tmt.util.ErrorConstants;
@@ -18,6 +23,8 @@ import org.springframework.stereotype.Service;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 
 @Service
@@ -26,6 +33,8 @@ public class ChatServiceImpl implements ChatService {
     private final ChatDao chatDao;
     private final ConversationService conversationService;
     private final ObjectMapper mapper;
+    private final UserRepository userRepository;
+    private final GroupRepository groupRepository;
 
     @Override
     public Chat savePrivateMessage(Chat chat) {
@@ -53,7 +62,8 @@ public class ChatServiceImpl implements ChatService {
         newChat.setSenderId(chat.getSenderId());
         newChat.setSenderName(chat.getSenderName());
         newChat.setReceiverId(chat.getReceiverId());
-        newChat.setReceiverName(chat.getReceiverName());
+        Optional<Group> group = groupRepository.findById(UUID.fromString(chat.getReceiverId()));
+        newChat.setReceiverName(group.get().getName());
         Date currentDate = new Date();
         newChat.setDateCreated(currentDate);
         newChat.setAttachmentURL("Currently_No_Attachment");
@@ -64,6 +74,10 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public ResponseDto<GroupChatResponse> getChatMessagesForGroup(String groupId, Pageable pageable) {
         Page<GroupChatResponse> chats = chatDao.findChatMessagesByReceiverId(groupId, pageable);
+        for (GroupChatResponse groupChatResponse : chats.getContent()) {
+            Optional<User> user = userRepository.findById(UUID.fromString(groupChatResponse.getSenderId()));
+            groupChatResponse.setSenderProfilePhoto(user.get().getProfilePhoto());
+        }
         return ResponseDto.<GroupChatResponse>builder()
                 .data(chats.getContent())
                 .count(chats.stream().count())

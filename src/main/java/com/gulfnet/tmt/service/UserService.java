@@ -80,9 +80,9 @@ public class UserService {
 
             });
 
-            //emailService.sendEmail(user.getEmail(),
-            //        EmailTemplates.USER_ONBOARDING_SUBJECT,
-            //        MessageFormat.format(EmailTemplates.USER_ONBOARDING_SUCCESS, userPostRequest.getFirstName(), userPostRequest.getLastName(), userPostRequest.getUserName(), password));
+            emailService.sendEmail(user.getEmail(),
+                    EmailTemplates.USER_ONBOARDING_SUBJECT,
+                    MessageFormat.format(EmailTemplates.USER_ONBOARDING_SUCCESS, userPostRequest.getFirstName(), userPostRequest.getLastName(), userPostRequest.getUserName(), password));
             return ResponseDto.<UserPostResponse>builder().status(0).data(List.of(mapper.convertValue(user, UserPostResponse.class))).build();
         } catch (IOException e) {
             throw new GulfNetTMTException(ErrorConstants.SYSTEM_ERROR_CODE, e.getMessage());

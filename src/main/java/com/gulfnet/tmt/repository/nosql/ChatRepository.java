@@ -8,8 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.UUID;
 
 @Repository
 public interface ChatRepository extends MongoRepository<Chat, String> {
@@ -18,4 +16,6 @@ public interface ChatRepository extends MongoRepository<Chat, String> {
     Page<GroupChatResponse> findByReceiverId(String groupId, Pageable pageable);
 
     Chat findFirstByConversationIdOrderByDateCreatedDesc(String conversationId);
+
+    Chat findByReceiverId(String receiverId);
 }
