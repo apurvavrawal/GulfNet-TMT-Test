@@ -1,5 +1,6 @@
 package com.gulfnet.tmt.model.response;
 
+import com.gulfnet.tmt.util.ImageUtil;
 import lombok.*;
 
 @AllArgsConstructor
@@ -9,6 +10,10 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 public class ConversationListForGroupResponse {
-    private String GroupName;
-    private String GroupIcon;
+    private String groupId;
+    private String groupName;
+    private String groupIcon;
+    public String getGroupIcon() {
+        return  ImageUtil.getB64EncodedStringFromImagePathOrURL(groupIcon);
+    }
 }

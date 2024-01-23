@@ -18,14 +18,14 @@ public class ConversationController {
 
     private final ConversationService conversationService;
 
-    // create new Conversation
+    // create new Conversation for Private chat
     @PostMapping(path = "/conversation/",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ConversationResponse createConversation(ConversationRequest conversationRequest){
         log.info("Received request to initiate conversation");
         return conversationService.createConversation(conversationRequest);
     }
 
-    // get conversation list for private chats
+    // get conversation list for chats both private and group
     @GetMapping("/conversation/{userId}")
     public ResponseDto<ConversationListResponse> getConversationList(@PathVariable String userId, Pageable pageable ){
         log.info("Received request for get conversation List for userId: {}",userId);

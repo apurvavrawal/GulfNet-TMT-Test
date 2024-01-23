@@ -16,6 +16,7 @@ public class Conversation {
     @Id
     @Indexed(unique = true)
     private String id;
+    private String userId;
     private String senderId;
     private String consumerId;
     private ConversationType conversationType;

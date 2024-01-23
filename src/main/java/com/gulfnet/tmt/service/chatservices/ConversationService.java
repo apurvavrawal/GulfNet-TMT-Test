@@ -14,4 +14,6 @@ public interface ConversationService {
     ConversationResponse createConversation(ConversationRequest conversationRequest);
 
     ResponseDto<ConversationListResponse> getConversationList(String userId, Pageable pageable);
+
+    String getChatRoomIdForGroup(Chat chat);
 }

@@ -16,5 +16,9 @@ public interface ConversationRepository extends MongoRepository<Conversation, St
 
     List<Conversation> findBySenderIdOrConsumerId(String senderId, String consumerId);
 
+    List<Conversation> findByUserId(String userId);
+
     Conversation findBySenderIdAndConsumerIdAndConversationType(String senderId, String consumerId, ConversationType conversationType);
+
+    Conversation findByUserIdAndConsumerId(String senderId, String receiverId);
 }

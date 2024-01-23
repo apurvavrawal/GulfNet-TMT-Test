@@ -2,6 +2,7 @@ package com.gulfnet.tmt.controller;
 
 import com.gulfnet.tmt.entity.nosql.Chat;
 import com.gulfnet.tmt.model.response.ChatResponse;
+import com.gulfnet.tmt.model.response.GroupChatResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.service.chatservices.ChatService;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,26 +41,40 @@ public class ChatController {
         if (receiverId == null) {throw new IllegalStateException("Recipient cannot be null");}
         // Send the message to the recipient's queue
         Chat savedMsg = chatService.savePrivateMessage(chat);
+        String conversationId = savedMsg.getConversationId();
         log.info("Message processing for private chat with following metadata: {}", savedMsg);
-        simpMessagingTemplate.convertAndSendToUser(receiverId, "/queue/reply", savedMsg);
+        simpMessagingTemplate.convertAndSendToUser(receiverId,"/queue/reply", savedMsg);
     }
 
     // Process the group message and save to DataBase
-    @MessageMapping("/chat/sendMessage")
-    @SendTo("/user/queue/reply")
-    public String processGroupMessage(Chat chat) {
-        log.info("Request received for processing Message with Id: {}", chat.getId());
+    @MessageMapping("/chat/groupMessage")
+    public void processGroupMessage(Chat chat) {
+        logger.debug("Received group message");
+
+        String groupId = chat.getReceiverId();
+        if (groupId == null) {
+            throw new IllegalStateException("Group ID cannot be null");
+        }
         Chat savedMsg = chatService.saveGroupMessage(chat);
         log.info("Message processing for group chat with following metadata: {}", savedMsg);
-        return chat.getContent();
+
+        simpMessagingTemplate.convertAndSendToUser(groupId,"/queue/reply", savedMsg);
     }
 
-    // Returns List of Chats between sender and receiver by their Id
-    @GetMapping("/messages/history/{conversationId}")
-    public ResponseDto<ChatResponse> getMessageHistory(@PathVariable("conversationId") String conversationId,
-                                                            @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.ASC,size = 50, value = 50)Pageable pageable){
+    // Returns List of Chats(private) between sender and receiver by conversationId
+    @GetMapping("/messages/history/private-chat/{conversationId}")
+    public ResponseDto<ChatResponse> getMessageHistoryForPrivateChat(@PathVariable("conversationId") String conversationId,
+                                                            @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC)Pageable pageable){
         log.info("Request received for get messages with conversationId: {}", conversationId);
-        return chatService.getChatMessages(conversationId, pageable);
+        return chatService.getChatMessagesForPrivate(conversationId, pageable);
+    }
+
+    // Returns List of Chats in group by groupId
+    @GetMapping("/messages/history/group-chat/{groupId}")
+    public ResponseDto<GroupChatResponse> getMessageHistoryForGroupChat(@PathVariable("groupId") String groupId,
+                                                                        @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.ASC, size = 50, value = 50)Pageable pageable){
+        log.info("Request received for get messages with groupId: {}", groupId);
+        return chatService.getChatMessagesForGroup(groupId, pageable);
     }
 
     // Returns message details for requested chatId

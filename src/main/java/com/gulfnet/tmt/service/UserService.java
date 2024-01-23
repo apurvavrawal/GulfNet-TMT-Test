@@ -2,23 +2,31 @@ package com.gulfnet.tmt.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gulfnet.tmt.config.GulfNetTMTServiceConfig;
+import com.gulfnet.tmt.dao.GroupDao;
 import com.gulfnet.tmt.dao.UserDao;
+import com.gulfnet.tmt.entity.sql.Group;
 import com.gulfnet.tmt.entity.sql.User;
+import com.gulfnet.tmt.entity.sql.UserGroup;
 import com.gulfnet.tmt.exceptions.GulfNetTMTException;
 import com.gulfnet.tmt.exceptions.ValidationException;
+import com.gulfnet.tmt.model.request.ConversationRequest;
 import com.gulfnet.tmt.model.request.UserContactsRequest;
 import com.gulfnet.tmt.model.request.UserFilterRequest;
 import com.gulfnet.tmt.model.request.UserPostRequest;
 import com.gulfnet.tmt.model.response.*;
 import com.gulfnet.tmt.repository.sql.SettingsRepository;
+import com.gulfnet.tmt.repository.sql.UserGroupRepository;
+import com.gulfnet.tmt.service.chatservices.impl.ConversationServiceImpl;
 import com.gulfnet.tmt.util.EmailTemplates;
 import com.gulfnet.tmt.util.EncryptionUtil;
 import com.gulfnet.tmt.util.ErrorConstants;
 import com.gulfnet.tmt.util.PasswordGenerator;
+import com.gulfnet.tmt.util.enums.ConversationType;
 import com.gulfnet.tmt.util.enums.Status;
 import com.gulfnet.tmt.validator.UserValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,12 +40,17 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.random.RandomGenerator;
 
+import static com.gulfnet.tmt.util.AppConstants.HQ_GROUP_CODE;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserDao userDao;
+    private final GroupDao groupDao;
+    private final UserGroupRepository userGroupRepository;
+    private final ConversationServiceImpl conversationServiceImpl;
     private final UserValidator userValidator;
     private final ObjectMapper mapper;
     private final FileStorageService fileStorageService;
@@ -53,6 +66,21 @@ public class UserService {
             user.setPassword(EncryptionUtil.encrypt(password , gulfNetTMTServiceConfig.getAppSecurityKey()));
             user.setProfilePhoto(fileStorageService.uploadFile(userPostRequest.getProfilePhoto(), "User",PATH));
             user = userDao.saveUser(user, userPostRequest.getUserRole(), userPostRequest.getUserGroup());
+
+            // Adding new conversation entry for assigned groups for chat
+            ConversationRequest conversationRequest = new ConversationRequest();
+
+            List<UserGroup> userGroups = getAllGroups(user, userPostRequest.getUserGroup());
+            User finalUser = user;
+            userGroups.forEach(group ->{
+                conversationRequest.setSenderId("");
+                conversationRequest.setConsumerId(String.valueOf(group.getGroup().getId()));
+                conversationRequest.setConversationType(ConversationType.GROUP);
+
+                conversationServiceImpl.createConversationForGroup(conversationRequest, finalUser.getId());
+
+            });
+
             emailService.sendEmail(user.getEmail(),
                     EmailTemplates.USER_ONBOARDING_SUBJECT,
                     MessageFormat.format(EmailTemplates.USER_ONBOARDING_SUCCESS, userPostRequest.getFirstName(), userPostRequest.getLastName(), userPostRequest.getUserName(), password));
@@ -151,4 +179,22 @@ public class UserService {
                 .data(List.of("Contact List Updated Successfully."))
                 .build();
     }
+    private List<UserGroup> getAllGroups(User user, List<String> groups) {
+        if(!groups.contains(HQ_GROUP_CODE)) { groups.add(HQ_GROUP_CODE); }
+        List<UserGroup> userGroups = new ArrayList<>();
+        for(String groupCode : groups) {
+            Group group = groupDao.findByCode(groupCode).orElseThrow(() -> new ValidationException(ErrorConstants.NOT_VALID_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_VALID_ERROR_MESSAGE, "Group : "+groupCode)));
+            UserGroup userGroup = userGroupRepository.findByUserIdAndGroupId(user.getId(), group.getId());
+            if (ObjectUtils.isNotEmpty(userGroup)) {
+                userGroups.add(userGroup);
+            } else {
+                userGroup = new UserGroup();
+                userGroup.setUser(user);
+                userGroup.setGroup(group);
+                userGroups.add(userGroup);
+            }
+        }
+        return userGroups;
+    }
+
 }

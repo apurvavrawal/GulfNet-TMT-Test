@@ -15,8 +15,10 @@ public class ConversationDao {
 
     private final ConversationRepository conversationRepository;
 
-    public List<Conversation> getConversationListForPrivate(String userId) {
-        return conversationRepository.findBySenderIdOrConsumerId(userId, userId);
+    public List<Conversation> getConversationList(String userId) {
+        List<Conversation> conversationList = conversationRepository.findBySenderIdOrConsumerId(userId, userId);
+        conversationList = conversationRepository.findByUserId(userId);
+        return conversationList;
     }
 
     public Conversation createConversation(Conversation conversation) {
