@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.gulfnet.tmt.config.audit.SpringSecurityAuditorAware;
 import com.gulfnet.tmt.mapper.UserRoleMapper;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
@@ -43,13 +45,14 @@ public class GulfNetTMTApplication implements WebMvcConfigurer {
     @Bean
     public ModelMapper modelMapper() {
         // Add the custom converter
-		ModelMapper modelMapper = new ModelMapper();
+        ModelMapper modelMapper = new ModelMapper();
         // Configure the model mapper, e.g., set field matching strategy
-		modelMapper.getConfiguration().setFieldMatchingEnabled(true).setFieldAccessLevel(AccessLevel.PRIVATE);
+        modelMapper.getConfiguration().setFieldMatchingEnabled(true).setFieldAccessLevel(AccessLevel.PRIVATE);
         // Add the custom converter
         modelMapper.addConverter(new UserRoleMapper());
         return modelMapper;
     }
+
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {

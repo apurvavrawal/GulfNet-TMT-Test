@@ -7,15 +7,15 @@ import com.gulfnet.tmt.entity.sql.Group;
 import com.gulfnet.tmt.exceptions.GulfNetTMTException;
 import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.request.GroupRequest;
-import com.gulfnet.tmt.model.response.UserBasicInfoResponse;
-import com.gulfnet.tmt.model.response.GroupResponse;
-import com.gulfnet.tmt.model.response.ResponseDto;
+import com.gulfnet.tmt.model.response.*;
 import com.gulfnet.tmt.util.ErrorConstants;
+import com.gulfnet.tmt.util.enums.Status;
 import com.gulfnet.tmt.validator.GroupValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -33,12 +33,14 @@ public class GroupService {
     private final FileStorageService fileStorageService;
     private final ObjectMapper mapper;
     private final UserDao userDao;
+    private final String PATH = "/avatar/group";
 
     public ResponseDto<GroupResponse> saveGroup(GroupRequest groupRequest) {
         try {
             groupValidator.validation(groupRequest, Optional.empty());
             Group group = mapper.convertValue(groupRequest, Group.class);
-            group.setIcon(fileStorageService.uploadFile(groupRequest.getIcon(), "group"));
+            group.setIcon(fileStorageService.uploadFile(groupRequest.getIcon(), "group", PATH));
+            group.setStatus(Status.ACTIVE.getName());
             group = groupDao.saveGroup(group);
             GroupResponse groupResponse = mapper.convertValue(group, GroupResponse.class);
             return ResponseDto.<GroupResponse>builder()
@@ -59,7 +61,7 @@ public class GroupService {
             Group group = mapper.convertValue(groupRequest, Group.class);
 
             if(groupRequest.getIcon() != null) {
-                group.setIcon(fileStorageService.uploadFile(groupRequest.getIcon(), "group"));
+                group.setIcon(fileStorageService.uploadFile(groupRequest.getIcon(), "group",PATH));
             }
             else{
                 group.setIcon(groupDao.findById(groupId).get().getIcon());
@@ -69,8 +71,9 @@ public class GroupService {
             group.setCreatedBy(groupDB.getCreatedBy());
             group.setDateCreated(groupDB.getDateCreated());
 
-            group = groupDao.saveGroup(group);
-            GroupResponse groupResponse = mapper.convertValue(group, GroupResponse.class);
+        group.setStatus(Status.ACTIVE.name());
+        group = groupDao.saveGroup(group);
+        GroupResponse groupResponse = mapper.convertValue(group, GroupResponse.class);
 
             return ResponseDto.<GroupResponse>builder()
                     .data(List.of(groupResponse))
@@ -111,5 +114,18 @@ public class GroupService {
                 .total(groupPostResponses.getTotalElements())
                 .build();
 
+    }
+    public  ResponseDto<GroupResponse> deleteGroupById(UUID id) {
+        Group group = groupDao.findById(id).orElseThrow(
+                () -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "Group")));
+        if (ObjectUtils.isEmpty(group)) {
+            return ResponseDto.<GroupResponse>builder().data(null).build();
+        } else {
+            groupDao.updateGroupStatusById(Status.INACTIVE.getName(), id);
+            return ResponseDto.<GroupResponse>builder()
+                    .status(0)
+                    .message("Group deleted successfully")
+                    .build();
+        }
     }
 }

@@ -2,8 +2,11 @@ package com.gulfnet.tmt.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gulfnet.tmt.dao.StampDao;
+import com.gulfnet.tmt.entity.sql.Group;
 import com.gulfnet.tmt.entity.sql.Stamp;
 import com.gulfnet.tmt.exceptions.GulfNetTMTException;
+import com.gulfnet.tmt.exceptions.ValidationException;
+import com.gulfnet.tmt.model.response.GroupResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.model.response.StampResponse;
 import com.gulfnet.tmt.util.ErrorConstants;
@@ -17,6 +20,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,11 +33,12 @@ public class StampService {
     private final ObjectMapper mapper;
     private final StampDao stampDao;
     private final FileStorageService fileStorageService;
+    private final String PATH = "/attachment/common";
 
     public ResponseDto<StampResponse> saveStamp(MultipartFile file) {
         try {
             Stamp stampBuilder = Stamp.builder()
-                    .stampFile(fileStorageService.uploadFile(file, "Stamp"))
+                    .stampFile(fileStorageService.uploadFile(file, "Stamp",PATH))
                     .status(Status.ACTIVE.getName())
                     .build();
             Stamp stamp = stampDao.saveStamp(stampBuilder);
@@ -75,13 +80,17 @@ public class StampService {
         }
     }
 
-    public String deleteStampById(UUID id) {
-        Optional<Stamp> stamp = stampDao.findById(id);
+    public ResponseDto<StampResponse> deleteStampById(UUID id) {
+        Stamp stamp = stampDao.findById(id).orElseThrow(
+                () -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "Stamp")));
         if (ObjectUtils.isEmpty(stamp)) {
-            return ResponseMessage.FILE_NOT_FOUND.getName();
+            return ResponseDto.<StampResponse>builder().data(null).build();
         } else {
             stampDao.updateStampStatusById(Status.INACTIVE.getName(), id);
-            return ResponseMessage.FILE_DELETE_SUCCESSFULLY.getName();
+            return ResponseDto.<StampResponse>builder()
+                    .status(0)
+                    .message("Stamp deleted successfully")
+                    .build();
         }
     }
 
