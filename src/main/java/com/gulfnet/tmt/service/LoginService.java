@@ -85,7 +85,7 @@ public class LoginService {
                 EmailTemplates.RESET_PASSWORD_SUBJECT,
                 MessageFormat.format(EmailTemplates.RESET_PASSWORD_REQUEST, userName, String.valueOf(userPasswordAudit.getOtp())));
         userPasswordAuditRepository.save(userPasswordAudit);
-        return ResponseDto.<String>builder().status(0).data(List.of("OTP send successfully for reset password.")).build();
+        return ResponseDto.<String>builder().status(0).data(List.of("OTP sent successfully for reset password.")).build();
     }
 
     public ResponseDto<String> verifyOTP(String userName, long otp) {
