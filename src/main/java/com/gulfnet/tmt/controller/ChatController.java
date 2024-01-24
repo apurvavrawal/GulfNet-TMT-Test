@@ -64,7 +64,7 @@ public class ChatController {
     // Returns List of Chats(private) between sender and receiver by conversationId
     @GetMapping("/messages/history/private-chat/{conversationId}")
     public ResponseDto<ChatResponse> getMessageHistoryForPrivateChat(@PathVariable("conversationId") String conversationId,
-                                                            @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC)Pageable pageable){
+                                                            @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.ASC, size = 100, value = 100)Pageable pageable){
         log.info("Request received for get messages with conversationId: {}", conversationId);
         return chatService.getChatMessagesForPrivate(conversationId, pageable);
     }
@@ -72,7 +72,7 @@ public class ChatController {
     // Returns List of Chats in group by groupId
     @GetMapping("/messages/history/group-chat/{groupId}")
     public ResponseDto<GroupChatResponse> getMessageHistoryForGroupChat(@PathVariable("groupId") String groupId,
-                                                                        @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.ASC, size = 50, value = 50)Pageable pageable){
+                                                                        @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.ASC, size = 100, value = 100)Pageable pageable){
         log.info("Request received for get messages with groupId: {}", groupId);
         return chatService.getChatMessagesForGroup(groupId, pageable);
     }

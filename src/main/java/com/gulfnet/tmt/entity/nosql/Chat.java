@@ -33,6 +33,9 @@ public class Chat {
     private String content;
     private String attachmentURL;
 
+    private Long latitude;
+    private Long longitude;
+
     @CreatedDate
     private Date dateCreated;
     @LastModifiedDate

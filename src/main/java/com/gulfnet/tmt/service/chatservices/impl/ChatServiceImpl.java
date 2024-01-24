@@ -46,9 +46,11 @@ public class ChatServiceImpl implements ChatService {
         newChat.setSenderName(chat.getSenderName());
         newChat.setReceiverId(chat.getReceiverId());
         newChat.setReceiverName(chat.getReceiverName());
+        newChat.setLatitude(chat.getLatitude());
+        newChat.setLongitude(chat.getLongitude());
         Date currentDate = new Date();
         newChat.setDateCreated(currentDate);
-        newChat.setAttachmentURL("Currently_No_Attachment");
+        newChat.setAttachmentURL(chat.getAttachmentURL());
 
         return chatDao.save(newChat);
     }
@@ -64,9 +66,11 @@ public class ChatServiceImpl implements ChatService {
         newChat.setReceiverId(chat.getReceiverId());
         Optional<Group> group = groupRepository.findById(UUID.fromString(chat.getReceiverId()));
         newChat.setReceiverName(group.get().getName());
+        newChat.setLatitude(chat.getLatitude());
+        newChat.setLongitude(chat.getLongitude());
         Date currentDate = new Date();
         newChat.setDateCreated(currentDate);
-        newChat.setAttachmentURL("Currently_No_Attachment");
+        newChat.setAttachmentURL(chat.getAttachmentURL());
 
         return chatDao.save(newChat);
     }
