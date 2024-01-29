@@ -20,5 +20,6 @@ public class ChatResponse {
     private String receiverName;
     private String conversationId;
     private String content;
+    private String attachmentURL;
     private Date dateCreated;
 }
