@@ -124,8 +124,8 @@ public class GroupService {
                 .build();
     }
 
-    public ResponseDto<UserBasicInfoResponse> getGroupUsers(UUID id, Pageable pageable) {
-        Page<UserBasicInfoResponse> groupPostResponses = userDao.findGroupPostResponseByIdIn(id, pageable);
+    public ResponseDto<UserBasicInfoResponse> getGroupUsers(UUID id,String searchTerm, Pageable pageable) {
+        Page<UserBasicInfoResponse> groupPostResponses = userDao.findGroupPostResponseByIdIn(id,searchTerm ,pageable);
         List<UserBasicInfoResponse> groupUserResponseList = new ArrayList<>();
         for (UserBasicInfoResponse groupUserResponse : groupPostResponses) {
             groupUserResponseList.add(groupUserResponse);
