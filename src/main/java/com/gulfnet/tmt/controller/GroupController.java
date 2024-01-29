@@ -55,8 +55,8 @@ public class GroupController {
 
     @GetMapping("/{groupId}/users")
     @Operation(summary = "Retrieve basic information of users within a group.")
-    public ResponseDto<UserBasicInfoResponse> getGroupUsers(@PathVariable UUID groupId, @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        return groupService.getGroupUsers(groupId, pageable);
+    public ResponseDto<UserBasicInfoResponse> getGroupUsers(@PathVariable UUID groupId,@RequestParam String searchTerm, @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.DESC) Pageable pageable) {
+        return groupService.getGroupUsers(groupId,searchTerm,pageable);
     }
 
     @DeleteMapping("/{groupId}")
