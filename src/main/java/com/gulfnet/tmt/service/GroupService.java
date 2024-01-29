@@ -6,9 +6,12 @@ import com.gulfnet.tmt.dao.UserDao;
 import com.gulfnet.tmt.entity.sql.Group;
 import com.gulfnet.tmt.exceptions.GulfNetTMTException;
 import com.gulfnet.tmt.exceptions.ValidationException;
+import com.gulfnet.tmt.model.request.ConversationRequest;
 import com.gulfnet.tmt.model.request.GroupRequest;
 import com.gulfnet.tmt.model.response.*;
+import com.gulfnet.tmt.service.chatservices.impl.ConversationServiceImpl;
 import com.gulfnet.tmt.util.ErrorConstants;
+import com.gulfnet.tmt.util.enums.ConversationType;
 import com.gulfnet.tmt.util.enums.Status;
 import com.gulfnet.tmt.validator.GroupValidator;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +36,7 @@ public class GroupService {
     private final FileStorageService fileStorageService;
     private final ObjectMapper mapper;
     private final UserDao userDao;
+    private final ConversationServiceImpl conversationServiceImpl;
     private final String PATH = "/avatar/group";
 
     public ResponseDto<GroupResponse> saveGroup(GroupRequest groupRequest) {
@@ -43,6 +47,15 @@ public class GroupService {
             group.setStatus(Status.ACTIVE.getName());
             group = groupDao.saveGroup(group);
             GroupResponse groupResponse = mapper.convertValue(group, GroupResponse.class);
+
+            // Adding new conversation entry for assigned groups for chat
+            ConversationRequest conversationRequest = new ConversationRequest();
+            conversationRequest.setSenderId(groupResponse.getCreatedBy());
+            conversationRequest.setConsumerId(String.valueOf(group.getId()));
+            conversationRequest.setConversationType(ConversationType.GROUP);
+
+            conversationServiceImpl.createConversationForGroup(conversationRequest);
+
             return ResponseDto.<GroupResponse>builder()
                     .data(List.of(groupResponse))
                     .build();
@@ -95,6 +108,15 @@ public class GroupService {
 
     public ResponseDto<GroupResponse> getAllGroups(String search, Pageable pageable) {
         Page<GroupResponse> groups = groupDao.findAllBySearch(search, pageable);
+
+        // Adding new conversation entry for already assigned groups for chat
+        for(GroupResponse groupResponse: groups.getContent()){
+            ConversationRequest conversationRequest = new ConversationRequest();
+            conversationRequest.setSenderId(groupResponse.getCreatedBy());
+            conversationRequest.setConsumerId(String.valueOf(groupResponse.getId()));
+            conversationRequest.setConversationType(ConversationType.GROUP);
+            conversationServiceImpl.createConversationForGroup(conversationRequest);
+        }
         return ResponseDto.<GroupResponse>builder()
                 .data(groups.getContent())
                 .total(groups.getTotalElements())

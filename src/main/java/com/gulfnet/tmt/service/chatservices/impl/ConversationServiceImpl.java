@@ -7,13 +7,11 @@ import com.gulfnet.tmt.entity.nosql.Chat;
 import com.gulfnet.tmt.entity.nosql.Conversation;
 import com.gulfnet.tmt.entity.sql.Group;
 import com.gulfnet.tmt.entity.sql.User;
-import com.gulfnet.tmt.entity.sql.UserGroup;
 import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.request.ConversationRequest;
 import com.gulfnet.tmt.model.response.*;
 import com.gulfnet.tmt.repository.nosql.ConversationRepository;
 import com.gulfnet.tmt.repository.sql.GroupRepository;
-import com.gulfnet.tmt.repository.sql.UserGroupRepository;
 import com.gulfnet.tmt.service.chatservices.ConversationService;
 import com.gulfnet.tmt.util.ErrorConstants;
 import com.gulfnet.tmt.util.enums.ConversationType;
@@ -25,7 +23,6 @@ import org.springframework.stereotype.Service;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -35,7 +32,6 @@ public class ConversationServiceImpl implements ConversationService {
     private final ConversationRepository conversationRepository;
     private final ConversationDao conversationDao;
     private final UserDao userDao;
-    private final UserGroupRepository userGroupRepository;
     private final ChatDao chatDao;
     private final GroupRepository groupRepository;
 
@@ -59,7 +55,7 @@ public class ConversationServiceImpl implements ConversationService {
     @Override
     public String getChatRoomIdForGroup(Chat chat) {
         // check from both sender and receiver side if conversation already present or not
-        Conversation conversation = conversationRepository.findByUserIdAndConsumerId(chat.getSenderId(), chat.getReceiverId());
+        Conversation conversation = conversationRepository.findByConsumerId(chat.getReceiverId());
 
         // update senderId as per the message send to the existing conversation of group.
         conversation.setSenderId(chat.getSenderId());
@@ -80,7 +76,6 @@ public class ConversationServiceImpl implements ConversationService {
                 conversation.setConversationType(conversationRequest.getConversationType());
                 conversation.setSenderId(conversationRequest.getSenderId());
                 conversation.setConsumerId(conversationRequest.getConsumerId());
-                conversation.setUserId(conversationRequest.getSenderId());
 
                 // Save the conversation to the database
                 Conversation savedConversation = conversationDao.createConversation(conversation);
@@ -97,18 +92,18 @@ public class ConversationServiceImpl implements ConversationService {
         }
         return conversationResponse;
     }
-    public ConversationResponse createConversationForGroup(ConversationRequest conversationRequest, UUID userId) {
+    public ConversationResponse createConversationForGroup(ConversationRequest conversationRequest) {
         // check if conversation already present or not if not then create new
-        Conversation conv = conversationRepository.findByUserIdAndConsumerId(String.valueOf(userId),conversationRequest.getConsumerId());
+        Conversation conv = conversationRepository.findByConsumerId(conversationRequest.getConsumerId());
         ConversationResponse conversationResponse = new ConversationResponse();
         if(conv == null) {
-            Conversation otherConv = conversationRepository.findByUserIdAndConsumerId(String.valueOf(userId), conversationRequest.getSenderId());
+            Conversation otherConv = conversationRepository.findByConsumerId(conversationRequest.getSenderId());
             if (otherConv == null) {
                 Conversation conversation = new Conversation();
                 conversation.setConversationType(conversationRequest.getConversationType());
                 conversation.setSenderId(conversationRequest.getSenderId());
                 conversation.setConsumerId(conversationRequest.getConsumerId());
-                conversation.setUserId(String.valueOf(userId));
+
                 // Save the conversation to the database
                 Conversation savedConversation = conversationDao.createConversation(conversation);
 
@@ -127,7 +122,6 @@ public class ConversationServiceImpl implements ConversationService {
     }
     @Override
     public ResponseDto<ConversationListResponse> getConversationList(String userId, Pageable pageable) {
-
         List<ConversationListResponse> conversationListResponseList = conversationDao.getConversationList(userId)
                 .stream()
                 .map(conversation -> {
@@ -149,6 +143,7 @@ public class ConversationServiceImpl implements ConversationService {
                         ConversationForPrivateResponse conversationForPrivateResponse = new ConversationForPrivateResponse();
 
                         conversationForPrivateResponse.setUserId(String.valueOf(user.getId()));
+                        conversationForPrivateResponse.setUserName(user.getUserName());
                         conversationForPrivateResponse.setFirstName(user.getFirstName());
                         conversationForPrivateResponse.setLastName(user.getLastName());
                         conversationForPrivateResponse.setProfilePhoto(user.getProfilePhoto());
@@ -177,7 +172,10 @@ public class ConversationServiceImpl implements ConversationService {
 
                     return conversationListResponse;
                 }).toList();
-        return ResponseDto.<ConversationListResponse>builder().status(0).data(conversationListResponseList).build();
+        return ResponseDto.<ConversationListResponse>builder()
+                .status(0)
+                .data(conversationListResponseList)
+                .build();
     }
 
     public ConversationResponse setAlreadyExistConversation(ConversationRequest conversationRequest){
@@ -185,7 +183,13 @@ public class ConversationServiceImpl implements ConversationService {
         conversationResponse.setSenderId(conversationRequest.getSenderId());
         conversationResponse.setConsumerId(conversationRequest.getConsumerId());
 
-        Conversation conversation = conversationRepository.findBySenderIdAndConsumerIdAndConversationType(conversationRequest.getSenderId(), conversationRequest.getConsumerId(), conversationRequest.getConversationType());
+        Conversation conversation = new Conversation();
+        if(conversationRequest.getConversationType() == ConversationType.PRIVATE){
+           conversation = conversationRepository.findBySenderIdAndConsumerIdAndConversationType(conversationRequest.getSenderId(), conversationRequest.getConsumerId(), conversationRequest.getConversationType());
+        }
+        if(conversationRequest.getConversationType() == ConversationType.GROUP){
+            conversation = conversationRepository.findByConsumerIdAndConversationType(conversationRequest.getConsumerId(), conversationRequest.getConversationType());
+        }
         conversationResponse.setConversationId(conversation.getId());
         conversationResponse.setConversationType(conversationRequest.getConversationType());
         return conversationResponse;
