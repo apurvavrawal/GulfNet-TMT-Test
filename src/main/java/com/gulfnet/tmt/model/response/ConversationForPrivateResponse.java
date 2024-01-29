@@ -11,6 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 public class ConversationForPrivateResponse {
     private String userId;
+    private String userName;
     private String firstName;
     private String lastName;
     private String profilePhoto;
