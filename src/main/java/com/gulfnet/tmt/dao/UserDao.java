@@ -128,8 +128,8 @@ public class UserDao {
         return userRepository.findByUserName(userName);
     }
 
-    public Page<UserBasicInfoResponse> findGroupPostResponseByIdIn(UUID groupId, Pageable pageable) {
-        return userRepository.findActiveUserOfGroup(Status.ACTIVE.getValue(), groupId, pageable);
+    public Page<UserBasicInfoResponse> findGroupPostResponseByIdIn(UUID groupId,String searchTerm, Pageable pageable) {
+        return userRepository.findActiveUserOfGroup(Status.ACTIVE.getValue(), groupId,searchTerm,pageable);
     }
 
     public Page<User> findAll(String appType, String search, UserFilterRequest userFilterRequest, Pageable pageable) {
