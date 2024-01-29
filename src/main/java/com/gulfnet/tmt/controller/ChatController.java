@@ -1,9 +1,11 @@
 package com.gulfnet.tmt.controller;
 
 import com.gulfnet.tmt.entity.nosql.Chat;
+import com.gulfnet.tmt.entity.nosql.ReadReceipt;
 import com.gulfnet.tmt.model.response.ChatResponse;
 import com.gulfnet.tmt.model.response.GroupChatResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
+import com.gulfnet.tmt.repository.nosql.ReadReceiptRepository;
 import com.gulfnet.tmt.service.chatservices.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,7 @@ public class ChatController {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final ChatService chatService;
+    private final ReadReceiptRepository readReceiptRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(ChatController.class);
 
@@ -41,6 +44,17 @@ public class ChatController {
         if (receiverId == null) {throw new IllegalStateException("Recipient cannot be null");}
         // Send the message to the recipient's queue
         Chat savedMsg = chatService.savePrivateMessage(chat);
+
+        // save entry of message in read receipt collection after sending message
+        log.info("Adding entry of read receipt for processed message");
+
+        ReadReceipt readReceipt = new ReadReceipt();
+        readReceipt.setChatId(savedMsg.getId());
+        readReceipt.setConsumerId(savedMsg.getReceiverId());
+        readReceipt.setDeliveredAt(savedMsg.getDateCreated());
+        readReceipt.setRead(false);
+        readReceiptRepository.save(readReceipt);
+
         log.info("Message processing for private chat with following metadata: {}", savedMsg);
         simpMessagingTemplate.convertAndSendToUser(receiverId,"/queue/reply", savedMsg);
     }

@@ -18,4 +18,6 @@ public interface ChatRepository extends MongoRepository<Chat, String> {
     Chat findFirstByConversationIdOrderByDateCreatedDesc(String conversationId);
 
     Chat findByReceiverId(String receiverId);
+
+    Chat findByConversationId(String conversationId);
 }

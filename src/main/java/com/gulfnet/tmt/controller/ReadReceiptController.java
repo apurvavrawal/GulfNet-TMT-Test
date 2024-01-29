@@ -20,9 +20,18 @@ import java.util.List;
 public class ReadReceiptController {
     private final ReadReceiptService readReceiptService;
 
+    /*
+     * In case of private chat the list of response contains one record and it's isRead field
+     * can be checked.
+     *
+     * In case of group chat when all the consumers read the message then only we can consider this
+     * as read for isRead field.
+     * */
+
     @GetMapping("/status/{chatId}")
     public ResponseDto<ReadStatusResponse> getStatusForMessageRead(@PathVariable String chatId){
         log.info("Request received for getting read status for message: {}", chatId);
+
         List<ReadStatusResponse> readStatusResponses = readReceiptService.getStatusForMessage(chatId);
         if (readStatusResponses == null) {
             return ResponseDto.<ReadStatusResponse>builder()
@@ -38,7 +47,7 @@ public class ReadReceiptController {
     }
 
     @GetMapping("/unread-count/{conversationId}")
-    public ResponseDto<ReadReceipt> getUnreadMessageCount(@PathVariable("conversationId") String conversationId){
+    public long getUnreadMessageCount(@PathVariable("conversationId") String conversationId){
         log.info("Request received for get unread message count for conversation Id: {}", conversationId);
         return readReceiptService.getUnreadMessageCount(conversationId);
     }

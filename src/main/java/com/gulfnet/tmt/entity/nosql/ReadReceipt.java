@@ -23,6 +23,8 @@ public class ReadReceipt {
 
     private String consumerId;
 
+    private boolean isRead;
+
     @CreatedDate
     private Date deliveredAt;
 

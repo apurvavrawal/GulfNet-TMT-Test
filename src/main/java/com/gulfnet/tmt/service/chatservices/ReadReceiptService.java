@@ -7,7 +7,9 @@ import com.gulfnet.tmt.model.response.ResponseDto;
 import java.util.List;
 
 public interface ReadReceiptService {
-    ResponseDto<ReadReceipt> getUnreadMessageCount(String conversationId);
+    long getUnreadMessageCount(String conversationId);
 
     List<ReadStatusResponse> getStatusForMessage(String chatId);
+
+    void markMessageAsRead(String chatId, String consumerId);
 }
