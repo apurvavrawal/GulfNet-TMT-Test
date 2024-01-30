@@ -1,7 +1,11 @@
 package com.gulfnet.tmt.service;
 
+import com.gulfnet.tmt.model.response.GroupResponse;
+import com.gulfnet.tmt.model.response.ResponseDto;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -10,10 +14,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Service
+@RequiredArgsConstructor
 public class DirectorySetupService {
 
     @Value("${file.storage.base-directory}")
     private String baseDirectory;
+
+    private final GroupService groupService;
 
     @PostConstruct
     public void init() {
@@ -24,6 +31,7 @@ public class DirectorySetupService {
         createDirectoryIfNotExists(baseDirectory + "/attachment/audio");
         createDirectoryIfNotExists(baseDirectory + "/attachment/documents");
         createDirectoryIfNotExists(baseDirectory + "/attachment/common");
+        ResponseDto<GroupResponse> groupsResponse = groupService.getAllGroups(null, Pageable.unpaged());
     }
 
     private void createDirectoryIfNotExists(String directoryPath) {

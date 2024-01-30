@@ -33,8 +33,8 @@ public class Chat {
     private String content;
     private String attachmentURL;
 
-    private Long latitude;
-    private Long longitude;
+    private String latitude;
+    private String longitude;
 
     @CreatedDate
     private Date dateCreated;

@@ -27,9 +27,14 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("SELECT new com.gulfnet.tmt.model.response.UserBasicInfoResponse( u.id, u.userName, u.firstName, u.lastName, u.phone, u.email, u.profilePhoto, u.status) FROM User u " +
             " LEFT JOIN UserGroup ug ON u.id = ug.user.id " +
             " LEFT JOIN Group og ON ug.group.id = og.id " +
-            "WHERE ug.group.id = :groupId AND u.status = :status")
-    Page<UserBasicInfoResponse> findActiveUserOfGroup(@Param("status") String status, @Param("groupId") UUID groupId, Pageable pageable);
-
+            " WHERE ug.group.id = :groupId AND u.status = :status " +
+            " AND (LOWER(u.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(u.userName) LIKE LOWER(CONCAT('%', :searchTerm, '%')))")
+    Page<UserBasicInfoResponse> findActiveUserOfGroup(
+            @Param("status") String status,
+            @Param("groupId") UUID groupId,
+            @Param("searchTerm") String searchTerm,
+            Pageable pageable
+    );
     @Query("SELECT COUNT(u.id), u.appType FROM User u GROUP BY u.appType")
     List<Object[]> countUsersByAppType();
 

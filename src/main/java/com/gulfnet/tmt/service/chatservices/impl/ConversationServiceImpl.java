@@ -127,54 +127,57 @@ public class ConversationServiceImpl implements ConversationService {
                 .map(conversation -> {
                     // Assign conversation details
                     ConversationListResponse conversationListResponse = new ConversationListResponse();
-                    conversationListResponse.setConversationId(conversation.getId());
-                    conversationListResponse.setConversationType(conversation.getConversationType());
+                    try{
+                        if(conversation.getId() != null) {
+                            conversationListResponse.setConversationId(conversation.getId());
+                            conversationListResponse.setConversationType(conversation.getConversationType());
+                            // Assign User details for Private Chat
+                            if(conversation.getConversationType() == ConversationType.PRIVATE)
+                            {
+                                String requiredUser = Objects.equals(userId, conversation.getSenderId()) ?
+                                        conversation.getConsumerId() :
+                                        conversation.getSenderId();
 
-                    // Assign User details for Private Chat
-                    if(conversation.getConversationType() == ConversationType.PRIVATE)
-                    {
-                        String requiredUser = Objects.equals(userId, conversation.getSenderId()) ?
-                                conversation.getConsumerId() :
-                                conversation.getSenderId();
+                                User user = userDao.findUser(UUID.fromString(requiredUser))
+                                        .orElseThrow(() -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE,
+                                                MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "User")));
+                                ConversationForPrivateResponse conversationForPrivateResponse = new ConversationForPrivateResponse();
 
-                        User user = userDao.findUser(UUID.fromString(requiredUser))
-                                .orElseThrow(() -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE,
-                                        MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "User")));
-                        ConversationForPrivateResponse conversationForPrivateResponse = new ConversationForPrivateResponse();
+                                conversationForPrivateResponse.setUserId(String.valueOf(user.getId()));
+                                conversationForPrivateResponse.setUserName(user.getUserName());
+                                conversationForPrivateResponse.setFirstName(user.getFirstName());
+                                conversationForPrivateResponse.setLastName(user.getLastName());
+                                conversationForPrivateResponse.setProfilePhoto(user.getProfilePhoto());
 
-                        conversationForPrivateResponse.setUserId(String.valueOf(user.getId()));
-                        conversationForPrivateResponse.setUserName(user.getUserName());
-                        conversationForPrivateResponse.setFirstName(user.getFirstName());
-                        conversationForPrivateResponse.setLastName(user.getLastName());
-                        conversationForPrivateResponse.setProfilePhoto(user.getProfilePhoto());
+                                conversationListResponse.setConversationForPrivateResponse(conversationForPrivateResponse);
 
-                        conversationListResponse.setConversationForPrivateResponse(conversationForPrivateResponse);
+                            }
+                            // Assign Group details for Group Chat
+                            if(conversation.getConversationType() == ConversationType.GROUP)
+                            {
+                                Group group = groupRepository.findById(UUID.fromString(conversation.getConsumerId()))
+                                        .orElseThrow(()-> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE,
+                                                MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE,"Group")));
 
-                    }
-                    // Assign Group details for Group Chat
-                    if(conversation.getConversationType() == ConversationType.GROUP)
-                    {
-                        Group group = groupRepository.findById(UUID.fromString(conversation.getConsumerId()))
-                                .orElseThrow(()-> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE,
-                                        MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE,"Group")));
+                                ConversationListForGroupResponse conversationListForGroupResponse = new ConversationListForGroupResponse();
 
-                        ConversationListForGroupResponse conversationListForGroupResponse = new ConversationListForGroupResponse();
+                                conversationListForGroupResponse.setGroupId(String.valueOf(group.getId()));
+                                conversationListForGroupResponse.setGroupName(group.getName());
+                                conversationListForGroupResponse.setGroupIcon(group.getIcon());
+                                conversationListResponse.setConversationListForGroupResponse(conversationListForGroupResponse);
+                            }
 
-                        conversationListForGroupResponse.setGroupId(String.valueOf(group.getId()));
-                        conversationListForGroupResponse.setGroupName(group.getName());
-                        conversationListForGroupResponse.setGroupIcon(group.getIcon());
-                        conversationListResponse.setConversationListForGroupResponse(conversationListForGroupResponse);
-                    }
-
-                    // Assign Last Message with each chat
-                    Chat chat = chatDao.findLatestChatMessage(conversation.getId());
-                    conversationListResponse.setChat(chat);
-
+                            // Assign Last Message with each chat
+                            Chat chat = chatDao.findLatestChatMessage(conversation.getId());
+                            conversationListResponse.setChat(chat);
+                        }
+                    }catch (NullPointerException ignored){}
                     return conversationListResponse;
                 }).toList();
         return ResponseDto.<ConversationListResponse>builder()
                 .status(0)
                 .data(conversationListResponseList)
+                .count(conversationListResponseList.stream().count())
                 .build();
     }
 

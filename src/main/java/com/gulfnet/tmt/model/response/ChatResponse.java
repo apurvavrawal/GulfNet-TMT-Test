@@ -20,5 +20,8 @@ public class ChatResponse {
     private String receiverName;
     private String conversationId;
     private String content;
+    private String attachmentURL;
+    private String latitude;
+    private String longitude;
     private Date dateCreated;
 }
