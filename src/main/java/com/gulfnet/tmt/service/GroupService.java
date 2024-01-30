@@ -109,8 +109,7 @@ public class GroupService {
     public ResponseDto<GroupResponse> getAllGroups(String search, Pageable pageable) {
         Page<GroupResponse> groups = groupDao.findAllBySearch(search, pageable);
 
-        // Adding new conversation entry for assigned groups for chat
-
+        // Adding new conversation entry for already assigned groups for chat
         for(GroupResponse groupResponse: groups.getContent()){
             ConversationRequest conversationRequest = new ConversationRequest();
             conversationRequest.setSenderId(groupResponse.getCreatedBy());

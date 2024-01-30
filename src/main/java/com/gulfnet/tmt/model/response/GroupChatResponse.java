@@ -21,6 +21,8 @@ public class GroupChatResponse {
     private String conversationId;
     private String content;
     private String attachmentURL;
+    private String latitude;
+    private String longitude;
     private Date dateCreated;
     public String getSenderProfilePhoto() {
         return  ImageUtil.getB64EncodedStringFromImagePathOrURL(senderProfilePhoto);

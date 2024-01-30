@@ -31,7 +31,7 @@ public class ConversationDao {
         }
 
         //Collect all private conversations based on sender and consumer
-        List<UserGroup> userGroupList = userGroupRepository.findAllByUserId(UUID.fromString(userId)); //3 values
+        List<UserGroup> userGroupList = userGroupRepository.findAllByUserId(UUID.fromString(userId));
         List<Conversation> conversationForGroupChat = new ArrayList<>();
         for(UserGroup userGroup: userGroupList){
             Conversation newConversation = conversationRepository.findByConsumerId(String.valueOf(userGroup.getGroup().getId()));
