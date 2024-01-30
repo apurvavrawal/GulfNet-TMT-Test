@@ -23,6 +23,8 @@ public class ReadReceipt {
 
     private String consumerId;
 
+    private String conversationId;
+
     private boolean isRead;
 
     @CreatedDate
