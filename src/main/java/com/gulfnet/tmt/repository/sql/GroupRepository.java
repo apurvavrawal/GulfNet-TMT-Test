@@ -20,13 +20,22 @@ public interface GroupRepository extends JpaRepository<Group, UUID> {
 
     Optional<Group> findByName(String name);
 
+//    @Query("SELECT new com.gulfnet.tmt.model.response.GroupResponse( OG.id, OG.code, OG.name, OG.type, OG.icon, COUNT(GTU.ID) as userCount, OG.dateCreated, OG.dateUpdated, OG.createdBy, OG.updatedBy, OG.status)"+
+//            " FROM Group OG " +
+//            " LEFT JOIN UserGroup UG ON UG.group.id = OG.ID " +
+//            " LEFT JOIN User GTU ON GTU.ID = UG.user.id " +
+//            " WHERE (LOWER(OG.name) like %:search% Or LOWER(OG.code) like %:search%) AND OG.status IS NULL OR LOWER(OG.status) = LOWER(:status) "+
+//            " GROUP BY OG.ID")
+//    Page<GroupResponse> findAllGroupsBySearch(@Param("status") String status,String search, Pageable pageable);
+
     @Query("SELECT new com.gulfnet.tmt.model.response.GroupResponse( OG.id, OG.code, OG.name, OG.type, OG.icon, COUNT(GTU.ID) as userCount, OG.dateCreated, OG.dateUpdated, OG.createdBy, OG.updatedBy, OG.status)"+
             " FROM Group OG " +
             " LEFT JOIN UserGroup UG ON UG.group.id = OG.ID " +
             " LEFT JOIN User GTU ON GTU.ID = UG.user.id " +
-            " WHERE (LOWER(OG.name) like %:search% Or LOWER(OG.code) like %:search%) AND OG.status IS NULL OR LOWER(OG.status) = LOWER(:status) "+
+            " WHERE (LOWER(OG.name) like %:search% OR LOWER(OG.code) like %:search%) AND (OG.status IS NULL OR LOWER(OG.status) = LOWER(:status)) "+
             " GROUP BY OG.ID")
-    Page<GroupResponse> findAllGroupsBySearch(@Param("status") String status,String search, Pageable pageable);
+    Page<GroupResponse> findAllGroupsBySearch(@Param("status") String status, @Param("search") String search, Pageable pageable);
+
 
     @Query("SELECT new com.gulfnet.tmt.model.response.GroupResponse( OG.ID, OG.code, OG.name, OG.type, OG.icon, COUNT(GTU.ID) as userCount, OG.dateCreated, OG.dateUpdated, OG.createdBy, OG.updatedBy, OG.status)"+
             " FROM Group OG " +
