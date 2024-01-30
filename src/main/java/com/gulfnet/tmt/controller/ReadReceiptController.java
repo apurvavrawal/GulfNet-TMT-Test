@@ -1,6 +1,5 @@
 package com.gulfnet.tmt.controller;
 
-import com.gulfnet.tmt.entity.nosql.ReadReceipt;
 import com.gulfnet.tmt.model.response.ReadStatusResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.service.chatservices.ReadReceiptService;
@@ -20,35 +19,26 @@ import java.util.List;
 public class ReadReceiptController {
     private final ReadReceiptService readReceiptService;
 
-    /*
-     * In case of private chat the list of response contains one record and it's isRead field
-     * can be checked.
-     *
-     * In case of group chat when all the consumers read the message then only we can consider this
-     * as read for isRead field.
-     * */
-
-    @GetMapping("/status/{chatId}")
-    public ResponseDto<ReadStatusResponse> getStatusForMessageRead(@PathVariable String chatId){
-        log.info("Request received for getting read status for message: {}", chatId);
-
-        List<ReadStatusResponse> readStatusResponses = readReceiptService.getStatusForMessage(chatId);
-        if (readStatusResponses == null) {
-            return ResponseDto.<ReadStatusResponse>builder()
-                    .status(404)
-                    .message("Message not found")
-                    .build();
-        } else {
-            return ResponseDto.<ReadStatusResponse>builder()
-                    .status(200)
-                    .data(readStatusResponses)
-                    .build();
-        }
-    }
-
-    @GetMapping("/unread-count/{conversationId}")
-    public long getUnreadMessageCount(@PathVariable("conversationId") String conversationId){
+    @GetMapping("/unread-count/")
+    public long getUnreadMessageCount(@PathVariable("conversationId") String conversationId, @PathVariable("userId") String userId){
         log.info("Request received for get unread message count for conversation Id: {}", conversationId);
         return readReceiptService.getUnreadMessageCount(conversationId);
     }
+    /*@GetMapping("/unread-count/")
+    public long getUnreadMessageCount(@RequestParam(name = "conversationId", required = false) String conversationId,
+                                      @RequestParam(name = "userId", required = false) String userId) {
+        log.info("Request received for get unread message count for conversation Id: {}", conversationId);
+        if (conversationId != null) {
+            // If conversationId is provided, return unread message count for that conversation
+            return readReceiptService.getUnreadMessageCountByConversationId(conversationId);
+        } else if (userId != null) {
+            // If userId is provided, return overall unread message count for the user
+            return readReceiptService.getOverallUnreadMessageCountForUser(userId);
+        } else {
+            // Handle the case when neither conversationId nor userId is provided
+            // You may choose to throw an exception, return a default value, or handle it based on your requirement
+            throw new IllegalArgumentException("Either conversationId or userId must be provided.");
+        }
+    }*/
+
 }
