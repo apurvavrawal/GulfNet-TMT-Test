@@ -1,9 +1,13 @@
 package com.gulfnet.tmt.controller;
 
 import com.gulfnet.tmt.entity.nosql.Chat;
+import com.gulfnet.tmt.entity.nosql.ReadReceipt;
+import com.gulfnet.tmt.entity.sql.UserGroup;
 import com.gulfnet.tmt.model.response.ChatResponse;
 import com.gulfnet.tmt.model.response.GroupChatResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
+import com.gulfnet.tmt.repository.nosql.ReadReceiptRepository;
+import com.gulfnet.tmt.repository.sql.UserGroupRepository;
 import com.gulfnet.tmt.service.chatservices.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +20,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.security.Principal;
+import java.util.List;
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +35,8 @@ public class ChatController {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final ChatService chatService;
+    private final ReadReceiptRepository readReceiptRepository;
+    private final UserGroupRepository userGroupRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(ChatController.class);
 
@@ -41,6 +50,18 @@ public class ChatController {
         if (receiverId == null) {throw new IllegalStateException("Recipient cannot be null");}
         // Send the message to the recipient's queue
         Chat savedMsg = chatService.savePrivateMessage(chat);
+
+        // save entry of message in read receipt collection after sending message
+        log.info("Adding entry of read receipt for processed message");
+
+        ReadReceipt readReceipt = new ReadReceipt();
+        readReceipt.setChatId(savedMsg.getId());
+        readReceipt.setConsumerId(savedMsg.getReceiverId());
+        readReceipt.setConversationId(savedMsg.getConversationId());
+        readReceipt.setDeliveredAt(savedMsg.getDateCreated());
+        readReceipt.setRead(false);
+        readReceiptRepository.save(readReceipt);
+
         log.info("Message processing for private chat with following metadata: {}", savedMsg);
         simpMessagingTemplate.convertAndSendToUser(receiverId,"/queue/reply", savedMsg);
     }
@@ -55,8 +76,22 @@ public class ChatController {
             throw new IllegalStateException("Group ID cannot be null");
         }
         Chat savedMsg = chatService.saveGroupMessage(chat);
-        log.info("Message processing for group chat with following metadata: {}", savedMsg);
 
+        // save entry of message in read receipt for each user in group collection after sending message
+        log.info("Adding entries of each user's read receipt in group for processed message");
+
+        List<UserGroup> userGroupList = userGroupRepository.findAllByGroupId(UUID.fromString(savedMsg.getReceiverId()));
+        for(UserGroup users: userGroupList) {
+            ReadReceipt readReceipt = new ReadReceipt();
+            readReceipt.setChatId(savedMsg.getId());
+            readReceipt.setConsumerId(String.valueOf(users.getUser().getId()));
+            readReceipt.setConversationId(savedMsg.getConversationId());
+            readReceipt.setDeliveredAt(savedMsg.getDateCreated());
+            readReceipt.setRead(false);
+            readReceiptRepository.save(readReceipt);
+        }
+
+        log.info("Message processing for group chat with following metadata: {}", savedMsg);
         simpMessagingTemplate.convertAndSendToUser(groupId,"/queue/reply", savedMsg);
     }
 

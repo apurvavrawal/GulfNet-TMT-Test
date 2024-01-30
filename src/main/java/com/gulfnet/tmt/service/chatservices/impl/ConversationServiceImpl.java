@@ -170,10 +170,12 @@ public class ConversationServiceImpl implements ConversationService {
                             // Assign Last Message with each chat
                             Chat chat = chatDao.findLatestChatMessage(conversation.getId());
                             conversationListResponse.setChat(chat);
+                            return conversationListResponse;
                         }
                     }catch (NullPointerException ignored){}
-                    return conversationListResponse;
-                }).toList();
+                    return null;
+                }).filter(Objects::nonNull)
+                .toList();
         return ResponseDto.<ConversationListResponse>builder()
                 .status(0)
                 .data(conversationListResponseList)
