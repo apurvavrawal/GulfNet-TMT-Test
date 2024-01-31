@@ -43,6 +43,7 @@ public class User implements UserDetails {
     private String profilePhoto;
     private String appType;
     private String dorakuUserCode;
+    private String deviceToken;
 
     @JsonManagedReference
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval=true)

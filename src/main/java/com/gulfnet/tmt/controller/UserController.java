@@ -1,5 +1,6 @@
 package com.gulfnet.tmt.controller;
 
+import com.gulfnet.tmt.model.request.TokenPostRequest;
 import com.gulfnet.tmt.model.request.UserContactsRequest;
 import com.gulfnet.tmt.model.request.UserFilterRequest;
 import com.gulfnet.tmt.model.request.UserPostRequest;
@@ -85,4 +86,10 @@ public class UserController {
         return userService.getUserContacts(userId, pageable);
     }
 
+    @PatchMapping("/{userId}/FCMToken")
+    @Operation(summary = "Modify User FCM token")
+    public ResponseDto<UserPostResponse> updateFCMToken(@PathVariable UUID userId, @RequestBody TokenPostRequest tokenPostRequest) {
+        log.info("Received user fcm token for userId :{} and FCMToken :{}", userId, tokenPostRequest.getFcmToken());
+        return userService.updateFCMToken(userId , tokenPostRequest.getFcmToken());
+    }
 }

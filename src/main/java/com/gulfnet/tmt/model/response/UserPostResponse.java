@@ -29,6 +29,7 @@ public class UserPostResponse {
     private String languagePreference;
     private String status;
     private String dorakuUserCode;
+    private String deviceToken;
 
     private List<UserRole> userRole;
     private List<UserGroup> userGroups;
