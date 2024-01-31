@@ -13,6 +13,7 @@ import com.gulfnet.tmt.model.response.*;
 import com.gulfnet.tmt.repository.nosql.ConversationRepository;
 import com.gulfnet.tmt.repository.sql.GroupRepository;
 import com.gulfnet.tmt.service.chatservices.ConversationService;
+import com.gulfnet.tmt.service.chatservices.ReadReceiptService;
 import com.gulfnet.tmt.util.ErrorConstants;
 import com.gulfnet.tmt.util.enums.ConversationType;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class ConversationServiceImpl implements ConversationService {
     private final UserDao userDao;
     private final ChatDao chatDao;
     private final GroupRepository groupRepository;
+    private final ReadReceiptService readReceiptService;
 
     public String getChatRoomId(Chat chat, boolean chatRoomExists) {
 
@@ -145,7 +147,7 @@ public class ConversationServiceImpl implements ConversationService {
                                 conversationForPrivateResponse.setProfilePhoto(user.getProfilePhoto());
 
                                 conversationListResponse.setConversationForPrivateResponse(conversationForPrivateResponse);
-
+                                conversationListResponse.setUnReadMessageCount(readReceiptService.getUnreadMessageCount(conversation.getId(),String.valueOf(userId)));
                             }
                             // Assign Group details for Group Chat
                             if(conversation.getConversationType() == ConversationType.GROUP)
@@ -160,6 +162,7 @@ public class ConversationServiceImpl implements ConversationService {
                                 conversationListForGroupResponse.setGroupName(group.getName());
                                 conversationListForGroupResponse.setGroupIcon(group.getIcon());
                                 conversationListResponse.setConversationListForGroupResponse(conversationListForGroupResponse);
+                                conversationListResponse.setUnReadMessageCount(readReceiptService.getUnreadMessageCount(conversation.getId(),userId));
                             }
 
                             // Assign Last Message with each chat

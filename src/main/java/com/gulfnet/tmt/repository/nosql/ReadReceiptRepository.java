@@ -9,6 +9,4 @@ import java.util.List;
 @Repository
 public interface ReadReceiptRepository extends MongoRepository<ReadReceipt, String> {
     List<ReadReceipt> findByConsumerIdAndConversationId(String userId, String conversationId);
-
-    List<ReadReceipt> findByConsumerId(String userId);
 }

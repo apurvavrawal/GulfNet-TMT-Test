@@ -1,5 +1,6 @@
 package com.gulfnet.tmt.service.chatservices.impl;
 
+import com.gulfnet.tmt.entity.nosql.Chat;
 import com.gulfnet.tmt.entity.nosql.ReadReceipt;
 import com.gulfnet.tmt.repository.nosql.ChatRepository;
 import com.gulfnet.tmt.repository.nosql.ReadReceiptRepository;
@@ -8,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,20 +25,11 @@ public class ReadReceiptServiceImpl implements ReadReceiptService {
         long unreadCount = 0;
         List<ReadReceipt> readReceipts = readReceiptRepository.findByConsumerIdAndConversationId(userId,conversationId);
         for(ReadReceipt receipt: readReceipts){
-            if(!receipt.isRead()){
-                unreadCount++;
-            }
-        }
-        return unreadCount;
-    }
-
-    @Override
-    public long getUnreadMessageCountByUserId(String userId) {
-        long unreadCount = 0;
-        List<ReadReceipt> readReceipts = readReceiptRepository.findByConsumerId(userId);
-        for(ReadReceipt receipt: readReceipts){
-            if(!receipt.isRead()){
-                unreadCount++;
+            Optional<Chat> chat = chatRepository.findById(receipt.getChatId());
+            if(!Objects.equals(chat.get().getSenderId(), receipt.getConsumerId())){
+                if(!receipt.isRead()){
+                    unreadCount++;
+                }
             }
         }
         return unreadCount;
