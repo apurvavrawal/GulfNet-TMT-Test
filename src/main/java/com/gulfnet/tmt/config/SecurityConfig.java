@@ -45,6 +45,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
                         .requestMatchers("/gulfnet-tmt/login**").permitAll()
+                        .requestMatchers("/gulfnet-tmt/health").permitAll()
                         .requestMatchers("/gulfnet-tmt/**").authenticated()
                         .requestMatchers(whitelistURLs).permitAll()
                         .anyRequest().permitAll())
