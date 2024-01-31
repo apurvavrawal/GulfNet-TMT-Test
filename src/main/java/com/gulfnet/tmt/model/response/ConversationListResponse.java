@@ -17,4 +17,5 @@ public class ConversationListResponse {
     private ConversationForPrivateResponse conversationForPrivateResponse;
     private ConversationListForGroupResponse conversationListForGroupResponse;
     private Chat chat;
+    private long unReadMessageCount;
 }
