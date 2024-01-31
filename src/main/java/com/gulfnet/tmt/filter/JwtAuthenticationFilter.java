@@ -95,7 +95,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private static void mandatoryCheck(String authHeader, String requestUri) {
-        if ((StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(authHeader, "Bearer ")) && !StringUtils.endsWith(requestUri, "/login")){
+        if ((StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(authHeader, "Bearer ")) && !StringUtils.endsWith(requestUri, "/login") && !StringUtils.endsWith(requestUri, "/health")){
             throw new JwtException("Token is required.");
         }
     }
