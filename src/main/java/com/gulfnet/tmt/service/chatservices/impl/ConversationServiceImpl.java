@@ -147,7 +147,7 @@ public class ConversationServiceImpl implements ConversationService {
                                 conversationForPrivateResponse.setProfilePhoto(user.getProfilePhoto());
 
                                 conversationListResponse.setConversationForPrivateResponse(conversationForPrivateResponse);
-                                conversationListResponse.setUnReadMessageCount(readReceiptService.getUnreadMessageCountByUserId(userId));
+                                conversationListResponse.setUnReadMessageCount(readReceiptService.getUnreadMessageCount(conversation.getId(),String.valueOf(userId)));
                             }
                             // Assign Group details for Group Chat
                             if(conversation.getConversationType() == ConversationType.GROUP)
