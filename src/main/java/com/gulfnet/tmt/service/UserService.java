@@ -184,4 +184,10 @@ public class UserService {
         return userGroups;
     }
 
+    public ResponseDto<UserPostResponse> updateFCMToken(UUID userId, String FCMToken) {
+        User user = userDao.findUser(userId).orElseThrow(() -> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "User")));
+        user.setDeviceToken(FCMToken);
+        saveUser(user);
+        return ResponseDto.<UserPostResponse>builder().status(0).data(List.of(mapper.convertValue(user, UserPostResponse.class))).build();
+    }
 }
