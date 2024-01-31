@@ -97,8 +97,6 @@ public class ConversationServiceImpl implements ConversationService {
         Conversation conv = conversationRepository.findByConsumerId(conversationRequest.getConsumerId());
         ConversationResponse conversationResponse = new ConversationResponse();
         if(conv == null) {
-            Conversation otherConv = conversationRepository.findByConsumerId(conversationRequest.getSenderId());
-            if (otherConv == null) {
                 Conversation conversation = new Conversation();
                 conversation.setConversationType(conversationRequest.getConversationType());
                 conversation.setSenderId(conversationRequest.getSenderId());
@@ -111,9 +109,6 @@ public class ConversationServiceImpl implements ConversationService {
                 conversationResponse.setConsumerId(conversationRequest.getConsumerId());
                 conversationResponse.setConversationId(savedConversation.getId());
                 conversationResponse.setConversationType(savedConversation.getConversationType());
-            } else {
-                conversationResponse = setAlreadyExistConversation(conversationRequest);
-            }
         }
         else{
             conversationResponse = setAlreadyExistConversation(conversationRequest);
