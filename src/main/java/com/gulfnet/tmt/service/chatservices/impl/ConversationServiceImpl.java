@@ -161,6 +161,8 @@ public class ConversationServiceImpl implements ConversationService {
                                 conversationListForGroupResponse.setGroupId(String.valueOf(group.getId()));
                                 conversationListForGroupResponse.setGroupName(group.getName());
                                 conversationListForGroupResponse.setGroupIcon(group.getIcon());
+                                conversationListForGroupResponse.setGroupCode(group.getCode());
+                                conversationListForGroupResponse.setGroupType(group.getType());
                                 conversationListResponse.setConversationListForGroupResponse(conversationListForGroupResponse);
                                 conversationListResponse.setUnReadMessageCount(readReceiptService.getUnreadMessageCount(conversation.getId(),userId));
                             }
