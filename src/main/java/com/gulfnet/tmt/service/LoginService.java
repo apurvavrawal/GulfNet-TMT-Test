@@ -78,7 +78,7 @@ public class LoginService {
     }
 
     public ResponseDto<String> resetPasswordRequest(String userName, Action action) {
-        User user = userService.getUserByUserName(userName).orElseThrow(() -> new GulfNetTMTException(ErrorConstants.NOT_FOUND_ERROR_CODE, ErrorConstants.NOT_FOUND_ERROR_MESSAGE));
+        User user = userService.getUserByUserName(userName).orElseThrow(() -> new GulfNetTMTException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE,"User")));
         updateExistingRequest(user.getId());
         UserPasswordAudit userPasswordAudit = buildUserPasswordAudit(action, user);
         emailService.sendEmail(user.getEmail(),
