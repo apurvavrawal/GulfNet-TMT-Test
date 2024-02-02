@@ -12,7 +12,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "read_receipts")
+@Document(collection = "readReceipts")
 @Builder
 public class ReadReceipt {
     @Id

@@ -1,7 +1,6 @@
-package com.gulfnet.tmt.repository.sql;
+package com.gulfnet.tmt.repository.nosql;
 
-import com.gulfnet.tmt.entity.sql.Attachment;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.gulfnet.tmt.entity.nosql.Attachment;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,6 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface AttachmentRepository extends MongoRepository<Attachment,Integer> {
-    Optional<Attachment> findByFileLocation(String fileLocation);
+
 }
 

@@ -16,8 +16,4 @@ public interface ChatRepository extends MongoRepository<Chat, String> {
     Page<GroupChatResponse> findByReceiverId(String groupId, Pageable pageable);
 
     Chat findFirstByConversationIdOrderByDateCreatedDesc(String conversationId);
-
-    Chat findByReceiverId(String receiverId);
-
-    Chat findByConversationId(String conversationId);
 }

@@ -1,8 +1,6 @@
 package com.gulfnet.tmt.model.response;
 
 import lombok.*;
-
-import java.sql.Timestamp;
 import java.util.Date;
 
 @AllArgsConstructor

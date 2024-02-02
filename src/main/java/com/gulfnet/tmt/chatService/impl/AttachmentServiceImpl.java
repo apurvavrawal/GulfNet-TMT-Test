@@ -1,42 +1,36 @@
-package com.gulfnet.tmt.service;
+package com.gulfnet.tmt.chatService.impl;
 
-import com.amazonaws.util.IOUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gulfnet.tmt.chatService.AttachmentService;
 import com.gulfnet.tmt.config.GulfNetTMTServiceConfig;
-import com.gulfnet.tmt.entity.sql.Attachment;
+import com.gulfnet.tmt.entity.nosql.Attachment;
 import com.gulfnet.tmt.exceptions.GulfNetTMTException;
 import com.gulfnet.tmt.model.response.AttachmentResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
-import com.gulfnet.tmt.repository.sql.AttachmentRepository;
+import com.gulfnet.tmt.repository.nosql.AttachmentRepository;
 import com.gulfnet.tmt.util.ErrorConstants;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
-public class AttachmentService {
+public class AttachmentServiceImpl implements AttachmentService {
 
-    private final ObjectMapper mapper;
+    @Autowired
+    private ObjectMapper mapper;
     @Autowired
     private GulfNetTMTServiceConfig gulfNetTMTServiceConfig;
     @Autowired

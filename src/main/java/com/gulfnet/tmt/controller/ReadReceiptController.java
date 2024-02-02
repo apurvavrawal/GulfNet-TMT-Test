@@ -1,17 +1,17 @@
 package com.gulfnet.tmt.controller;
 
-import com.gulfnet.tmt.service.chatservices.ReadReceiptService;
-import lombok.RequiredArgsConstructor;
+import com.gulfnet.tmt.chatService.ReadReceiptService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController
 @Slf4j
-@RequiredArgsConstructor
 @RequestMapping("/read-receipt")
 public class ReadReceiptController {
-    private final ReadReceiptService readReceiptService;
+    @Autowired
+    private ReadReceiptService readReceiptService;
 
     @GetMapping("/unread-count/")
     public long getUnreadMessageCount(@RequestParam(name = "conversationId") String conversationId,
