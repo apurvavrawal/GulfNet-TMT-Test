@@ -80,7 +80,7 @@ public class ChatServiceImpl implements ChatService {
         Page<GroupChatResponse> chats = chatRepository.findByReceiverId(groupId, pageable);
         for (GroupChatResponse groupChatResponse : chats.getContent()) {
             Optional<User> user = userRepository.findById(UUID.fromString(groupChatResponse.getSenderId()));
-            groupChatResponse.setSenderProfilePhoto(user.get().getProfilePhoto());
+            user.ifPresent(u -> groupChatResponse.setSenderProfilePhoto(u.getProfilePhoto()));
         }
         return ResponseDto.<GroupChatResponse>builder()
                 .data(chats.getContent())
@@ -94,7 +94,7 @@ public class ChatServiceImpl implements ChatService {
         Page<ChatResponse> chats = chatRepository.findByConversationId(conversationId, pageable);
         return ResponseDto.<ChatResponse>builder()
                 .data(chats.getContent())
-                .count(chats.stream().count())
+                .count((long) chats.getNumberOfElements())
                 .total(chats.getTotalElements())
                 .build();
     }

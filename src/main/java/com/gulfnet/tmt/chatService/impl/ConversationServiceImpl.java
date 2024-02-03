@@ -68,13 +68,15 @@ public class ConversationServiceImpl implements ConversationService {
 
     @Override
     public String getChatRoomIdForGroup(Chat chat) {
-        // check from both sender and receiver side if conversation already present or not
         Conversation conversation = conversationRepository.findByConsumerId(chat.getReceiverId());
-
-        // update senderId as per the message send to the existing conversation of group.
-        conversation.setSenderId(chat.getSenderId());
-        conversationRepository.save(conversation);
-        return conversation.getId();
+        if (conversation != null) {
+            // update senderId as per the message send to the existing conversation of group.
+            conversation.setSenderId(chat.getSenderId());
+            conversationRepository.save(conversation);
+            return conversation.getId();
+        }else {
+            return null;
+        }
     }
 
     @Override
@@ -91,7 +93,6 @@ public class ConversationServiceImpl implements ConversationService {
                 conversation.setSenderId(conversationRequest.getSenderId());
                 conversation.setConsumerId(conversationRequest.getConsumerId());
 
-                // Save the conversation to the database
                 Conversation savedConversation = conversationRepository.save(conversation);
 
                 conversationResponse.setSenderId(conversationRequest.getSenderId());
@@ -116,7 +117,6 @@ public class ConversationServiceImpl implements ConversationService {
                 conversation.setSenderId(conversationRequest.getSenderId());
                 conversation.setConsumerId(conversationRequest.getConsumerId());
 
-                // Save the conversation to the database
                 Conversation savedConversation = conversationRepository.save(conversation);
 
                 conversationResponse.setSenderId(conversationRequest.getSenderId());
@@ -134,13 +134,11 @@ public class ConversationServiceImpl implements ConversationService {
         List<ConversationListResponse> conversationListResponseList = getConversationList(userId)
                 .stream()
                 .map(conversation -> {
-                    // Assign conversation details
                     ConversationListResponse conversationListResponse = new ConversationListResponse();
                     try{
                         if(conversation.getId() != null) {
                             conversationListResponse.setConversationId(conversation.getId());
                             conversationListResponse.setConversationType(conversation.getConversationType());
-                            // Assign User details for Private Chat
                             if(conversation.getConversationType() == ConversationType.PRIVATE)
                             {
                                 String requiredUser = Objects.equals(userId, conversation.getSenderId()) ?
@@ -161,7 +159,6 @@ public class ConversationServiceImpl implements ConversationService {
                                 conversationListResponse.setConversationForPrivateResponse(conversationForPrivateResponse);
                                 conversationListResponse.setUnReadMessageCount(readReceiptService.getUnreadMessageCount(conversation.getId(),String.valueOf(userId)));
                             }
-                            // Assign Group details for Group Chat
                             if(conversation.getConversationType() == ConversationType.GROUP)
                             {
                                 Group group = groupRepository.findById(UUID.fromString(conversation.getConsumerId()))
@@ -178,7 +175,6 @@ public class ConversationServiceImpl implements ConversationService {
                                 conversationListResponse.setConversationListForGroupResponse(conversationListForGroupResponse);
                                 conversationListResponse.setUnReadMessageCount(readReceiptService.getUnreadMessageCount(conversation.getId(),userId));
                             }
-
                             // Assign Last Message with each chat
                             Chat chat = chatRepository.findFirstByConversationIdOrderByDateCreatedDesc(conversation.getId());
                             conversationListResponse.setChat(chat);
@@ -212,8 +208,6 @@ public class ConversationServiceImpl implements ConversationService {
         return conversationResponse;
     }
     private List<Conversation> getConversationList(String userId) {
-
-        //Collect all private conversations based on sender and consumer
         List<Conversation> conversationForPrivateChat = new ArrayList<>();
         List<Conversation> conversation = conversationRepository.findBySenderIdOrConsumerId(userId,userId);
         for (Conversation conv: conversation){
@@ -221,8 +215,6 @@ public class ConversationServiceImpl implements ConversationService {
                 conversationForPrivateChat.add(conv);
             }
         }
-
-        //Collect all private conversations based on sender and consumer
         List<UserGroup> userGroupList = userGroupRepository.findAllByUserId(UUID.fromString(userId));
         List<Conversation> conversationForGroupChat = new ArrayList<>();
         for(UserGroup userGroup: userGroupList){

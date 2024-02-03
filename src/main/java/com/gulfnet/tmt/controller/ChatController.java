@@ -53,7 +53,6 @@ public class ChatController {
 
         Chat savedMsg = chatService.savePrivateMessage(chat);
 
-        // save entry of message in read receipt collection after sending message
         log.info("Adding entry of read receipt for processed message");
 
         ReadReceipt readReceipt = new ReadReceipt();
@@ -64,7 +63,6 @@ public class ChatController {
         readReceipt.setRead(false);
         readReceiptRepository.save(readReceipt);
 
-        // Send the message to the recipient's queue
         log.info("Message processing for private chat with following metadata: {}", savedMsg);
         simpMessagingTemplate.convertAndSendToUser(receiverId,"/queue/reply", savedMsg);
     }
@@ -80,7 +78,6 @@ public class ChatController {
         }
         Chat savedMsg = chatService.saveGroupMessage(chat);
 
-        // save entry of message in read receipt for each user in group collection after sending message
         log.info("Adding entries of each user's read receipt in group for processed message");
 
         List<UserGroup> userGroupList = userGroupRepository.findAllByGroupId(UUID.fromString(savedMsg.getReceiverId()));
@@ -94,7 +91,6 @@ public class ChatController {
             readReceiptRepository.save(readReceipt);
         }
 
-        // Send the message to the recipient's queue
         log.info("Message processing for group chat with following metadata: {}", savedMsg);
         simpMessagingTemplate.convertAndSendToUser(groupId,"/queue/reply", savedMsg);
     }
