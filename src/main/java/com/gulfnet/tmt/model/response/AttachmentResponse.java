@@ -1,7 +1,4 @@
 package com.gulfnet.tmt.model.response;
-
-import com.gulfnet.tmt.util.ImageUtil;
-import jakarta.persistence.Id;
 import lombok.*;
 
 @AllArgsConstructor

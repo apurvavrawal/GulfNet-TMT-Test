@@ -1,11 +1,11 @@
-package com.gulfnet.tmt.service.chatservices.impl;
+package com.gulfnet.tmt.chatService.impl;
 
 import com.gulfnet.tmt.entity.nosql.Chat;
 import com.gulfnet.tmt.entity.nosql.ReadReceipt;
 import com.gulfnet.tmt.repository.nosql.ChatRepository;
 import com.gulfnet.tmt.repository.nosql.ReadReceiptRepository;
-import com.gulfnet.tmt.service.chatservices.ReadReceiptService;
-import lombok.RequiredArgsConstructor;
+import com.gulfnet.tmt.chatService.ReadReceiptService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,11 +13,13 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class ReadReceiptServiceImpl implements ReadReceiptService {
 
-    private final ChatRepository chatRepository;
-    private final ReadReceiptRepository readReceiptRepository;
+    @Autowired
+    private ChatRepository chatRepository;
+
+    @Autowired
+    private ReadReceiptRepository readReceiptRepository;
 
 
     @Override

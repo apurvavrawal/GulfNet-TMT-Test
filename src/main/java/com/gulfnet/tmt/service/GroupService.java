@@ -9,7 +9,7 @@ import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.request.ConversationRequest;
 import com.gulfnet.tmt.model.request.GroupRequest;
 import com.gulfnet.tmt.model.response.*;
-import com.gulfnet.tmt.service.chatservices.impl.ConversationServiceImpl;
+import com.gulfnet.tmt.chatService.impl.ConversationServiceImpl;
 import com.gulfnet.tmt.util.ErrorConstants;
 import com.gulfnet.tmt.util.enums.ConversationType;
 import com.gulfnet.tmt.util.enums.Status;

@@ -1,4 +1,4 @@
-package com.gulfnet.tmt.service.chatservices;
+package com.gulfnet.tmt.chatService;
 
 import com.gulfnet.tmt.entity.nosql.Chat;
 import com.gulfnet.tmt.model.request.ConversationRequest;

@@ -1,4 +1,4 @@
-package com.gulfnet.tmt.service.chatservices;
+package com.gulfnet.tmt.chatService;
 
 import com.gulfnet.tmt.entity.nosql.Chat;
 import com.gulfnet.tmt.model.response.ChatResponse;
@@ -11,8 +11,6 @@ public interface ChatService {
     Chat savePrivateMessage(Chat chat);
 
     ResponseDto<ChatResponse> getChatMessagesForPrivate(String conversationId, Pageable pageable);
-
-    ResponseDto<ChatResponse> getMessageById(String chatId);
 
     Chat saveGroupMessage(Chat chat);
 

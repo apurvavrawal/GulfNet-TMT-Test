@@ -4,19 +4,18 @@ import com.gulfnet.tmt.model.request.ConversationRequest;
 import com.gulfnet.tmt.model.response.ConversationListResponse;
 import com.gulfnet.tmt.model.response.ConversationResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
-import com.gulfnet.tmt.service.chatservices.ConversationService;
-import lombok.RequiredArgsConstructor;
+import com.gulfnet.tmt.chatService.ConversationService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequiredArgsConstructor
 @Slf4j
 public class ConversationController {
-
-    private final ConversationService conversationService;
+    @Autowired
+    private ConversationService conversationService;
 
     // create new Conversation for Private chat
     @PostMapping(path = "/conversation/",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})

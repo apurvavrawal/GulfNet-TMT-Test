@@ -1,41 +1,53 @@
-package com.gulfnet.tmt.service.chatservices.impl;
+package com.gulfnet.tmt.chatService.impl;
 
-import com.gulfnet.tmt.dao.ChatDao;
-import com.gulfnet.tmt.dao.ConversationDao;
+import com.gulfnet.tmt.chatService.ConversationService;
+import com.gulfnet.tmt.chatService.ReadReceiptService;
 import com.gulfnet.tmt.dao.UserDao;
 import com.gulfnet.tmt.entity.nosql.Chat;
 import com.gulfnet.tmt.entity.nosql.Conversation;
 import com.gulfnet.tmt.entity.sql.Group;
 import com.gulfnet.tmt.entity.sql.User;
+import com.gulfnet.tmt.entity.sql.UserGroup;
 import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.request.ConversationRequest;
 import com.gulfnet.tmt.model.response.*;
+import com.gulfnet.tmt.repository.nosql.ChatRepository;
 import com.gulfnet.tmt.repository.nosql.ConversationRepository;
 import com.gulfnet.tmt.repository.sql.GroupRepository;
-import com.gulfnet.tmt.service.chatservices.ConversationService;
-import com.gulfnet.tmt.service.chatservices.ReadReceiptService;
+import com.gulfnet.tmt.repository.sql.UserGroupRepository;
 import com.gulfnet.tmt.util.ErrorConstants;
 import com.gulfnet.tmt.util.enums.ConversationType;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class ConversationServiceImpl implements ConversationService {
 
-    private final ConversationRepository conversationRepository;
-    private final ConversationDao conversationDao;
-    private final UserDao userDao;
-    private final ChatDao chatDao;
-    private final GroupRepository groupRepository;
-    private final ReadReceiptService readReceiptService;
+    @Autowired
+    private ConversationRepository conversationRepository;
+
+    @Autowired
+    private UserGroupRepository userGroupRepository;
+
+    @Autowired
+    private UserDao userDao;
+
+    @Autowired
+    private ChatRepository chatRepository;
+
+    @Autowired
+    private GroupRepository groupRepository;
+
+    @Autowired
+    private ReadReceiptService readReceiptService;
 
     public String getChatRoomId(Chat chat, boolean chatRoomExists) {
 
@@ -56,13 +68,15 @@ public class ConversationServiceImpl implements ConversationService {
 
     @Override
     public String getChatRoomIdForGroup(Chat chat) {
-        // check from both sender and receiver side if conversation already present or not
         Conversation conversation = conversationRepository.findByConsumerId(chat.getReceiverId());
-
-        // update senderId as per the message send to the existing conversation of group.
-        conversation.setSenderId(chat.getSenderId());
-        conversationRepository.save(conversation);
-        return conversation.getId();
+        if (conversation != null) {
+            // update senderId as per the message send to the existing conversation of group.
+            conversation.setSenderId(chat.getSenderId());
+            conversationRepository.save(conversation);
+            return conversation.getId();
+        }else {
+            return null;
+        }
     }
 
     @Override
@@ -79,8 +93,7 @@ public class ConversationServiceImpl implements ConversationService {
                 conversation.setSenderId(conversationRequest.getSenderId());
                 conversation.setConsumerId(conversationRequest.getConsumerId());
 
-                // Save the conversation to the database
-                Conversation savedConversation = conversationDao.createConversation(conversation);
+                Conversation savedConversation = conversationRepository.save(conversation);
 
                 conversationResponse.setSenderId(conversationRequest.getSenderId());
                 conversationResponse.setConsumerId(conversationRequest.getConsumerId());
@@ -104,8 +117,7 @@ public class ConversationServiceImpl implements ConversationService {
                 conversation.setSenderId(conversationRequest.getSenderId());
                 conversation.setConsumerId(conversationRequest.getConsumerId());
 
-                // Save the conversation to the database
-                Conversation savedConversation = conversationDao.createConversation(conversation);
+                Conversation savedConversation = conversationRepository.save(conversation);
 
                 conversationResponse.setSenderId(conversationRequest.getSenderId());
                 conversationResponse.setConsumerId(conversationRequest.getConsumerId());
@@ -119,16 +131,14 @@ public class ConversationServiceImpl implements ConversationService {
     }
     @Override
     public ResponseDto<ConversationListResponse> getConversationList(String userId, Pageable pageable) {
-        List<ConversationListResponse> conversationListResponseList = conversationDao.getConversationList(userId)
+        List<ConversationListResponse> conversationListResponseList = getConversationList(userId)
                 .stream()
                 .map(conversation -> {
-                    // Assign conversation details
                     ConversationListResponse conversationListResponse = new ConversationListResponse();
                     try{
                         if(conversation.getId() != null) {
                             conversationListResponse.setConversationId(conversation.getId());
                             conversationListResponse.setConversationType(conversation.getConversationType());
-                            // Assign User details for Private Chat
                             if(conversation.getConversationType() == ConversationType.PRIVATE)
                             {
                                 String requiredUser = Objects.equals(userId, conversation.getSenderId()) ?
@@ -149,7 +159,6 @@ public class ConversationServiceImpl implements ConversationService {
                                 conversationListResponse.setConversationForPrivateResponse(conversationForPrivateResponse);
                                 conversationListResponse.setUnReadMessageCount(readReceiptService.getUnreadMessageCount(conversation.getId(),String.valueOf(userId)));
                             }
-                            // Assign Group details for Group Chat
                             if(conversation.getConversationType() == ConversationType.GROUP)
                             {
                                 Group group = groupRepository.findById(UUID.fromString(conversation.getConsumerId()))
@@ -166,9 +175,8 @@ public class ConversationServiceImpl implements ConversationService {
                                 conversationListResponse.setConversationListForGroupResponse(conversationListForGroupResponse);
                                 conversationListResponse.setUnReadMessageCount(readReceiptService.getUnreadMessageCount(conversation.getId(),userId));
                             }
-
                             // Assign Last Message with each chat
-                            Chat chat = chatDao.findLatestChatMessage(conversation.getId());
+                            Chat chat = chatRepository.findFirstByConversationIdOrderByDateCreatedDesc(conversation.getId());
                             conversationListResponse.setChat(chat);
                             return conversationListResponse;
                         }
@@ -198,5 +206,22 @@ public class ConversationServiceImpl implements ConversationService {
         conversationResponse.setConversationId(conversation.getId());
         conversationResponse.setConversationType(conversationRequest.getConversationType());
         return conversationResponse;
+    }
+    private List<Conversation> getConversationList(String userId) {
+        List<Conversation> conversationForPrivateChat = new ArrayList<>();
+        List<Conversation> conversation = conversationRepository.findBySenderIdOrConsumerId(userId,userId);
+        for (Conversation conv: conversation){
+            if(conv.getConversationType() == ConversationType.PRIVATE) {
+                conversationForPrivateChat.add(conv);
+            }
+        }
+        List<UserGroup> userGroupList = userGroupRepository.findAllByUserId(UUID.fromString(userId));
+        List<Conversation> conversationForGroupChat = new ArrayList<>();
+        for(UserGroup userGroup: userGroupList){
+            Conversation newConversation = conversationRepository.findByConsumerId(String.valueOf(userGroup.getGroup().getId()));
+            conversationForGroupChat.add(newConversation);
+        }
+        conversationForPrivateChat.addAll(conversationForGroupChat);
+        return conversationForPrivateChat;
     }
 }

@@ -8,9 +8,9 @@ import com.gulfnet.tmt.model.response.GroupChatResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.repository.nosql.ReadReceiptRepository;
 import com.gulfnet.tmt.repository.sql.UserGroupRepository;
-import com.gulfnet.tmt.service.chatservices.ChatService;
-import lombok.RequiredArgsConstructor;
+import com.gulfnet.tmt.chatService.ChatService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -23,35 +23,36 @@ import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequiredArgsConstructor
 @Slf4j
 public class ChatController {
 
-    private final SimpMessagingTemplate simpMessagingTemplate;
-    private final ChatService chatService;
-    private final ReadReceiptRepository readReceiptRepository;
-    private final UserGroupRepository userGroupRepository;
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
 
-    private static final Logger logger = LoggerFactory.getLogger(ChatController.class);
+    @Autowired
+    private ChatService chatService;
+
+    @Autowired
+    private ReadReceiptRepository readReceiptRepository;
+
+    @Autowired
+    private UserGroupRepository userGroupRepository;
 
     // Process the one-to-one message and save to DataBase
     @MessageMapping("/chat/privateMessage")
     public void processPrivateMessage(Principal principal, Chat chat) {
-        logger.debug("Received message from principal: {}", principal);
+        log.debug("Received message from principal: {}", principal);
 
         if (principal == null) {throw new IllegalStateException("Principal cannot be null");}
         String receiverId = chat.getReceiverId();
         if (receiverId == null) {throw new IllegalStateException("Recipient cannot be null");}
-        // Send the message to the recipient's queue
+
         Chat savedMsg = chatService.savePrivateMessage(chat);
 
-        // save entry of message in read receipt collection after sending message
         log.info("Adding entry of read receipt for processed message");
 
         ReadReceipt readReceipt = new ReadReceipt();
@@ -69,7 +70,7 @@ public class ChatController {
     // Process the group message and save to DataBase
     @MessageMapping("/chat/groupMessage")
     public void processGroupMessage(Chat chat) {
-        logger.debug("Received group message");
+        log.debug("Received message for group chat");
 
         String groupId = chat.getReceiverId();
         if (groupId == null) {
@@ -77,7 +78,6 @@ public class ChatController {
         }
         Chat savedMsg = chatService.saveGroupMessage(chat);
 
-        // save entry of message in read receipt for each user in group collection after sending message
         log.info("Adding entries of each user's read receipt in group for processed message");
 
         List<UserGroup> userGroupList = userGroupRepository.findAllByGroupId(UUID.fromString(savedMsg.getReceiverId()));
@@ -95,7 +95,7 @@ public class ChatController {
         simpMessagingTemplate.convertAndSendToUser(groupId,"/queue/reply", savedMsg);
     }
 
-    // Returns List of Chats(private) between sender and receiver by conversationId
+    // Returns List of Chats(private) between sender and receiver by their conversationId
     @GetMapping("/messages/history/private-chat/{conversationId}")
     public ResponseDto<ChatResponse> getMessageHistoryForPrivateChat(@PathVariable("conversationId") String conversationId,
                                                             @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.ASC, size = 100, value = 100)Pageable pageable){
@@ -109,13 +109,6 @@ public class ChatController {
                                                                         @PageableDefault(sort = {"dateCreated"}, direction = Sort.Direction.ASC, size = 100, value = 100)Pageable pageable){
         log.info("Request received for get messages with groupId: {}", groupId);
         return chatService.getChatMessagesForGroup(groupId, pageable);
-    }
-
-    // Returns message details for requested chatId
-    @GetMapping("/messages/{chatId}")
-    public ResponseDto<ChatResponse> getMessageById(@PathVariable("chatId") String chatId) {
-        log.info("Request received for get message for chatId: {}", chatId);
-        return chatService.getMessageById(chatId);
     }
 
     public void broadcastMessage(String message) {

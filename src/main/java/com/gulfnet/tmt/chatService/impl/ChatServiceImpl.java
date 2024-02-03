@@ -1,40 +1,40 @@
-package com.gulfnet.tmt.service.chatservices.impl;
+package com.gulfnet.tmt.chatService.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gulfnet.tmt.dao.ChatDao;
+import com.gulfnet.tmt.chatService.ConversationService;
 import com.gulfnet.tmt.entity.nosql.Chat;
 import com.gulfnet.tmt.entity.sql.Group;
 import com.gulfnet.tmt.entity.sql.User;
-import com.gulfnet.tmt.exceptions.ValidationException;
 import com.gulfnet.tmt.model.response.ChatResponse;
 import com.gulfnet.tmt.model.response.GroupChatResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
 import com.gulfnet.tmt.repository.nosql.ChatRepository;
 import com.gulfnet.tmt.repository.sql.GroupRepository;
 import com.gulfnet.tmt.repository.sql.UserRepository;
-import com.gulfnet.tmt.service.chatservices.ChatService;
-import com.gulfnet.tmt.service.chatservices.ConversationService;
-import com.gulfnet.tmt.util.ErrorConstants;
-import lombok.RequiredArgsConstructor;
+import com.gulfnet.tmt.chatService.ChatService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.text.MessageFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 
 @Service
-@RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
-    private final ChatDao chatDao;
-    private final ConversationService conversationService;
-    private final ObjectMapper mapper;
-    private final UserRepository userRepository;
-    private final GroupRepository groupRepository;
+
+    @Autowired
+    private ChatRepository chatRepository;
+
+    @Autowired
+    private ConversationService conversationService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private GroupRepository groupRepository;
 
     @Override
     public Chat savePrivateMessage(Chat chat) {
@@ -52,7 +52,7 @@ public class ChatServiceImpl implements ChatService {
         newChat.setDateCreated(currentDate);
         newChat.setAttachmentURL(chat.getAttachmentURL());
 
-        return chatDao.save(newChat);
+        return chatRepository.save(newChat);
     }
 
     @Override
@@ -72,15 +72,15 @@ public class ChatServiceImpl implements ChatService {
         newChat.setDateCreated(currentDate);
         newChat.setAttachmentURL(chat.getAttachmentURL());
 
-        return chatDao.save(newChat);
+        return chatRepository.save(newChat);
     }
 
     @Override
     public ResponseDto<GroupChatResponse> getChatMessagesForGroup(String groupId, Pageable pageable) {
-        Page<GroupChatResponse> chats = chatDao.findChatMessagesByReceiverId(groupId, pageable);
+        Page<GroupChatResponse> chats = chatRepository.findByReceiverId(groupId, pageable);
         for (GroupChatResponse groupChatResponse : chats.getContent()) {
             Optional<User> user = userRepository.findById(UUID.fromString(groupChatResponse.getSenderId()));
-            groupChatResponse.setSenderProfilePhoto(user.get().getProfilePhoto());
+            user.ifPresent(u -> groupChatResponse.setSenderProfilePhoto(u.getProfilePhoto()));
         }
         return ResponseDto.<GroupChatResponse>builder()
                 .data(chats.getContent())
@@ -91,17 +91,11 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ResponseDto<ChatResponse> getChatMessagesForPrivate(String conversationId, Pageable pageable) {
-        Page<ChatResponse> chats = chatDao.findChatMessagesById(conversationId, pageable);
+        Page<ChatResponse> chats = chatRepository.findByConversationId(conversationId, pageable);
         return ResponseDto.<ChatResponse>builder()
                 .data(chats.getContent())
-                .count(chats.stream().count())
+                .count((long) chats.getNumberOfElements())
                 .total(chats.getTotalElements())
                 .build();
-    }
-
-    @Override
-    public ResponseDto<ChatResponse> getMessageById(String chatId) {
-        Chat chat = chatDao.findMessageById(chatId).orElseThrow(()-> new ValidationException(ErrorConstants.NOT_FOUND_ERROR_CODE, MessageFormat.format(ErrorConstants.NOT_FOUND_ERROR_MESSAGE, "Chat")));
-        return ResponseDto.<ChatResponse>builder().status(0).data(List.of(mapper.convertValue(chat, ChatResponse.class))).build();
     }
 }

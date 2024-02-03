@@ -1,11 +1,10 @@
 package com.gulfnet.tmt.controller;
 
 
+import com.gulfnet.tmt.chatService.AttachmentService;
 import com.gulfnet.tmt.model.response.AttachmentResponse;
 import com.gulfnet.tmt.model.response.ResponseDto;
-import com.gulfnet.tmt.service.AttachmentService;
 import io.swagger.v3.oas.annotations.Operation;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
