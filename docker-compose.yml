@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  spring-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spring-boot-app
+    ports:
+      - "8084:8084"
+
+  admin:
+    build:
+      context: ../gulfnet-tmt-admin
+    ports:
+      - "8000:8000"
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb-container
+    ports:
+      - "27017:27017"
+    volumes:
+      - /mongodata:/data/db
+
